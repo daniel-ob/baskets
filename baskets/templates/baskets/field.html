@@ -1,0 +1,9 @@
+{% comment %} template for each form field {% endcomment %}
+        <div class="mb-3">
+            {% if field.errors %}
+                <div class="text-danger">
+                    {{ field.errors }}
+                </div>
+            {% endif %}
+            {{ field }}
+        </div>

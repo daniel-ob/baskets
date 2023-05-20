@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: sh -c "python manage.py migrate && 
+                    python manage.py runserver 0.0.0.0:8000"
+    container_name: baskets-web
+    volumes:
+      - .:/code
+    ports:
+      - 8000:8000
+    env_file:
+      - .envs/.local/.web
+    depends_on:
+      - db
+
+  db:
+    image: postgres:11
+    container_name: baskets-db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+    env_file:
+      - .envs/.local/.db
+
+volumes:
+  postgres_data:

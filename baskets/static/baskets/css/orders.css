@@ -1,0 +1,37 @@
+.table-fixed-head tbody {
+  display: block;
+  height: 100px;
+  overflow: auto;
+}
+
+.table-fixed-head thead,
+.table-fixed-head tbody tr {
+  display: table;
+  table-layout: fixed; /* even columns width */
+  width: 100%;
+}
+
+.table-fixed-head thead {
+  width: calc( 100% - 1em ) /* remove scrollbar width from thead width */
+}
+
+/* Animation for order-list-items */
+@keyframes beat {
+  0% {
+    font-size: auto;
+  }
+  50% {
+    font-size: 125%;
+    font-weight: bold;
+  }
+  100% {
+    font-size: auto;
+  }
+}
+
+.run-animation {
+  animation-name: beat;
+  animation-duration: 1s;
+  animation-fill-mode: backwards;
+}
+

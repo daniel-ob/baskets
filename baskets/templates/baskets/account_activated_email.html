@@ -1,0 +1,12 @@
+{% autoescape off %}
+{% load baskets_extras %}
+Bonjour {{ username }},
+
+Votre compte a été activé.
+
+Vous pouvez maintenant vous connecter:
+{{ index_url }}
+
+L'équipe de {% app_name %}
+
+{% endautoescape %}

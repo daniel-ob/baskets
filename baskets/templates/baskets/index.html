@@ -1,0 +1,82 @@
+{% extends "baskets/layout.html" %}
+{% load static %}
+
+{% block style %}
+    <link href="{% static 'baskets/css/orders.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" integrity="sha384-tKLJeE1ALTUwtXlaGjJYM3sejfssWdAaWR2s97axw4xkiAdMzQjtOjgcyw0Y50KU" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'baskets/js/orders.js' %}?v=2"></script>
+{% endblock %}
+
+{% block body %}
+
+    <h2>{{title}}</h2>
+
+    <div class="card" id="order-list">
+        {% if deliveries_orders %}
+            <table class="table table-hover table-sm table-fixed-head">
+                <thead>
+                    <tr>
+                        <th scope="col">Date de livraison</th>
+                        <th scope="col">Total</th>
+                    </tr>
+                </thead>
+                <tbody title="click on a row to see details">
+                    {% for item in deliveries_orders %}
+                        <tr class="order-list-item">
+                            <td class="delivery" data-url="{% url 'delivery' item.delivery.id %}">
+                                {{ item.delivery.date|date:"d/m/Y"}}
+                            </td>
+                            {% if item.order %}
+                                <td class="order" data-url="{% url 'order' item.order.id %}">
+                                    {{ item.order.amount }} €
+                                </td>
+                            {% else %}
+                                <td class="order" data-url="">Commander</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Il n'y a pas encore de commande dans cette section</p>
+        {% endif %}
+    </div>
+
+    <div class="d-none mt-3" id="alert"></div>
+    <div class="d-none spinner-border text-secondary mt-3" id="spinner" role="status"></div>
+
+    <div class="card mt-3 p-2 d-none" id="order-view">
+        <h4 id="order-view-title"></h4>
+        <p id="order-view-subtitle"></p>
+        <p id="order-view-message" class="text-secondary d-none"></p>
+
+        <div>
+            <table class="table align-middle table-sm">
+                <tbody id="order-view-items">
+                    <!-- .order-view-items are appended here on 'history' page -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="producer-list">
+            <!-- producer-list will be filled-out on 'next orders' page and will be empty on 'history' page -->
+        </div>
+
+        <div class="order-total fw-bold text-end m-1">
+            Total <span id="order-amount"></span> €
+        </div>
+
+        <div class="order-buttons d-flex justify-content-end align-items-center">
+            <button class="btn btn-secondary m-1 d-none" id="delete" title="Supprimer commande">
+                <i class="bi bi-trash-fill"></i>
+            </button>
+            <button class="btn btn-primary d-none" id="save"></button>
+            <input type="hidden" id="create-order" data-url="{% url 'orders' %}" />
+        </div>
+    </div>
+
+{% endblock %}

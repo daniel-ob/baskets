@@ -1,0 +1,18 @@
+{% autoescape off %}
+{% load baskets_extras %}
+
+Bonjour,
+
+Le nouvel utilisateur {{ username }} a demandé à s'inscrire sur "{% app_name %}".
+
+Pour activer son compte:
+- Aller dans son profil: {{ user_admin_url }}
+- Cocher "Actif"
+- Lui attribuer éventuellement un ou plusieurs "Groupe(s)"
+- Enregistrer
+
+Merci !
+
+{% app_name %}
+
+{% endautoescape %}

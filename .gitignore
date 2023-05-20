@@ -1,0 +1,12 @@
+__pycache__/
+.envs/
+.env
+
+# prod
+config/static
+
+# local
+.idea/
+db_bkp/
+TODO*
+venv/

@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "==3.2.9"
+dj-database-url = "==1.0.0"
+django-extensions = "==3.2.1"
+psycopg2-binary = "==2.9.6"
+xlsxwriter = "==3.0.2"
+
+[dev-packages]
+selenium = "==4.1.0"
+
+[requires]
+python_version = "3.9"
