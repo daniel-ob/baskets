@@ -36,6 +36,7 @@ class Producer(models.Model):
     name = models.CharField("nom", blank=False, max_length=64)
     phone = models.CharField("téléphone", blank=True, validators=[PHONE_REGEX], max_length=18)
     email = models.EmailField(blank=True)
+    is_active = models.BooleanField(default=True)  # for soft-delete
 
     class Meta:
         verbose_name = "producteur"
@@ -55,6 +56,14 @@ class Producer(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+    def delete(self, soft_delete=True, *args, **kwargs):
+        if soft_delete:
+            self.is_active = False
+            self.save()
+            [product.delete() for product in self.products.all()]
+        else:
+            super().delete(*args, **kwargs)  # will also hard-delete related products
 
 
 class Product(models.Model):

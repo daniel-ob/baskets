@@ -70,9 +70,13 @@ class BasketsTestCase(TestCase):
         self.c = Client()
 
     @staticmethod
-    def create_product():
+    def create_producer():
+        return Producer.objects.create(name=get_random_string())
+
+    def create_product(self, producer=None):
         initial_products_count = Product.objects.count()
-        producer = Producer.objects.create(name=get_random_string())
+        if not producer:
+            producer = self.create_producer()
         product = Product.objects.create(producer=producer, name=get_random_string(), unit_price=0.50)
         assert Product.objects.count() == initial_products_count + 1
         assert product.is_active

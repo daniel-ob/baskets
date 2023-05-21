@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from baskets.models import Delivery, Order, OrderItem, User, Product
+from baskets.models import Delivery, Order, OrderItem, User, Product, Producer
 from baskets.tests.setup import BasketsTestCase
 
 
@@ -8,6 +8,31 @@ class ModelsTestCase(BasketsTestCase):
     def test_producer_products_count(self):
         self.assertEqual(self.producer1.products.count(), 2)
         self.assertEqual(self.producer2.products.count(), 1)
+
+    def test_producer_soft_delete(self):
+        """Test that by default, a producer is not deleted but just deactivated"""
+        producer = self.create_producer()
+        products = [self.create_product(producer) for _ in range(3)]
+
+        producer.delete()
+
+        self.assertIn(producer, Producer.objects.all())
+        self.assertFalse(producer.is_active)
+        # related products must be also soft-deleted
+        for product in products:
+            product.refresh_from_db()
+            self.assertFalse(product.is_active)
+
+    def test_producer_hard_delete(self):
+        producer = self.create_producer()
+        products = [self.create_product(producer) for _ in range(3)]
+
+        producer.delete(soft_delete=False)
+
+        self.assertNotIn(producer, Producer.objects.all())
+        # related products must also be hard-deleted
+        for product in products:
+            self.assertNotIn(product, Product.objects.all())
 
     def test_product_deliveries_count(self):
         self.assertEqual(self.product1.deliveries.count(), 3)

@@ -68,7 +68,7 @@ class ProductInline(admin.TabularInline):
     extra = 0
 
     def get_queryset(self, request):
-        """override InlineModelAdmin method to filter queryset"""
+        """override InlineModelAdmin method to filter queryset (not show inactive products)"""
         queryset = super().get_queryset(request)
         if not self.has_view_or_change_permission(request):
             queryset = queryset.none()
@@ -110,6 +110,18 @@ class ProducerAdmin(admin.ModelAdmin):
             except Product.DoesNotExist:  # new product
                 product.save()
         formset.save_m2m()
+
+    def get_queryset(self, request):
+        """Override ModelAdmin method to filter queryset (not show inactive producers)"""
+        queryset = super().get_queryset(request)
+        if not self.has_view_or_change_permission(request):
+            queryset = queryset.none()
+        return queryset.filter(is_active=True)
+
+    def delete_queryset(self, request, queryset):
+        """Override ModelAdmin method to force call of delete() method for each producer (do soft-delete)"""
+        for producer in queryset:
+            producer.delete()
 
 
 class DeliveryProductInline(admin.TabularInline):
