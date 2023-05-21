@@ -42,6 +42,21 @@ class ModelsTestCase(BasketsTestCase):
 
         self.assertNotIn(product, Product.objects.all())
 
+    def test_product_delete_removes_opened_order_items(self):
+        product = self.create_product()
+        opened_delivery = self.create_opened_delivery([product])
+        closed_delivery = self.create_closed_delivery([product])
+        opened_order_items = [self.create_order_item(opened_delivery, product) for _ in range(3)]
+        closed_order_items = [self.create_order_item(closed_delivery, product) for _ in range(3)]
+
+        product.delete()
+
+        for item in opened_order_items:
+            self.assertNotIn(item, OrderItem.objects.all())
+        # closed order items must not be deleted
+        for item in closed_order_items:
+            self.assertIn(item, OrderItem.objects.all())
+
     def test_product_delete_returns_users_list(self):
         """Check that product.delete() returns list of user ids with related opened orders"""
 
@@ -56,7 +71,7 @@ class ModelsTestCase(BasketsTestCase):
         expected_user_id_list = [oi.order.user.id for oi in opened_order_items]
         self.assertCountEqual(expected_user_id_list, user_id_list)  # have same elements
 
-    def test_update_opened_delivery_products_on_product_delete(self):
+    def test_product_delete_updates_opened_delivery_products(self):
         product = self.create_product()
         opened_delivery = self.create_opened_delivery([product])
         closed_delivery = self.create_closed_delivery([product])
