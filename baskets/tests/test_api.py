@@ -2,7 +2,6 @@ from datetime import date, timedelta
 import json
 
 from django.db.models import Max
-from django.urls import reverse
 
 from baskets.models import Order, OrderItem, Product
 from baskets.tests.setup import BasketsTestCase
@@ -26,7 +25,7 @@ class APITestCase(BasketsTestCase):
             }
         ]
 
-        response = self.c.get(reverse("orders"))
+        response = self.c.get("/orders")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), user_order_list_expected_json)
@@ -34,7 +33,7 @@ class APITestCase(BasketsTestCase):
     def test_order_list_get_not_authenticated(self):
         """Check that a non-authenticated user gets an "Unauthorized" error when trying to get order list through API"""
 
-        response = self.c.get(reverse("orders"))
+        response = self.c.get("/orders")
 
         self.assertEqual(response.status_code, 401)
 
@@ -59,11 +58,11 @@ class APITestCase(BasketsTestCase):
             ],
             "message": "New order"
         }
-        response = self.c.post(reverse("orders"), data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post("/orders", data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(float(response.json()["amount"]), 3.30)
-        self.assertEqual(response.json()["url"], reverse("order", args=[Order.objects.last().id]))
+        self.assertEqual(response.json()["url"], f"/orders/{Order.objects.last().id}")
 
         self.assertEqual(self.u1.orders.count(), user1_orders_count_initial + 1)
 
@@ -86,7 +85,7 @@ class APITestCase(BasketsTestCase):
                 }
             ]
         }
-        response = self.c.post(reverse("orders"), data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post("/orders", data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(Order.objects.count(), orders_count_initial)
@@ -108,7 +107,7 @@ class APITestCase(BasketsTestCase):
                 }
             ]
         }
-        response = self.c.post(reverse("orders"), data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post("/orders", data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u2.orders.count(), u2_initial_orders_count)
@@ -123,7 +122,7 @@ class APITestCase(BasketsTestCase):
         order_json = {
             "delivery_id": self.d2.id
         }
-        response = self.c.post(reverse("orders"), data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post("/orders", data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u2.orders.count(), user2_orders_count_initial)
@@ -137,7 +136,7 @@ class APITestCase(BasketsTestCase):
         order_json = {
             "delivery_id": self.d2.id,
         }
-        response = self.c.post(reverse("orders"), data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post("/orders", data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u1.orders.count(), user1_orders_count_initial)
@@ -162,7 +161,7 @@ class APITestCase(BasketsTestCase):
                 }
             ],
         }
-        response = self.c.post(reverse("orders"), data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post("/orders", data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u1.orders.count(), user1_orders_count_initial)
@@ -199,7 +198,7 @@ class APITestCase(BasketsTestCase):
             "is_open": True,
         }
 
-        response = self.c.get(reverse("order", args=[self.o2.id]))
+        response = self.c.get(f"/orders/{self.o2.id}")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), o2_expected_json)
@@ -239,7 +238,7 @@ class APITestCase(BasketsTestCase):
             "is_open": False,
         }
 
-        response = self.c.get(reverse("order", args=[self.o1.id]))
+        response = self.c.get(f"/orders/{self.o1.id}")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), o1_expected_json)
@@ -248,7 +247,7 @@ class APITestCase(BasketsTestCase):
         """Check that user1 gets a 'Forbidden' error when trying to retrieve an user2 order"""
 
         self.c.force_login(self.u1)
-        response = self.c.get(reverse("order", args=[self.u2.orders.last().id]))
+        response = self.c.get(f"/orders/{self.u2.orders.last().id}")
         self.assertEqual(response.status_code, 403)
 
     def test_order_update(self):
@@ -266,9 +265,11 @@ class APITestCase(BasketsTestCase):
             ],
             "message": "order updated"
         }
-        response = self.c.put(reverse("order", args=[self.o2.id]),
-                              data=json.dumps(updated_order_json),
-                              content_type="application/json")
+        response = self.c.put(
+            f"/orders/{self.o2.id}",
+            data=json.dumps(updated_order_json),
+            content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(float(response.json()['amount']), 2.30)
@@ -296,9 +297,11 @@ class APITestCase(BasketsTestCase):
             ],
             "message": "order updated"
         }
-        response = self.c.put(reverse("order", args=[self.o1.id]),
-                              data=json.dumps(updated_order_json),
-                              content_type="application/json")
+        response = self.c.put(
+            f"/orders/{self.o1.id}",
+            data=json.dumps(updated_order_json),
+            content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 400)
         self.o1.refresh_from_db()
@@ -324,9 +327,11 @@ class APITestCase(BasketsTestCase):
             ],
             "message": "try to update"
         }
-        response = self.c.put(reverse("order", args=[self.o2.id]),
-                              data=json.dumps(updated_order_json),
-                              content_type="application/json")
+        response = self.c.put(
+            f"/orders/{self.o2.id}",
+            data=json.dumps(updated_order_json),
+            content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 404)
         self.o2.refresh_from_db()
@@ -342,7 +347,7 @@ class APITestCase(BasketsTestCase):
 
         self.c.force_login(self.u1)
 
-        response = self.c.delete(reverse("order", args=[self.o2.id]))
+        response = self.c.delete(f"/orders/{self.o2.id}")
 
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(self.o2, self.u1.orders.all())
@@ -352,13 +357,13 @@ class APITestCase(BasketsTestCase):
     def test_order_delete_not_authenticated(self):
         """Check that a not authenticated user gets an "Unauthorized" error when trying to delete order through API"""
 
-        response = self.c.delete(reverse("order", args=[self.o1.id]))
+        response = self.c.delete(f"/orders/{self.o1.id}",)
 
         self.assertEqual(response.status_code, 401)
         self.assertIn(self.o1, Order.objects.all())
 
     def test_delivery_list_get(self):
-        """Check that next deliveries (opened) list can be retrieved through API"""
+        """Check that next opened deliveries list can be retrieved through API. Deliveries must be ordered by date"""
 
         deliveries_list_expected_json = [
             {
@@ -370,7 +375,7 @@ class APITestCase(BasketsTestCase):
                 "date": self.d3.date.isoformat()
             }
         ]
-        response = self.c.get(reverse("deliveries"))
+        response = self.c.get("/deliveries")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), deliveries_list_expected_json)
@@ -411,7 +416,7 @@ class APITestCase(BasketsTestCase):
             "is_open": True
         }
 
-        response = self.c.get(reverse("delivery", args=[self.d2.id]))
+        response = self.c.get(f"/deliveries/{self.d2.id}")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), d2_expected_json)
