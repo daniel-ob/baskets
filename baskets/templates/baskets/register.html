@@ -8,7 +8,7 @@
         <div>{{ message }}</div>
     {% endif %}
 
-    <form action="{% url 'register' %}" method="post">
+    <form action="{% url 'baskets:register' %}" method="post">
         {% csrf_token %}
         {% for field in user_form %}
             {% include 'baskets/field.html' %}
@@ -20,7 +20,7 @@
     </form>
 
     <div class="mt-3">
-        Vous avez déjà un compte ? <a href="{% url 'login' %}">Connectez-vous ici.</a>
+        Vous avez déjà un compte ? <a href="{% url 'baskets:login' %}">Connectez-vous ici.</a>
     </div>
 
 {% endblock %}

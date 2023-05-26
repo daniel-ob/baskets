@@ -196,7 +196,7 @@ class DeliveryAdmin(admin.ModelAdmin):
     @admin.display(description="exporter")
     def export(self, obj):
         d = obj
-        delivery_export_url = reverse("delivery_export", args=[d.id])
+        delivery_export_url = reverse("baskets:delivery_export", args=[d.id])
         if d.orders.count() and not d.is_open:
             return format_html(
                 f"<a href='{delivery_export_url}'>Exporter les bons de commande</a>"

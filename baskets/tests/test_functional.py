@@ -34,7 +34,7 @@ class FunctionalTestCase(StaticLiveServerTestCase):
         login_page.set_password("secret")
         next_orders_page = login_page.submit()
         # Check that 'Next orders' page is correctly loaded and user1 is logged-in
-        self.assertEqual(self.driver.current_url, self.live_server_url + reverse("index"))
+        self.assertEqual(self.driver.current_url, self.live_server_url + reverse("baskets:index"))
         self.assertEqual(next_orders_page.title, "Commandes à venir")
         self.assertEqual(next_orders_page.username, "user1")
         return next_orders_page

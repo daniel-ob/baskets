@@ -4,6 +4,7 @@ from django.urls import path
 from . import views
 from .forms import BasketsPasswordResetForm, BasketsSetPasswordForm
 
+app_name = "baskets"
 urlpatterns = [
     path("", views.index, name="index"),  # 'next orders' page
     path("history/", views.order_history, name="order_history"),

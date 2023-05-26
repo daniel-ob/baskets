@@ -46,7 +46,7 @@ class LoginPage(BasePage):
 
     LOGIN_BUTTON = (By.CLASS_NAME, "btn")
 
-    url = reverse("login")
+    url = reverse("baskets:login")
 
     def set_username(self, username):
         self.fill_form_by_name("username", username)
@@ -83,7 +83,7 @@ class IndexPage(BasePage):
 
     MAX_WAIT_SECONDS = 2
 
-    url = reverse("index")
+    url = reverse("baskets:index")
 
     def get_orders_count(self):
         orders = self.driver.find_elements(*self.ORDERS)

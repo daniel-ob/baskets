@@ -44,7 +44,7 @@ def email_user_account_activated(user):
 
     message = loader.render_to_string("baskets/account_activated_email.html", {
         "username": user.username,
-        "index_url": settings.SERVER_URL + reverse("index")
+        "index_url": settings.SERVER_URL + reverse("baskets:index")
     })
     email = EmailMessage(
         subject=f"[{app_name}] Bienvenue",

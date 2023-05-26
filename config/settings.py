@@ -123,7 +123,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")  # for django.contrib.staticfiles
 
-LOGIN_URL = 'login'
+LOGIN_URL = 'baskets:login'
 
 
 # Default primary key field type

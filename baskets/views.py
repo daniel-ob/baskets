@@ -62,7 +62,7 @@ def order_history(request):
 def login_view(request):
     if request.method != "POST":
         if request.user.is_authenticated:
-            return HttpResponseRedirect(reverse("index"))
+            return HttpResponseRedirect(reverse("baskets:index"))
         else:
             return render(request, "baskets/login.html")
 
@@ -76,12 +76,12 @@ def login_view(request):
             "message": "Nom d'utilisateur ou mot de passe invalides."
         })
     login(request, user)
-    return HttpResponseRedirect(reverse("index"))
+    return HttpResponseRedirect(reverse("baskets:index"))
 
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("index"))
+    return HttpResponseRedirect(reverse("baskets:index"))
 
 
 def register(request):
@@ -243,7 +243,7 @@ def orders(request):
 
     return JsonResponse({
         "message": "Order has been successfully created",
-        "url": reverse("order", args=[o.id]),
+        "url": reverse("baskets:order", args=[o.id]),
         "amount": o.amount
     }, status=201)
 
