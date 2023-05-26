@@ -3,7 +3,7 @@ __pycache__/
 .env
 
 # prod
-config/static
+static
 
 # local
 .idea/
