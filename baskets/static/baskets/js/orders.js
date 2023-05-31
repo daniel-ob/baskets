@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function updateOrderView(selectedOrderListItem) {
   // Load selected order-list-item in order-view. If item has no order, display an empty order form.
+  const deliveryDate = selectedOrderListItem.querySelector('.delivery').innerText;
   const deliveryUrl = selectedOrderListItem.querySelector('.delivery').dataset.url;
   const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
   const spinner = document.querySelector('#spinner');
@@ -36,8 +37,7 @@ async function updateOrderView(selectedOrderListItem) {
   hide(orderView);
   show(spinner);
 
-  // get selected delivery and order
-  const delivery = await requestGetDelivery(deliveryUrl);
+  let delivery = null;
   const order = (orderUrl !== '') ? await requestGetOrder(orderUrl) : null;
 
   orderViewItemsContainer.innerHTML = '';
@@ -45,9 +45,10 @@ async function updateOrderView(selectedOrderListItem) {
   if (order) {
       orderView.classList.add('border-success');
       orderView.classList.add('shadow');
-      orderViewTitle.innerText = `Commande pour le ${formatDate(delivery.date)}`;
-      if (delivery.is_open) {
+      orderViewTitle.innerText = `Commande pour le ${deliveryDate}`;
+      if (order.is_open) {
         // order can be updated and deleted
+        delivery = await requestGetDelivery(deliveryUrl);
         orderViewSubtitle.innerText = `Peut être modifiée jusqu'au ${formatDate(delivery.order_deadline)}`;
         orderViewMessage.innerText = delivery.message;
         delivery.message ? show(orderViewMessage) : hide(orderViewMessage);
@@ -69,7 +70,8 @@ async function updateOrderView(selectedOrderListItem) {
     // new order
     orderView.classList.remove('border-success');
     orderView.classList.remove('shadow');
-    orderViewTitle.innerText = `Nouvelle commande pour le ${formatDate(delivery.date)}`;
+    orderViewTitle.innerText = `Nouvelle commande pour le ${deliveryDate}`;
+    delivery = await requestGetDelivery(deliveryUrl);
     orderViewSubtitle.innerText = `Dernier jour pour commander: ${formatDate(delivery.order_deadline)}`;
     orderViewMessage.innerText = delivery.message;
     delivery.message ? show(orderViewMessage) : hide(orderViewMessage);
