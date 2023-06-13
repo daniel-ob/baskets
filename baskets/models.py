@@ -62,7 +62,7 @@ class Product(models.Model):
         }
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name}" if self.is_active else f"({self.name})"
 
     def delete(self, soft_delete=True, *args, **kwargs):
         if soft_delete:

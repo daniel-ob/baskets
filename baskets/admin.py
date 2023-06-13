@@ -43,6 +43,7 @@ class ProductInline(admin.TabularInline):
 @admin.register(Producer)
 class ProducerAdmin(admin.ModelAdmin):
     inlines = [ProductInline]
+    exclude = ["is_active", ]
 
     class Media:
         css = {
@@ -107,11 +108,11 @@ class DeliveryProductInline(admin.TabularInline):
         p = obj.product
         order_items = p.order_items.filter(order__delivery=d)
         total_quantity = order_items.aggregate(Sum("quantity"))["quantity__sum"]
-        order_item_admin_url = reverse("admin:baskets_orderitem_changelist")
-        modify_quantity_url = f"{order_item_admin_url}?order__delivery__id__exact={d.id}&product__id__exact={p.id}"
+        order_items_admin_url = f"{reverse('admin:baskets_orderitem_changelist')}" \
+                                f"?order__delivery__id__exact={d.id}&product__id__exact={p.id}"
 
         if total_quantity:
-            return format_html(f"{total_quantity} <a href='{modify_quantity_url}'>(Modifier)</a>")
+            return format_html(f"<a href='{order_items_admin_url}'>{total_quantity}</a>")
         else:
             return 0
 
@@ -322,7 +323,7 @@ class OrderItemAdmin(admin.ModelAdmin):
     @admin.display(description="utilisateur", ordering="order__user")
     def user(self, obj):
         user = obj.order.user
-        user_admin_url = reverse("admin:baskets_user_change", args=[user.id])
+        user_admin_url = reverse("admin:accounts_customuser_change", args=[user.id])
         return format_html(
             f"<a href='{user_admin_url}'>{user.username}</a>"
         )
@@ -335,29 +336,4 @@ class OrderItemAdmin(admin.ModelAdmin):
         """Don't show 'add' button"""
         return False
 
-    def save_model(self, request, obj, form, change):
-        if "quantity" in form.changed_data:
-            order = obj.order
-            user = obj.order.user
-            order_admin_url = reverse("admin:baskets_order_change", args=[order.id])
-            messages.add_message(
-                request,
-                messages.WARNING,
-                mark_safe(
-                    f"La <a href='{order_admin_url}'>commande</a> de {user} a été modifiée, pensez à prévenir "
-                    f"l'utilisateur: <a href='mailto:{user.email}'>{user.email}</a>, "
-                    f"<a href='tel:{user.phone}'>{user.phone}</a>"
-                )
-            )
-        super().save_model(request, obj, form, change)
-
-    def delete_queryset(self, request, queryset):
-        """Show a message to contact deleted items users"""
-        user_id_list = list(queryset.values_list("order__user__id", flat=True))
-        queryset.delete()
-        show_message_email_users(
-            request,
-            "Le(s) ligne(s) de commande ont été supprimées",
-            user_id_list,
-        )
-
+    # TODO: Fix custom OrderItem.save() not called on save
