@@ -1,0 +1,23 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+
+    <h1>{% trans "Sign In" %}</h1>
+
+    <form method="POST" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        {% for field in form %}
+            {% include 'form_field.html' %}
+        {% endfor %}
+        <input class="btn btn-primary" type="submit" value="{% trans 'Sign In' %}">
+    </form>
+
+    <div class="mt-3">
+        <p>{% blocktrans %}If you have not created an account yet, then please
+<a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
+        <p><a href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a></p>
+    </div>
+
+{% endblock %}

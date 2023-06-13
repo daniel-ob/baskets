@@ -2,17 +2,18 @@ from datetime import date
 import json
 
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import FileResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect, JsonResponse
+from django.http import FileResponse, HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
-from .email import email_staff_ask_account_activation, email_staff_contact
+from accounts.forms import CustomUserForm
+from .email import email_staff_contact
 from .export import get_order_forms_xlsx, get_orders_export_xlsx, get_producer_export_xlsx
-from .forms import BasketsSetPasswordForm, ContactForm, UserForm
-from .models import Delivery, Order, OrderItem, Producer, Product, User
+from .forms import ContactForm
+from .models import Delivery, Order, OrderItem, Producer, Product
 
 
 @login_required
@@ -56,92 +57,6 @@ def order_history(request):
     return render(request, "baskets/index.html", {
         "title": "Historique",
         "deliveries_orders": deliveries_orders
-    })
-
-
-def login_view(request):
-    if request.method != "POST":
-        if request.user.is_authenticated:
-            return HttpResponseRedirect(reverse("baskets:index"))
-        else:
-            return render(request, "baskets/login.html")
-
-    # Attempt to sign user in
-    username = request.POST["username"]
-    password = request.POST["password"]
-    user = authenticate(request, username=username, password=password)
-
-    if user is None:
-        return render(request, "baskets/login.html", {
-            "message": "Nom d'utilisateur ou mot de passe invalides."
-        })
-    login(request, user)
-    return HttpResponseRedirect(reverse("baskets:index"))
-
-
-def logout_view(request):
-    logout(request)
-    return HttpResponseRedirect(reverse("baskets:index"))
-
-
-def register(request):
-    if request.method != "POST":
-        # render empty forms
-        return render(request, "baskets/register.html", {
-            "user_form": UserForm(),
-            "password_form": BasketsSetPasswordForm(user=request.user)
-        })
-
-    user_form = UserForm(request.POST)
-    password_form = BasketsSetPasswordForm(user=request.user, data=request.POST)
-    if not (user_form.is_valid() and password_form.is_valid()):
-        # render the same page adding existing forms data, so users can see the errors they made
-        return render(request, "baskets/register.html", {
-            "user_form": user_form,
-            "password_form": password_form
-        })
-
-    # Create new user
-    user = user_form.save(commit=False)
-    # check that passwords matches and save hashed password
-    password = password_form.clean_new_password2()
-    user.set_password(password)
-    # user account will be activated by admin
-    user.is_active = False
-    user.save()
-    email_staff_ask_account_activation(user)
-    return render(request, "baskets/register.html", {
-        "message": "Votre demande d'inscription a été envoyée aux administrateurs pour validation. "
-                   "Vous recevrez un email dès que votre compte sera activé.",
-        "user_form": user_form,
-        "password_form": password_form
-    })
-
-
-@login_required
-def profile(request):
-    """User profile:
-    - GET: render 'User profile' page
-    - POST: update user profile
-    """
-
-    user = User.objects.get(username=request.user)
-    message = ""
-
-    if request.method == "POST":
-        form = UserForm(instance=user, data=request.POST)
-        if not form.is_valid():
-            # render the same page adding existing form data, so users can see the errors they made
-            return render(request, "baskets/profile.html", {
-                "form": form
-            })
-        user.save()
-        message = "Vos coordonnées ont été mises à jour avec succès."
-
-    # render user information
-    return render(request, "baskets/profile.html", {
-        "message": message,
-        "form": UserForm(instance=user)
     })
 
 

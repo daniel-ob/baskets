@@ -2,9 +2,13 @@ import random
 import string
 from datetime import date, timedelta
 
+from allauth.account.models import EmailAddress
+from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 
-from baskets.models import User, Producer, Product, Delivery, Order, OrderItem
+from baskets.models import Producer, Product, Delivery, Order, OrderItem
+
+User = get_user_model()
 
 
 def get_random_string():
@@ -27,6 +31,9 @@ class BasketsTestCase(TestCase):
             address="my street, my city",
             password="secret"
         )
+        EmailAddress.objects.create(
+            user=self.u1, email=self.u1.email, verified=True
+        )  # verify user email address, so he can directly log in on test_functional
         self.u2 = User.objects.create(username="user2")
 
         # Create producers
@@ -114,6 +121,6 @@ class BasketsTestCase(TestCase):
             user=User.objects.create(username=f"test_user_{get_random_string()}"),
             delivery=delivery
         )
-        order_item = OrderItem.objects.create(order=order, product=product, quantity=4)
+        order_item = order.items.create(product=product, quantity=4)
         assert order.items.count() == 1
         return order_item

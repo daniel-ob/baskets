@@ -1,40 +1,18 @@
 from datetime import date, timedelta
 
-from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator, MinValueValidator
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum, UniqueConstraint
 from django.db.models.signals import m2m_changed
-from django.utils.translation import gettext_lazy as _
 
-# FR phone numbers regex
-PHONE_REGEX = RegexValidator(regex=r"^"
-                                   r"(?:(?:\+|00)33|0)"     # Dialing code
-                                   r"\s*[1-9]"              # First number (from 1 to 9)
-                                   r"(?:[\s.-]*\d{2}){4}"   # End of the phone number
-                                   r"$")
-
-
-class User(AbstractUser):
-    # make last_name and email mandatory
-    last_name = models.CharField(_('last name'), max_length=150, blank=False)
-    email = models.EmailField(_('email address'), blank=False)
-
-    # add new fields
-    phone = models.CharField("téléphone", blank=True, validators=[PHONE_REGEX], max_length=18)
-    address = models.CharField("adresse", blank=True, max_length=128)
-
-    class Meta:
-        verbose_name = "utilisateur"
-        ordering = ["username"]
-
-    def __str__(self):
-        return f"{self.username}"
+from config.settings import FR_PHONE_REGEX
 
 
 class Producer(models.Model):
     name = models.CharField("nom", blank=False, max_length=64)
-    phone = models.CharField("téléphone", blank=True, validators=[PHONE_REGEX], max_length=18)
+    phone = models.CharField("téléphone", blank=True, validators=[FR_PHONE_REGEX], max_length=18)
     email = models.EmailField(blank=True)
     is_active = models.BooleanField(default=True)  # for soft-delete
 
@@ -111,7 +89,7 @@ class Product(models.Model):
     def get_opened_order_items_and_users(self):
         opened_order_items = [oi for oi in OrderItem.objects.filter(product=self) if oi.order.is_open]
         # can't use user QuerySet based on order_items because they will be deleted, so query will be empty later
-        user_id_list = [u.id for u in User.objects.filter(orders__items__in=opened_order_items).distinct()]
+        user_id_list = [u.id for u in get_user_model().objects.filter(orders__items__in=opened_order_items).distinct()]
         return opened_order_items, user_id_list
 
 
@@ -178,7 +156,7 @@ m2m_changed.connect(delivery_product_removed, sender=Delivery.products.through)
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, verbose_name="utilisateur", on_delete=models.PROTECT, related_name="orders")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="utilisateur", on_delete=models.PROTECT, related_name="orders")
     delivery = models.ForeignKey(Delivery, verbose_name="livraison", on_delete=models.PROTECT, related_name="orders")
     creation_date = models.DateTimeField("date de création", auto_now_add=True)
     amount = models.DecimalField("montant", default=0.00, max_digits=8, decimal_places=2, editable=False)

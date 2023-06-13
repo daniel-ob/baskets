@@ -1,50 +1,15 @@
 from datetime import date
 
 from django.contrib import admin, messages
-from django.contrib.auth.models import Group
-from django.contrib.postgres.aggregates import StringAgg
+from django.contrib.auth import get_user_model
 from django.db.models import Count, Sum, Case, When
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from .email import email_user_account_activated
-from .models import User, Producer, Product, Delivery, Order, OrderItem
+from .models import Producer, Product, Delivery, Order, OrderItem
 
-
-class MembershipInline(admin.TabularInline):
-    model = Group.user_set.through
-    readonly_fields = ["user"]
-    extra = 0
-
-
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    list_display = ("username", "groups_str", "is_active", "is_staff")
-    fields = ("username", "first_name", "last_name", "email", "phone", "address", "groups",
-              "is_active", "is_staff", "is_superuser", "date_joined", "last_login")
-
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        qs = qs.annotate(groups_=StringAgg("groups__name", ", "))  # PostgreSQL specific aggregation function
-        return qs
-
-    @admin.display(description="groupe(s)", ordering="groups_")
-    def groups_str(self, obj):
-        return obj.groups_
-
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-
-        # notify user when its account is activated
-        user = obj
-        if "is_active" in form.changed_data and user.is_active:
-            email_user_account_activated(user)
-            messages.add_message(
-                request,
-                messages.INFO,
-                f"Un email a été envoyé à '{user}' pour lui notifier l'activation de son compte"
-            )
+User = get_user_model()
 
 
 def show_message_email_users(request, status_message, user_id_list):
@@ -396,31 +361,3 @@ class OrderItemAdmin(admin.ModelAdmin):
             user_id_list,
         )
 
-
-# Custom Group admin
-admin.site.unregister(Group)
-
-
-@admin.register(Group)
-class GroupAdmin(admin.ModelAdmin):
-    list_display = ("name", "members_count", "email")
-    exclude = ("permissions",)
-    inlines = [MembershipInline]
-
-    class Media:
-        css = {
-            "all": ("baskets/css/hide_admin_original.css",)
-        }
-
-    @admin.display(description="nombre de membres")
-    def members_count(self, obj):
-        return obj.user_set.count()
-
-    @staticmethod
-    def email(obj):
-        group_users = obj.user_set.all()
-        emails = [user.email for user in group_users]
-        emails_str = ", ".join(emails)
-        return format_html(
-            f"<a href='mailto:?bcc={emails_str}'>envoyer un email au groupe {obj.name}</a>"
-        )

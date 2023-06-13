@@ -30,7 +30,7 @@ class FunctionalTestCase(StaticLiveServerTestCase):
         self.assertEqual(self.driver.current_url, self.live_server_url + login_page.url)
         self.assertEqual(login_page.title, "Connexion")
 
-        login_page.set_username("user1")
+        login_page.set_email("user1@baskets.com")
         login_page.set_password("secret")
         next_orders_page = login_page.submit()
         # Check that 'Next orders' page is correctly loaded and user1 is logged-in

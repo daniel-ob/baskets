@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% load i18n %}
+
+{% block content %}
+
+    <h1>{% trans "Profile" %}</h1>
+
+    {% if message %}
+        <div class="text-success">{{ message }}</div>
+    {% endif %}
+
+    <form action="{% url 'profile' %}" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            {% include 'form_field.html' %}
+        {% endfor %}
+        <input class="btn btn-primary" type="submit" value="{% trans 'Update' %}">
+    </form>
+
+{% endblock %}

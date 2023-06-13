@@ -9,6 +9,7 @@ dj-database-url = "==1.0.0"
 django-extensions = "==3.2.1"
 psycopg2-binary = "==2.9.6"
 xlsxwriter = "==3.0.2"
+django-allauth = "==0.54.0"
 
 [dev-packages]
 selenium = "==4.1.0"

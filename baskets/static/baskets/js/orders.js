@@ -92,14 +92,14 @@ async function updateOrderView(selectedOrderListItem) {
       producerDiv.dataset.producerid = producer.id;
       producerDiv.innerHTML = `
         <div class="accordion-item">
-          <h2 class="accordion-header" id="panelsStayOpen-heading${index}">
+          <h3 class="accordion-header" id="panelsStayOpen-heading${index}">
             <button class="accordion-button collapsed p-2" type="button" data-bs-toggle="collapse"
                     data-bs-target="#collapse${index}" aria-expanded="false"
                     aria-controls="collapse${index}">
               <span class="producer-name">${producer.name}</span>
               <span class="badge bg-secondary ms-1 d-none"></span>
             </button>
-          </h2>
+          </h3>
           <div id="collapse${index}" class="accordion-collapse collapse"
                aria-labelledby="panelsStayOpen-heading${index}">
             <div class="accordion-body">

@@ -1,5 +1,6 @@
 # Requirements common to all environments
 Django==3.2.19
+django-allauth==0.54.0
 dj-database-url==1.0.0
 django-extensions==3.2.1
 psycopg2==2.9.2

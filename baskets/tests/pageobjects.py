@@ -10,7 +10,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 class BasePage(object):
     """Base page object"""
 
-    TITLE = (By.TAG_NAME, "h2")
+    TITLE = (By.TAG_NAME, "h1")
     USERNAME = (By.ID, "username")
     HISTORY_LINK = (By.LINK_TEXT, "Historique")
 
@@ -46,10 +46,10 @@ class LoginPage(BasePage):
 
     LOGIN_BUTTON = (By.CLASS_NAME, "btn")
 
-    url = reverse("baskets:login")
+    url = reverse("account_login")
 
-    def set_username(self, username):
-        self.fill_form_by_name("username", username)
+    def set_email(self, email):
+        self.fill_form_by_name("login", email)
 
     def set_password(self, password):
         self.fill_form_by_name("password", password)

@@ -1,10 +1,11 @@
 import io
 
+from django.contrib.auth import get_user_model
 from django.db.models import Sum, Q, DecimalField
 from django.db.models.functions import Coalesce
 from xlsxwriter.workbook import Workbook
 
-from baskets.models import User, Delivery, Producer
+from baskets.models import Delivery, Producer
 
 
 def get_order_forms_xlsx(delivery):
@@ -83,7 +84,7 @@ def get_all_delivery_dates():
 def get_amounts_per_user_and_month():
     amounts_per_user_and_month = {}
     for month in get_all_delivery_dates():
-        amounts_per_user = User.objects.annotate(
+        amounts_per_user = get_user_model().objects.annotate(
             total_amount=Coalesce(
                 Sum(
                     "orders__amount",

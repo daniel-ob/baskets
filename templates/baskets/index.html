@@ -1,4 +1,4 @@
-{% extends "baskets/layout.html" %}
+{% extends "layout.html" %}
 {% load static %}
 
 {% block style %}
@@ -11,9 +11,9 @@
     <script src="{% static 'baskets/js/orders.js' %}?v=2"></script>
 {% endblock %}
 
-{% block body %}
+{% block content %}
 
-    <h2>{{title}}</h2>
+    <h1>{{title}}</h1>
 
     <div class="card" id="order-list">
         {% if deliveries_orders %}
@@ -50,7 +50,7 @@
     <div class="d-none spinner-border text-secondary mt-3" id="spinner" role="status"></div>
 
     <div class="card mt-3 p-2 d-none" id="order-view">
-        <h4 id="order-view-title"></h4>
+        <h2 id="order-view-title"></h2>
         <p id="order-view-subtitle"></p>
         <p id="order-view-message" class="text-secondary d-none"></p>
 
