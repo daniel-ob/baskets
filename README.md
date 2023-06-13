@@ -2,7 +2,7 @@
 
 A website to manage orders for local food baskets.
 
-Project built using [Django](https://www.djangoproject.com/), [Bootstrap](https://getbootstrap.com/) and JavaScript.
+Project built using Django, Bootstrap and JavaScript.
 
 ![Baskets screenshot](screenshot.png)
 
@@ -34,30 +34,26 @@ Payments are managed outside this application.
 
 ### User interface
 
-- **Login** page: Not logged users will be redirected to "Login" page. Where they can log in using their username and password.
-- **Register** page: On "Login" page a "Register here" link takes to a page where user can create an account by entering their personal information and choosing a username and password.
+- **Login** page: Not logged users will be redirected to "Login" page. Where they can log in using their email and password.
+- **Register** page: Users can create an account by entering their personal information and setting a password.
   - Passwords are validated to prevent weak passwords.
-  - New user's account are "inactive" by default (see "account validation" feature below). User accounts must be activated by admins.
+  - A verification email is sent to user. Users can't log in until email is verified.
 - **Next Orders** page: shows the list of deliveries for which we can still order, in chronological order.
-  - Clicking on each delivery opens a frame below showing the date when baskets will be delivered, the last day to order and available products (names and unit prices).
+  - Clicking on each delivery opens a frame below showing delivery details: date when baskets will be delivered, last day to order and available products arranged by producer.
   - User can create one order per delivery.
   - Orders can be updated or deleted until deadline.
 - **Order history** page: shows a list of user's closed orders in reverse chronological order. Clicking on each order will open its details below.
 - **Password reset**:
-  - In "Login" page, a link allows users to request password reset entering an email address. 
-  - If an account exists for that email address, a mail is sent with a link to a page to set a new password.
+  - In "Login" page, a link allows users to request password reset entering their email address. 
+  - If an account exists for that email address, an email is sent with a link to a page allowing to set a new password.
 - **Profile** page: clicking on username loads a page where user can view and update its profile information.
-- **Contact us** page: a link on footer loads a page with a contact form. The message will be sent to all staff members.
+- **Contact us** page: a link on page footer loads a page with a contact form. The message will be sent to all staff members.
 
 All functionalities except "contact" requires authentication.
 
 ### Admin interface
 
-Django admin interface has been set up to be able to view, add, edit and delete any User, Producer (and its Products), Delivery and Order.
-
-Also:
-
-- **Users** page allows activating user accounts and setting user groups.
+- **Users** page allows activating/deactivating user accounts and setting user groups.
 - **Groups** page allows sending an email to all users in each group via a link.
 - **Producers** page allows to: 
   - Manage producers and its products (name and unit price).
@@ -65,33 +61,30 @@ Also:
 - **Deliveries** page allows to:
   - Set each delivery date, order deadline and available products.
     - If "order deadline" is left blank, it will be set to `ORDER_DEADLINE_DAYS_BEFORE` before delivery date.
-  - View **total ordered quantity** for each product to notify producers. A link is shown to **modify** related orders items in the event that a maximum stock is reached. 
-      - If a user order is changed, a warning message will be shown with user's contact details to notify him.
+  - View **total ordered quantity** for each product to notify producers. A link allows to see all related Order Items.
   - In "Deliveries list" page:
     - View "orders count", which links to related orders.
     - **Export related order forms**: Once a delivery deadline is passed, a link will be shown to download delivery order forms in *xlsx* format. The file will contain one sheet per order including user information and order items.
-    - Email users that created an order for selected deliveries.
+    - Email users having ordered for selected deliveries.
 - **Orders** page allows to:
   - View and update user orders.
   - Export .xlsx file containing recap of monthly order amounts per user.
 
 ### Other
 
-- **Account validation**:
-  - For sake of security, a staff validation is needed to activate user accounts.
-  - When a new user registers, account is set as "inactive" (user cannot log in yet) and a notification email is sent to all staff members.
-  - As soon as account is set as 'active', a notification email is sent to user.
-- **API**: User orders can be managed using an API. See [API reference](#api-ref) for further details.
+- **Soft-delete** has been implemented for `Producer` and `Product` models. When deleting them, by default they are just deactivated. They won't be anymore shown on User or Admin interfaces but we keep them on database.
 - **Mobile-responsiveness**: This has been achieved using Bootstrap framework in user interface. Moreover, Django admin interface is also mobile responsive.
+- **API**: User orders can be managed using an API. See [API reference](#api-ref) for further details.
 
 ## Dependencies <a name="dependencies"></a>
 
 In addition to **Django**, the following libraries has been used:
 
+- **Django-allauth**: to manage user login, register and password reset
 - **XlsxWriter**: to create xlsx files in `baskets/export.py`
 - **Selenium**: to do browser end-to-end testing in `baskets/tests/test_functional.py`
 
-The versions used can be found in `requirements.txt`
+See required versions in `requirements` folder (pip) or Pipfile (pipenv).
 
 ## Run using Docker <a name="run"></a>
  
@@ -116,7 +109,6 @@ DEBUG=True  # set to False in PROD
 ALLOWED_HOSTS=127.0.0.1
 DATABASE_URL=postgres://postgres:postgres_password@baskets-db:5432/baskets
 SECURE_SSL_REDIRECT=False  # Set to True in PROD
-SERVER_URL=http://127.0.0.1:8000
 # Email sending
 EMAIL_HOST=
 EMAIL_HOST_PASSWORD=
@@ -139,13 +131,23 @@ And finally, create a superuser:
 
 ## Tests run <a name="tests-run"></a>
 
-All tests:
+First launch and apply migrations to `db`:
+    
+    $ docker-compose up -d
+    
+Create virtual environment and install dependencies:
 
-    $ docker-compose run web python manage.py test
+    $ pipenv shell
+    $ pipenv install --dev
 
-Functional tests only:
+Launch all tests:
 
-    $ docker-compose run web python manage.py test baskets.tests.test_functional
+    $ python manage.py test
+
+Launch only functional tests:
+
+    $ python manage.py test baskets.tests.test_functional
+
 
 ## API Reference <a name="api-ref"></a>
 
