@@ -19,7 +19,7 @@ def show_message_email_users(request, status_message, user_id_list):
         request,
         messages.SUCCESS,
         mark_safe(
-            f"{status_message}."
+            f"{status_message}"
             f"<br>Pour envoyer un email aux utilisateurs concernés "
             f"<a href='mailto:?bcc={emails_str}'>cliquez ici</a>"
         )
@@ -52,15 +52,14 @@ class ProducerAdmin(admin.ModelAdmin):
         js = ("baskets/js/admin_add_help_text_to_productinline.js",)
 
     def save_formset(self, request, form, formset, change):
-        """If a product is deleted or if its unit_price changes, update related orders and show a message"""
+        """If a product is deleted or its unit_price changes, update related opened orders and show a message"""
 
-        # from https://docs.djangoproject.com/en/3.2/ref/contrib/admin/#django.contrib.admin.ModelAdmin.save_formset
         products_new_or_updated = formset.save(commit=False)  # don't save them yet
         for product in formset.deleted_objects:
             if user_id_list := product.delete():
                 show_message_email_users(
                     request,
-                    f"Le produit « {product} » a été supprimé des commandes ouvertes",
+                    f"Le produit « {product} » a été supprimé des commandes ouvertes.",
                     user_id_list,
                 )
         for product in products_new_or_updated:
@@ -70,7 +69,7 @@ class ProducerAdmin(admin.ModelAdmin):
                 if product.unit_price != previous_price and user_id_list:
                     show_message_email_users(
                         request,
-                        f"Le produit « {product} » a été mis à jour dans les commandes ouvertes",
+                        f"Le produit « {product} » a été mis à jour dans les commandes ouvertes.",
                         user_id_list,
                     )
             except Product.DoesNotExist:  # new product
@@ -123,14 +122,11 @@ class DeliveryProductInline(admin.TabularInline):
 
 @admin.action(description="Envoyer email aux utilisateurs des livraisons selectionnées")
 def mailto_users_from_deliveries(modeladmin, request, queryset):
-    # TODO: merge with show_message_email_users?
     deliveries = queryset
-    emails = [u.email for u in User.objects.filter(orders__delivery__in=deliveries).distinct()]
-    emails_str = ", ".join(emails)
-    messages.add_message(
+    show_message_email_users(
         request,
-        messages.INFO,
-        mark_safe(f"<a href='mailto:?bcc={emails_str}'>Clic ici pour envoyer l'email</a>")
+        "",
+        User.objects.filter(orders__delivery__in=deliveries).values("id"),
     )
 
 
@@ -178,24 +174,27 @@ class DeliveryAdmin(admin.ModelAdmin):
                 yield inline.get_formset(request, obj), inline
 
     def save_model(self, request, obj, form, change):
-        """If a product is removed from an opened delivery, show a message"""
-        # opened order_items are deleted on delivery_product_removed() triggered by m2m_changed signal
+        """If a product is removed from an opened delivery, related opened order_items are deleted by
+        delivery_product_removed (triggered by m2m_changed signal). Here we show a message to notify concerned users"""
         super().save_model(request, obj, form, change)
 
         d = obj
         if d.is_open and "products" in form.changed_data:
-            previous_products_ids = [p.id for p in obj.products.all()]
+            previous_products_ids = obj.products.values_list("id", flat=True)
             new_products_ids = [int(str_id) for str_id in form["products"].data]
             if removed_products_ids := set(previous_products_ids).difference(new_products_ids):
-                if order_items := OrderItem.objects.filter(product__id__in=removed_products_ids, order__delivery=d):
+                if removed_order_items := OrderItem.objects.filter(
+                        product__id__in=removed_products_ids,
+                        order__delivery=d
+                ):
                     products_html_list = "</li><li>".join(
                         [p.name for p in Product.objects.filter(id__in=removed_products_ids)]
                     )
-                    user_id_list = [u.id for u in User.objects.filter(orders__items__in=order_items).distinct()]
+                    user_id_list = User.objects.filter(orders__items__in=removed_order_items).distinct().values("id")
                     show_message_email_users(
                         request,
                         f"Le(s) produit(s): <ul><li>{products_html_list}</li></ul>"
-                        f"ont été supprimé(s) des commandes ouvertes",
+                        f"ont été supprimé(s) des commandes ouvertes.",
                         user_id_list
                     )
 
@@ -305,7 +304,7 @@ class OrderAdmin(admin.ModelAdmin):
         queryset.delete()
         show_message_email_users(
             request,
-            "Le(s) commande(s) ont été supprimée(s)",
+            "Le(s) commande(s) ont été supprimée(s).",
             user_id_list,
         )
 
