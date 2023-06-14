@@ -15,14 +15,8 @@ class APITestCase(BasketsTestCase):
         self.c.force_login(self.u1)
 
         user_order_list_expected_json = [
-            {
-                "id": self.o2.id,
-                "delivery_id": self.o2.delivery.id
-            },
-            {
-                "id": self.o1.id,
-                "delivery_id": self.o1.delivery.id
-            }
+            {"id": self.o2.id, "delivery_id": self.o2.delivery.id},
+            {"id": self.o1.id, "delivery_id": self.o1.delivery.id},
         ]
 
         response = self.c.get("/orders")
@@ -47,18 +41,14 @@ class APITestCase(BasketsTestCase):
         order_json = {
             "delivery_id": self.d3.id,
             "items": [
-                {
-                    "product_id": self.product2.id,
-                    "quantity": 1
-                },
-                {
-                    "product_id": self.product3.id,
-                    "quantity": 2
-                }
+                {"product_id": self.product2.id, "quantity": 1},
+                {"product_id": self.product3.id, "quantity": 2},
             ],
-            "message": "New order"
+            "message": "New order",
         }
-        response = self.c.post("/orders", data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post(
+            "/orders", data=json.dumps(order_json), content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(float(response.json()["amount"]), 3.30)
@@ -78,14 +68,11 @@ class APITestCase(BasketsTestCase):
 
         order_json = {
             "delivery_id": self.d2.id,
-            "items": [
-                {
-                    "product_id": self.product1.id,
-                    "quantity": 1
-                }
-            ]
+            "items": [{"product_id": self.product1.id, "quantity": 1}],
         }
-        response = self.c.post("/orders", data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post(
+            "/orders", data=json.dumps(order_json), content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(Order.objects.count(), orders_count_initial)
@@ -100,14 +87,11 @@ class APITestCase(BasketsTestCase):
 
         order_json = {
             "delivery_id": self.d1.id,
-            "items": [
-                {
-                    "product_id": self.product1.id,
-                    "quantity": 1
-                }
-            ]
+            "items": [{"product_id": self.product1.id, "quantity": 1}],
         }
-        response = self.c.post("/orders", data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post(
+            "/orders", data=json.dumps(order_json), content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u2.orders.count(), u2_initial_orders_count)
@@ -119,10 +103,10 @@ class APITestCase(BasketsTestCase):
         user2_orders_count_initial = self.u2.orders.count()
 
         # user already has an order for d2
-        order_json = {
-            "delivery_id": self.d2.id
-        }
-        response = self.c.post("/orders", data=json.dumps(order_json), content_type="application/json")
+        order_json = {"delivery_id": self.d2.id}
+        response = self.c.post(
+            "/orders", data=json.dumps(order_json), content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u2.orders.count(), user2_orders_count_initial)
@@ -136,7 +120,9 @@ class APITestCase(BasketsTestCase):
         order_json = {
             "delivery_id": self.d2.id,
         }
-        response = self.c.post("/orders", data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post(
+            "/orders", data=json.dumps(order_json), content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u1.orders.count(), user1_orders_count_initial)
@@ -151,17 +137,13 @@ class APITestCase(BasketsTestCase):
         order_json = {
             "delivery_id": self.d2.id,
             "items": [
-                {
-                    "product_id": self.product1.id,
-                    "quantity": 1
-                },
-                {
-                    "product_id": self.product2.id,
-                    "quantity": 1
-                }
+                {"product_id": self.product1.id, "quantity": 1},
+                {"product_id": self.product2.id, "quantity": 1},
             ],
         }
-        response = self.c.post("/orders", data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post(
+            "/orders", data=json.dumps(order_json), content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u1.orders.count(), user1_orders_count_initial)
@@ -178,20 +160,20 @@ class APITestCase(BasketsTestCase):
                     "product": {
                         "id": self.product1.id,
                         "name": "product1",
-                        "unit_price": "0.50"
+                        "unit_price": "0.50",
                     },
                     "quantity": 1,
-                    "amount": "0.50"
+                    "amount": "0.50",
                 },
                 {
                     "product": {
                         "id": self.product3.id,
                         "name": "product3",
-                        "unit_price": "1.15"
+                        "unit_price": "1.15",
                     },
                     "quantity": 3,
-                    "amount": "3.45"
-                }
+                    "amount": "3.45",
+                },
             ],
             "amount": "3.95",
             "message": "order 2",
@@ -217,21 +199,15 @@ class APITestCase(BasketsTestCase):
             "delivery_id": self.d1.id,
             "items": [
                 {
-                    "product": {
-                        "name": "product1",
-                        "unit_price": "0.50"
-                    },
+                    "product": {"name": "product1", "unit_price": "0.50"},
                     "quantity": 4,
-                    "amount": "2.00"
+                    "amount": "2.00",
                 },
                 {
-                    "product": {
-                        "name": "product2",
-                        "unit_price": "1.00"
-                    },
+                    "product": {"name": "product2", "unit_price": "1.00"},
                     "quantity": 1,
-                    "amount": "1.00"
-                }
+                    "amount": "1.00",
+                },
             ],
             "amount": "3.00",
             "message": "order 1",
@@ -257,22 +233,17 @@ class APITestCase(BasketsTestCase):
         self.c.force_login(self.u1)
 
         updated_order_json = {
-            "items": [
-                {
-                    "product_id": self.product3.id,
-                    "quantity": 2
-                }
-            ],
-            "message": "order updated"
+            "items": [{"product_id": self.product3.id, "quantity": 2}],
+            "message": "order updated",
         }
         response = self.c.put(
             f"/orders/{self.o2.id}",
             data=json.dumps(updated_order_json),
-            content_type="application/json"
+            content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(float(response.json()['amount']), 2.30)
+        self.assertEqual(float(response.json()["amount"]), 2.30)
 
         self.o2.refresh_from_db()
         self.assertEqual(self.o2.message, "order updated")
@@ -289,18 +260,13 @@ class APITestCase(BasketsTestCase):
         oi1_initial_quantity = self.o1i1.quantity
         oi1_new_quantity = oi1_initial_quantity - 1
         updated_order_json = {
-            "items": [
-                {
-                    "product_id": self.product1.id,
-                    "quantity": oi1_new_quantity
-                }
-            ],
-            "message": "order updated"
+            "items": [{"product_id": self.product1.id, "quantity": oi1_new_quantity}],
+            "message": "order updated",
         }
         response = self.c.put(
             f"/orders/{self.o1.id}",
             data=json.dumps(updated_order_json),
-            content_type="application/json"
+            content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 400)
@@ -319,18 +285,13 @@ class APITestCase(BasketsTestCase):
 
         invalid_product_id = Product.objects.all().aggregate(Max("id"))["id__max"] + 1
         updated_order_json = {
-            "items": [
-                {
-                    "product_id": invalid_product_id,
-                    "quantity": 2
-                }
-            ],
-            "message": "try to update"
+            "items": [{"product_id": invalid_product_id, "quantity": 2}],
+            "message": "try to update",
         }
         response = self.c.put(
             f"/orders/{self.o2.id}",
             data=json.dumps(updated_order_json),
-            content_type="application/json"
+            content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 404)
@@ -357,7 +318,9 @@ class APITestCase(BasketsTestCase):
     def test_order_delete_not_authenticated(self):
         """Check that a not authenticated user gets an "Unauthorized" error when trying to delete order through API"""
 
-        response = self.c.delete(f"/orders/{self.o1.id}",)
+        response = self.c.delete(
+            f"/orders/{self.o1.id}",
+        )
 
         self.assertEqual(response.status_code, 401)
         self.assertIn(self.o1, Order.objects.all())
@@ -366,14 +329,8 @@ class APITestCase(BasketsTestCase):
         """Check that next opened deliveries list can be retrieved through API. Deliveries must be ordered by date"""
 
         deliveries_list_expected_json = [
-            {
-                "id": self.d2.id,
-                "date": self.d2.date.isoformat()
-            },
-            {
-                "id": self.d3.id,
-                "date": self.d3.date.isoformat()
-            }
+            {"id": self.d2.id, "date": self.d2.date.isoformat()},
+            {"id": self.d3.id, "date": self.d3.date.isoformat()},
         ]
         response = self.c.get("/deliveries")
 
@@ -396,9 +353,9 @@ class APITestCase(BasketsTestCase):
                         {
                             "id": self.product1.id,
                             "name": "product1",
-                            "unit_price": "0.50"
+                            "unit_price": "0.50",
                         },
-                    ]
+                    ],
                 },
                 {
                     "id": self.producer2.id,
@@ -407,13 +364,13 @@ class APITestCase(BasketsTestCase):
                         {
                             "id": self.product3.id,
                             "name": "product3",
-                            "unit_price": "1.15"
+                            "unit_price": "1.15",
                         }
-                    ]
-                }
+                    ],
+                },
             ],
             "message": "delivery 2",
-            "is_open": True
+            "is_open": True,
         }
 
         response = self.c.get(f"/deliveries/{self.d2.id}")

@@ -42,12 +42,10 @@ class ModelsTestCase(BasketsTestCase):
         product = self.create_product()
         opened_delivery = self.create_opened_delivery([product])
         opened_order_item = self.create_order_item(
-            delivery=opened_delivery,
-            product=product
+            delivery=opened_delivery, product=product
         )
         closed_order_item = self.create_order_item(
-            delivery=self.create_closed_delivery([product]),
-            product=product
+            delivery=self.create_closed_delivery([product]), product=product
         )
 
         product.delete()
@@ -59,8 +57,7 @@ class ModelsTestCase(BasketsTestCase):
         product = self.create_product()
         opened_delivery = self.create_opened_delivery([product])
         closed_order_item = self.create_order_item(
-            delivery=self.create_closed_delivery([product]),
-            product=product
+            delivery=self.create_closed_delivery([product]), product=product
         )
 
         product.delete(soft_delete=False)
@@ -82,8 +79,7 @@ class ModelsTestCase(BasketsTestCase):
         opened_order_item_2 = self.create_order_item(opened_delivery, product)
         opened_order_2 = opened_order_item_2.order
         opened_order_item_3 = opened_order_2.items.create(
-            product=self.create_product(),
-            quantity=2
+            product=self.create_product(), quantity=2
         )  # item for another product
 
         product.delete()
@@ -104,8 +100,12 @@ class ModelsTestCase(BasketsTestCase):
         product = self.create_product()
         opened_delivery = self.create_opened_delivery([product])
         closed_delivery = self.create_closed_delivery([product])
-        opened_order_items = [self.create_order_item(opened_delivery, product) for _ in range(3)]
-        closed_order_items = [self.create_order_item(closed_delivery, product) for _ in range(3)]
+        opened_order_items = [
+            self.create_order_item(opened_delivery, product) for _ in range(3)
+        ]
+        closed_order_items = [
+            self.create_order_item(closed_delivery, product) for _ in range(3)
+        ]
 
         user_id_list = product.delete()
 
@@ -168,7 +168,10 @@ class ModelsTestCase(BasketsTestCase):
 
         yesterday = date.today() - timedelta(days=1)
         d = Delivery.objects.create(date=yesterday)
-        self.assertEqual(d.order_deadline, d.date - timedelta(days=self.d1.ORDER_DEADLINE_DAYS_BEFORE))
+        self.assertEqual(
+            d.order_deadline,
+            d.date - timedelta(days=self.d1.ORDER_DEADLINE_DAYS_BEFORE),
+        )
 
     def test_delivery_deadline_custom(self):
         self.assertEqual(self.d2.order_deadline, date.today())
@@ -211,13 +214,17 @@ class ModelsTestCase(BasketsTestCase):
     def test_order_item_invalid_product(self):
         """Check that order item is invalid if product is not available in delivery"""
 
-        order_item = OrderItem.objects.create(order=self.o3, product=self.product2, quantity=1)
+        order_item = OrderItem.objects.create(
+            order=self.o3, product=self.product2, quantity=1
+        )
         self.assertFalse(order_item.is_valid())
 
     def test_order_item_invalid_quantity(self):
         """Check that order item is invalid if quantity is not greater than 0"""
 
-        order_item = OrderItem.objects.create(order=self.o3, product=self.product1, quantity=0)
+        order_item = OrderItem.objects.create(
+            order=self.o3, product=self.product1, quantity=0
+        )
         self.assertFalse(order_item.is_valid())
 
     def test_item_quantity_update_updates_order_amount(self):

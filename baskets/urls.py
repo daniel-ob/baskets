@@ -15,7 +15,11 @@ urlpatterns = [
     path("deliveries/<int:delivery_id>", views.delivery, name="delivery"),
 
     # Staff exports
-    path("deliveries/<int:delivery_id>/export", views.delivery_export, name="delivery_export"),
+    path(
+        "deliveries/<int:delivery_id>/export",
+        views.delivery_export,
+        name="delivery_export",
+    ),
     path("orders/export", views.order_export, name="order_export"),
     path("producers/export", views.producer_export, name="producer_export"),
 ]

@@ -12,7 +12,9 @@ from config.settings import FR_PHONE_REGEX
 
 class Producer(models.Model):
     name = models.CharField("nom", blank=False, max_length=64)
-    phone = models.CharField("téléphone", blank=True, validators=[FR_PHONE_REGEX], max_length=18)
+    phone = models.CharField(
+        "téléphone", blank=True, validators=[FR_PHONE_REGEX], max_length=18
+    )
     email = models.EmailField(blank=True)
     is_active = models.BooleanField(default=True)  # for soft-delete
 
@@ -22,14 +24,16 @@ class Producer(models.Model):
 
     def serialize(self, delivery_id_to_filter_products=None):
         if delivery_id_to_filter_products is not None:
-            products_to_show = self.products.filter(deliveries__id=delivery_id_to_filter_products)
+            products_to_show = self.products.filter(
+                deliveries__id=delivery_id_to_filter_products
+            )
         else:
             products_to_show = self.products.all()
         products_to_show = products_to_show.filter(is_active=True)
         return {
             "id": self.id,
             "name": self.name,
-            "products": [product.serialize() for product in products_to_show]
+            "products": [product.serialize() for product in products_to_show],
         }
 
     def __str__(self):
@@ -45,9 +49,16 @@ class Producer(models.Model):
 
 
 class Product(models.Model):
-    producer = models.ForeignKey(Producer, verbose_name="producteur", on_delete=models.CASCADE, related_name="products")
+    producer = models.ForeignKey(
+        Producer,
+        verbose_name="producteur",
+        on_delete=models.CASCADE,
+        related_name="products",
+    )
     name = models.CharField("nom", blank=False, max_length=64)
-    unit_price = models.DecimalField("prix unitaire", blank=False, max_digits=8, decimal_places=2)
+    unit_price = models.DecimalField(
+        "prix unitaire", blank=False, max_digits=8, decimal_places=2
+    )
     is_active = models.BooleanField(default=True)  # for soft-delete
 
     class Meta:
@@ -55,11 +66,7 @@ class Product(models.Model):
         ordering = ["producer", "name"]  # for "Next Orders" and "DeliveryAdmin" pages
 
     def serialize(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "unit_price": self.unit_price
-        }
+        return {"id": self.id, "name": self.name, "unit_price": self.unit_price}
 
     def __str__(self):
         return f"{self.name}" if self.is_active else f"({self.name})"
@@ -74,7 +81,9 @@ class Product(models.Model):
         opened_order_items, user_id_list = self.get_opened_order_items_and_users()
         [oi.delete() for oi in opened_order_items]
         # Delete product from opened deliveries
-        for d in Delivery.objects.filter(products__in=[self], order_deadline__gte=date.today()):
+        for d in Delivery.objects.filter(
+            products__in=[self], order_deadline__gte=date.today()
+        ):
             d.products.remove(self)
         return user_id_list
 
@@ -87,30 +96,39 @@ class Product(models.Model):
         return user_id_list
 
     def get_opened_order_items_and_users(self):
-        opened_order_items = [oi for oi in OrderItem.objects.filter(product=self) if oi.order.is_open]
+        opened_order_items = [
+            oi for oi in OrderItem.objects.filter(product=self) if oi.order.is_open
+        ]
         # can't use user QuerySet based on order_items because they will be deleted, so query will be empty later
-        user_id_list = [u.id for u in get_user_model().objects.filter(orders__items__in=opened_order_items).distinct()]
+        user_id_list = [
+            u.id
+            for u in get_user_model()
+            .objects.filter(orders__items__in=opened_order_items)
+            .distinct()
+        ]
         return opened_order_items, user_id_list
 
 
 class Delivery(models.Model):
     ORDER_DEADLINE_DAYS_BEFORE = 4
-    ORDER_DEADLINE_HELP_TEXT = f"Date limite de commande.<br> Si pas définie, elle sera automatiquement fixée à " \
-                               f"{ORDER_DEADLINE_DAYS_BEFORE} jours avant la Date de Livraison"
+    ORDER_DEADLINE_HELP_TEXT = (
+        f"Date limite de commande.<br> Si pas définie, elle sera automatiquement fixée à "
+        f"{ORDER_DEADLINE_DAYS_BEFORE} jours avant la Date de Livraison"
+    )
 
     date = models.DateField(blank=False)
     order_deadline = models.DateField(
         "date limite de commande",
         blank=True,
         unique=True,
-        help_text=ORDER_DEADLINE_HELP_TEXT  # for /admin
+        help_text=ORDER_DEADLINE_HELP_TEXT,  # for /admin
     )
     products = models.ManyToManyField(
         Product,
         verbose_name="produits",
         related_name="deliveries",
         help_text="A gauche tous les produits. "
-                  "A droite les produits disponibles à la commande pour cette livraison<br>"  # for /admin
+        "A droite les produits disponibles à la commande pour cette livraison<br>",  # for /admin
     )
     message = models.CharField(blank=True, max_length=128)
 
@@ -119,7 +137,9 @@ class Delivery(models.Model):
         ordering = ["date"]
 
     def serialize(self):
-        delivery_producers = Producer.objects.filter(products__in=self.products.all()).distinct()
+        delivery_producers = Producer.objects.filter(
+            products__in=self.products.all()
+        ).distinct()
         return {
             "date": self.date,
             "order_deadline": self.order_deadline,
@@ -128,12 +148,14 @@ class Delivery(models.Model):
                 for producer in delivery_producers.all()
             ],
             "message": self.message,
-            "is_open": self.is_open
+            "is_open": self.is_open,
         }
 
     def save(self, *args, **kwargs):
         if not self.order_deadline:
-            self.order_deadline = self.date - timedelta(days=self.ORDER_DEADLINE_DAYS_BEFORE)
+            self.order_deadline = self.date - timedelta(
+                days=self.ORDER_DEADLINE_DAYS_BEFORE
+            )
         super().save(*args, **kwargs)
 
     @property
@@ -148,7 +170,9 @@ class Delivery(models.Model):
 def delivery_product_removed(action, instance, pk_set, **kwargs):
     """When a product is removed from an opened delivery, remove related order_items"""
     if action == "post_remove" and instance.is_open:
-        if order_items := OrderItem.objects.filter(product__id__in=pk_set, order__delivery=instance):
+        if order_items := OrderItem.objects.filter(
+            product__id__in=pk_set, order__delivery=instance
+        ):
             [oi.delete() for oi in order_items]
 
 
@@ -156,15 +180,34 @@ m2m_changed.connect(delivery_product_removed, sender=Delivery.products.through)
 
 
 class Order(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="utilisateur", on_delete=models.PROTECT, related_name="orders")
-    delivery = models.ForeignKey(Delivery, verbose_name="livraison", on_delete=models.PROTECT, related_name="orders")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="utilisateur",
+        on_delete=models.PROTECT,
+        related_name="orders",
+    )
+    delivery = models.ForeignKey(
+        Delivery,
+        verbose_name="livraison",
+        on_delete=models.PROTECT,
+        related_name="orders",
+    )
     creation_date = models.DateTimeField("date de création", auto_now_add=True)
-    amount = models.DecimalField("montant", default=0.00, max_digits=8, decimal_places=2, editable=False)
-    message = models.CharField(blank=True, max_length=128, help_text="Message interne seulement visible par l'équipe")
+    amount = models.DecimalField(
+        "montant", default=0.00, max_digits=8, decimal_places=2, editable=False
+    )
+    message = models.CharField(
+        blank=True,
+        max_length=128,
+        help_text="Message interne seulement visible par l'équipe",
+    )
 
     class Meta:
         constraints = [
-            UniqueConstraint(fields=["delivery", "user"], name="user can only place one order per delivery")
+            UniqueConstraint(
+                fields=["delivery", "user"],
+                name="user can only place one order per delivery",
+            )
         ]
         verbose_name = "commande"
 
@@ -180,7 +223,9 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         # Order amount is the sum of its items amounts
         order_items = self.items.all()
-        self.amount = order_items.aggregate(Sum("amount"))["amount__sum"] if order_items else 0.00
+        self.amount = (
+            order_items.aggregate(Sum("amount"))["amount__sum"] if order_items else 0.00
+        )
         # Save order
         super().save(*args, **kwargs)
 
@@ -193,7 +238,9 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, verbose_name="commande", on_delete=models.CASCADE, related_name="items")
+    order = models.ForeignKey(
+        Order, verbose_name="commande", on_delete=models.CASCADE, related_name="items"
+    )
     product = models.ForeignKey(
         to=Product,
         null=True,  # possible when order is closed
@@ -202,13 +249,24 @@ class OrderItem(models.Model):
         on_delete=models.SET_NULL,
         related_name="order_items",
     )
-    quantity = models.PositiveIntegerField("quantité", null=False, default=1, validators=[MinValueValidator(1)])
-    amount = models.DecimalField("montant", default=0.00, max_digits=8, decimal_places=2, editable=False)
+    quantity = models.PositiveIntegerField(
+        "quantité", null=False, default=1, validators=[MinValueValidator(1)]
+    )
+    amount = models.DecimalField(
+        "montant", default=0.00, max_digits=8, decimal_places=2, editable=False
+    )
 
     # product data to be used for closed orders to prevent inconsistencies (due to product update or delete)
-    saved_p_name = models.CharField("nom du produit (sauvegardé)", null=True, blank=True, max_length=64)
-    saved_p_unit_price = models.DecimalField("prix unitaire (sauvegardé)", null=True, blank=True, max_digits=8,
-                                             decimal_places=2)
+    saved_p_name = models.CharField(
+        "nom du produit (sauvegardé)", null=True, blank=True, max_length=64
+    )
+    saved_p_unit_price = models.DecimalField(
+        "prix unitaire (sauvegardé)",
+        null=True,
+        blank=True,
+        max_digits=8,
+        decimal_places=2,
+    )
 
     class Meta:
         verbose_name = "ligne de commande"
@@ -216,7 +274,9 @@ class OrderItem(models.Model):
 
     def serialize(self):
         return {
-            "product": self.product.serialize() if self.order.is_open else {
+            "product": self.product.serialize()
+            if self.order.is_open
+            else {
                 "name": self.saved_p_name,
                 "unit_price": self.saved_p_unit_price,
             },

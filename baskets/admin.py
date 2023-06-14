@@ -22,7 +22,7 @@ def show_message_email_users(request, status_message, user_id_list):
             f"{status_message}"
             f"<br>Pour envoyer un email aux utilisateurs concernés "
             f"<a href='mailto:?bcc={emails_str}'>cliquez ici</a>"
-        )
+        ),
     )
 
 
@@ -43,12 +43,12 @@ class ProductInline(admin.TabularInline):
 @admin.register(Producer)
 class ProducerAdmin(admin.ModelAdmin):
     inlines = [ProductInline]
-    exclude = ["is_active", ]
+    exclude = [
+        "is_active",
+    ]
 
     class Media:
-        css = {
-            "all": ("baskets/css/hide_admin_original.css",)
-        }
+        css = {"all": ("baskets/css/hide_admin_original.css",)}
         js = ("baskets/js/admin_add_help_text_to_productinline.js",)
 
     def save_formset(self, request, form, formset, change):
@@ -65,7 +65,9 @@ class ProducerAdmin(admin.ModelAdmin):
         for product in products_new_or_updated:
             try:
                 previous_price = Product.objects.get(pk=product.id).unit_price
-                user_id_list = product.save()  # update product in DB and related opened order items
+                user_id_list = (
+                    product.save()
+                )  # update product in DB and related opened order items
                 if product.unit_price != previous_price and user_id_list:
                     show_message_email_users(
                         request,
@@ -107,11 +109,15 @@ class DeliveryProductInline(admin.TabularInline):
         p = obj.product
         order_items = p.order_items.filter(order__delivery=d)
         total_quantity = order_items.aggregate(Sum("quantity"))["quantity__sum"]
-        order_items_admin_url = f"{reverse('admin:baskets_orderitem_changelist')}" \
-                                f"?order__delivery__id__exact={d.id}&product__id__exact={p.id}"
+        order_items_admin_url = (
+            f"{reverse('admin:baskets_orderitem_changelist')}"
+            f"?order__delivery__id__exact={d.id}&product__id__exact={p.id}"
+        )
 
         if total_quantity:
-            return format_html(f"<a href='{order_items_admin_url}'>{total_quantity}</a>")
+            return format_html(
+                f"<a href='{order_items_admin_url}'>{total_quantity}</a>"
+            )
         else:
             return 0
 
@@ -139,9 +145,7 @@ class DeliveryAdmin(admin.ModelAdmin):
     actions = [mailto_users_from_deliveries]
 
     class Media:
-        css = {
-            "all": ("baskets/css/hide_admin_original.css",)
-        }
+        css = {"all": ("baskets/css/hide_admin_original.css",)}
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -150,10 +154,10 @@ class DeliveryAdmin(admin.ModelAdmin):
 
     @admin.display(description="nombre de commandes", ordering="orders__count")
     def orders_count(self, obj):
-        delivery_orders_url = reverse("admin:baskets_order_changelist") + f"?delivery__id__exact={obj.id}"
-        return format_html(
-            f"<a href='{delivery_orders_url}'>{obj.orders__count}</a>"
+        delivery_orders_url = (
+            reverse("admin:baskets_order_changelist") + f"?delivery__id__exact={obj.id}"
         )
+        return format_html(f"<a href='{delivery_orders_url}'>{obj.orders__count}</a>")
 
     @admin.display(description="exporter")
     def export(self, obj):
@@ -167,7 +171,7 @@ class DeliveryAdmin(admin.ModelAdmin):
             return "-"
 
     def get_formsets_with_inlines(self, request, obj=None):
-        """"Override method to hide inline on add view"""
+        """ "Override method to hide inline on add view"""
         for inline in self.get_inline_instances(request, obj):
             # show inline if obj exists
             if obj is not None:
@@ -175,38 +179,50 @@ class DeliveryAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """If a product is removed from an opened delivery, related opened order_items are deleted by
-        delivery_product_removed (triggered by m2m_changed signal). Here we show a message to notify concerned users"""
+        delivery_product_removed (triggered by m2m_changed signal). Here we show a message to notify concerned users
+        """
         super().save_model(request, obj, form, change)
 
         d = obj
         if d.is_open and "products" in form.changed_data:
             previous_products_ids = obj.products.values_list("id", flat=True)
             new_products_ids = [int(str_id) for str_id in form["products"].data]
-            if removed_products_ids := set(previous_products_ids).difference(new_products_ids):
+            if removed_products_ids := set(previous_products_ids).difference(
+                new_products_ids
+            ):
                 if removed_order_items := OrderItem.objects.filter(
-                        product__id__in=removed_products_ids,
-                        order__delivery=d
+                    product__id__in=removed_products_ids, order__delivery=d
                 ):
                     products_html_list = "</li><li>".join(
-                        [p.name for p in Product.objects.filter(id__in=removed_products_ids)]
+                        [
+                            p.name
+                            for p in Product.objects.filter(id__in=removed_products_ids)
+                        ]
                     )
-                    user_id_list = User.objects.filter(orders__items__in=removed_order_items).distinct().values("id")
+                    user_id_list = (
+                        User.objects.filter(orders__items__in=removed_order_items)
+                        .distinct()
+                        .values("id")
+                    )
                     show_message_email_users(
                         request,
                         f"Le(s) produit(s): <ul><li>{products_html_list}</li></ul>"
                         f"ont été supprimé(s) des commandes ouvertes.",
-                        user_id_list
+                        user_id_list,
                     )
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         """Override method to filter products"""
         if db_field.name == "products":
-            kwargs["queryset"] = Product.objects.filter(is_active=True)  # not active hidden for all deliveries
+            kwargs["queryset"] = Product.objects.filter(
+                is_active=True
+            )  # not active hidden for all deliveries
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
 class OrderIsOpenFilter(admin.SimpleListFilter):
     """Add filter by order.is_open property"""
+
     title = "Ouverte"
     parameter_name = "open"
 
@@ -252,17 +268,13 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInlineOpen, OrderItemInlineClosed]
 
     class Media:
-        css = {
-            "all": ("baskets/css/hide_admin_original.css",)
-        }
+        css = {"all": ("baskets/css/hide_admin_original.css",)}
 
     @admin.display(description="livraison", ordering="delivery")
     def delivery_link(self, obj):
         d = obj.delivery
         d_admin_url = reverse("admin:baskets_delivery_change", args=[d.id])
-        return format_html(
-            f"<a href='{d_admin_url}'>{d.date}</a>"
-        )
+        return format_html(f"<a href='{d_admin_url}'>{d.date}</a>")
 
     def get_queryset(self, request):
         """add 'open_' to queryset for sorting 'open'"""
@@ -270,7 +282,7 @@ class OrderAdmin(admin.ModelAdmin):
         qs = qs.annotate(
             open_=Case(
                 When(delivery__order_deadline__gte=date.today(), then=True),
-                default=False
+                default=False,
             )
         )
         return qs
@@ -323,9 +335,7 @@ class OrderItemAdmin(admin.ModelAdmin):
     def user(self, obj):
         user = obj.order.user
         user_admin_url = reverse("admin:accounts_customuser_change", args=[user.id])
-        return format_html(
-            f"<a href='{user_admin_url}'>{user.username}</a>"
-        )
+        return format_html(f"<a href='{user_admin_url}'>{user.username}</a>")
 
     def has_module_permission(self, request):
         """Don't show model on admin index"""

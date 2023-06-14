@@ -38,7 +38,9 @@ class BasePage(object):
     def load_history_page(self):
         history_link = self.driver.find_element(*self.HISTORY_LINK)
         history_link.click()
-        return IndexPage(self.driver, self.live_server_url)  # history page is also an IndexPage
+        return IndexPage(
+            self.driver, self.live_server_url
+        )  # history page is also an IndexPage
 
 
 class LoginPage(BasePage):
@@ -96,7 +98,11 @@ class IndexPage(BasePage):
 
     def get_order_amount(self, index):
         order = self.driver.find_elements(*self.ORDERS)[index]
-        return Decimal(order.text.split()[0].replace(",", ".")) if order.text.count("€") else None
+        return (
+            Decimal(order.text.split()[0].replace(",", "."))
+            if order.text.count("€")
+            else None
+        )
 
     def get_delivery_date(self, index):
         delivery = self.driver.find_elements(*self.DELIVERIES)[index]

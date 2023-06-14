@@ -39,7 +39,11 @@ class WebPageTestCase(BasketsTestCase):
         response = self.c.get(reverse("profile"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["form"].initial["email"], self.u1.email)
-        self.assertEqual(response.context["form"].initial["first_name"], self.u1.first_name)
-        self.assertEqual(response.context["form"].initial["last_name"], self.u1.last_name)
+        self.assertEqual(
+            response.context["form"].initial["first_name"], self.u1.first_name
+        )
+        self.assertEqual(
+            response.context["form"].initial["last_name"], self.u1.last_name
+        )
         self.assertEqual(response.context["form"].initial["phone"], self.u1.phone)
         self.assertEqual(response.context["form"].initial["address"], self.u1.address)
