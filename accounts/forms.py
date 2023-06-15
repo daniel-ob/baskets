@@ -38,6 +38,12 @@ class CustomSignupForm(SignupForm, CustomUserForm):
         super().__init__(*args, **kwargs)
         update_widgets_attrs(self.fields)
 
+    def custom_signup(self, request, user):
+        # save user additional fields
+        user.phone = self.cleaned_data["phone"]
+        user.address = self.cleaned_data["address"]
+        user.save()
+
 
 class CustomResetPasswordForm(ResetPasswordForm):
     def __init__(self, *args, **kwargs):
