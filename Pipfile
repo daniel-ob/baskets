@@ -12,7 +12,7 @@ xlsxwriter = "==3.0.2"
 django-allauth = "==0.54.0"
 
 [dev-packages]
-selenium = "==4.1.0"
+selenium = "==4.10.0"
 
 [requires]
 python_version = "3.9"
