@@ -178,7 +178,7 @@ class DeliveryAdmin(admin.ModelAdmin):
                 yield inline.get_formset(request, obj), inline
 
     def save_model(self, request, obj, form, change):
-        """If a product is removed from an opened delivery, related opened order_items are deleted by
+        """If a product is removed from an opened delivery, related opened order_items will be deleted by
         delivery_product_removed (triggered by m2m_changed signal). Here we show a message to notify concerned users
         """
         super().save_model(request, obj, form, change)
@@ -199,11 +199,9 @@ class DeliveryAdmin(admin.ModelAdmin):
                             for p in Product.objects.filter(id__in=removed_products_ids)
                         ]
                     )
-                    user_id_list = (
-                        User.objects.filter(orders__items__in=removed_order_items)
-                        .distinct()
-                        .values("id")
-                    )
+                    user_id_list = User.objects.filter(
+                        orders__items__in=removed_order_items
+                    ).values("id")
                     show_message_email_users(
                         request,
                         f"Le(s) produit(s): <ul><li>{products_html_list}</li></ul>"
@@ -312,7 +310,9 @@ class OrderAdmin(admin.ModelAdmin):
 
     def delete_queryset(self, request, queryset):
         """Show message to contact deleted order users"""
-        user_id_list = list(queryset.values_list("user__id", flat=True))
+        user_id_list = list(
+            queryset.values_list("user__id", flat=True)
+        )  # needs to convert into list, otherwise queryset will be empty after queryset.delete()
         queryset.delete()
         show_message_email_users(
             request,

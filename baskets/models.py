@@ -99,13 +99,12 @@ class Product(models.Model):
         opened_order_items = [
             oi for oi in OrderItem.objects.filter(product=self) if oi.order.is_open
         ]
-        # can't use user QuerySet based on order_items because they will be deleted, so query will be empty later
-        user_id_list = [
-            u.id
-            for u in get_user_model()
+        user_id_list = list(
+            get_user_model()
             .objects.filter(orders__items__in=opened_order_items)
             .distinct()
-        ]
+            .values_list("id", flat=True)
+        )  # can't use User QuerySet based on order_items because they will be deleted, so QuerySet will be empty
         return opened_order_items, user_id_list
 
 
