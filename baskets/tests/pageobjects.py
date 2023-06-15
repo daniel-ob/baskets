@@ -85,7 +85,7 @@ class IndexPage(BasePage):
 
     MAX_WAIT_SECONDS = 2
 
-    url = reverse("baskets:index")
+    url = reverse("index")
 
     def get_orders_count(self):
         orders = self.driver.find_elements(*self.ORDERS)

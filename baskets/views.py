@@ -174,7 +174,7 @@ def orders(request):
     return JsonResponse(
         {
             "message": "Order has been successfully created",
-            "url": reverse("baskets:order", args=[o.id]),
+            "url": reverse("order", args=[o.id]),
             "amount": o.amount,
         },
         status=201,

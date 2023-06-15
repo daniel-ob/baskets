@@ -24,5 +24,5 @@ urlpatterns = [
     path("accounts/", include("accounts.urls")),
 
     # Local app
-    path("", include("baskets.urls", namespace="baskets")),
+    path("", include("baskets.urls")),
 ]

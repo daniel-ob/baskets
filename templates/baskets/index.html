@@ -27,11 +27,11 @@
                 <tbody title="click on a row to see details">
                     {% for item in deliveries_orders %}
                         <tr class="order-list-item">
-                            <td class="delivery" data-url="{% url 'baskets:delivery' item.delivery.id %}">
+                            <td class="delivery" data-url="{% url 'delivery' item.delivery.id %}">
                                 {{ item.delivery.date|date:"d/m/Y"}}
                             </td>
                             {% if item.order %}
-                                <td class="order" data-url="{% url 'baskets:order' item.order.id %}">
+                                <td class="order" data-url="{% url 'order' item.order.id %}">
                                     {{ item.order.amount }} €
                                 </td>
                             {% else %}
@@ -75,7 +75,7 @@
                 <i class="bi bi-trash-fill"></i>
             </button>
             <button class="btn btn-primary d-none" id="save"></button>
-            <input type="hidden" id="create-order" data-url="{% url 'baskets:orders' %}" />
+            <input type="hidden" id="create-order" data-url="{% url 'orders' %}" />
         </div>
     </div>
 

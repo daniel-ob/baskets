@@ -13,11 +13,11 @@
     <body class="d-flex flex-column min-vh-100">
 
         <nav class="navbar navbar-expand-lg navbar-light" style="background-color: palegreen;">
-            {% url 'baskets:index' as index_url %}
-            {% url 'baskets:order_history' as history_url %}
+            {% url 'index' as index_url %}
+            {% url 'order_history' as history_url %}
             {% url 'profile' as profile_url %}
             <div class="container-fluid">
-                <a class="navbar-brand" href="{% url 'baskets:index' %}">
+                <a class="navbar-brand" href="{% url 'index' %}">
                     <img src="{% static 'baskets/img/logo.svg' %}" alt="" width="30" height="24"
                          class="d-inline-block align-text-top">
                     {% app_name %}
@@ -27,11 +27,11 @@
                     {% if user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == index_url %} active {% endif %}"
-                               href="{% url 'baskets:index' %}">Commandes à venir</a>
+                               href="{% url 'index' %}">Commandes à venir</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == history_url %} active {% endif %}"
-                               href="{% url 'baskets:order_history' %}">Historique</a>
+                               href="{% url 'order_history' %}">Historique</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -71,7 +71,7 @@
         </div>
 
         <footer class="mt-auto p-3 text-end bg-light">
-            <a class="text-muted" href="{% url 'baskets:contact' %}">Nous contacter</a>
+            <a class="text-muted" href="{% url 'contact' %}">Nous contacter</a>
         </footer>
         {% block script %}{% endblock %}
     </body>
