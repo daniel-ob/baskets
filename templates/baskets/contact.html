@@ -4,10 +4,6 @@
 
     <h1>Contact</h1>
 
-    {% if message %}
-        <div>{{ message }}</div>
-    {% endif %}
-
     <form action="{% url 'contact' %}" method="post">
         {% csrf_token %}
         {% for field in form %}

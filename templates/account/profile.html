@@ -6,10 +6,6 @@
 
     <h1>{% trans "Profile" %}</h1>
 
-    {% if message %}
-        <div class="text-success">{{ message }}</div>
-    {% endif %}
-
     <form action="{% url 'profile' %}" method="post">
         {% csrf_token %}
         {% for field in form %}

@@ -1,6 +1,7 @@
 from datetime import date
 import json
 
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -71,8 +72,6 @@ def contact(request):
     - POST: submit contact form to admins by email
     """
 
-    message = ""
-
     if request.method == "POST":
         form = ContactForm(request.POST)
         if not form.is_valid():
@@ -83,7 +82,7 @@ def contact(request):
             subject=form.cleaned_data["subject"],
             message=form.cleaned_data["message"],
         )
-        message = "Votre message a été envoyé."
+        messages.add_message(request, messages.SUCCESS, "Votre message a été envoyé.")
 
     default_data = {
         "from_email": request.user.email if request.user.is_authenticated else None
@@ -91,7 +90,7 @@ def contact(request):
     return render(
         request,
         "baskets/contact.html",
-        {"message": message, "form": ContactForm(initial=default_data)},
+        {"form": ContactForm(initial=default_data)},
     )
 
 
