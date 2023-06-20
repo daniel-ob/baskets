@@ -1,13 +1,76 @@
-from datetime import date, timedelta
 import json
 
 from django.db.models import Max
+from django.urls import reverse
+from rest_framework import status
 
 from baskets.models import Order, OrderItem, Product
 from baskets.tests.setup import BasketsTestCase
 
 
-class APITestCase(BasketsTestCase):
+SERVER_NAME = "http://testserver"
+
+
+class TestDeliveryAPI(BasketsTestCase):
+    def _get_delivery_list_json(self, deliveries):
+        return [
+            {
+                "url": SERVER_NAME + reverse("delivery-detail", args=[d.id]),
+                "date": d.date.isoformat(),
+            }
+            for d in deliveries
+        ]
+
+    def test_list(self):
+        """Check that list of opened deliveries can be retrieved through API. Deliveries must be ordered by date"""
+
+        self.api_c.force_authenticate(user=self.u1)
+        response = self.api_c.get(reverse("delivery-list"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json(), self._get_delivery_list_json([self.d2, self.d3]))
+
+    def test_detail(self):
+        """Check that a Delivery can be retrieved through API. Also check that only delivery products are returned
+        (not all products from producer)"""
+
+        d2_expected_json = {
+            "id": self.d2.id,
+            "date": self.d2.date.isoformat(),
+            "order_deadline": self.d2.order_deadline.isoformat(),
+            "products_by_producer": [
+                {
+                    "name": "producer1",
+                    "products": [
+                        {
+                            "id": self.product1.id,
+                            "name": "product1",
+                            "unit_price": "0.50",
+                        },
+                    ]
+                },
+                {
+                    "name": "producer2",
+                    "products": [
+                        {
+                            "id": self.product3.id,
+                            "name": "product3",
+                            "unit_price": "1.15",
+                        }
+                    ]
+                }
+            ],
+            "message": self.d2.message,
+        }
+
+        self.api_c.force_authenticate(user=self.u1)
+        response = self.api_c.get(reverse("delivery-detail", args=[self.d2.id]))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json(), d2_expected_json)
+
+
+class TestOrderAPI(BasketsTestCase):
     def test_order_list_get(self):
         """Check that user can get the list of all of its orders through API, ordered by reverse delivery date"""
 
@@ -324,56 +387,3 @@ class APITestCase(BasketsTestCase):
 
         self.assertEqual(response.status_code, 401)
         self.assertIn(self.o1, Order.objects.all())
-
-    def test_delivery_list_get(self):
-        """Check that next opened deliveries list can be retrieved through API. Deliveries must be ordered by date"""
-
-        deliveries_list_expected_json = [
-            {"id": self.d2.id, "date": self.d2.date.isoformat()},
-            {"id": self.d3.id, "date": self.d3.date.isoformat()},
-        ]
-        response = self.c.get("/deliveries")
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), deliveries_list_expected_json)
-
-    def test_delivery_get(self):
-        """Check that a delivery can be retrieved through API"""
-
-        today = date.today()
-        tomorrow = today + timedelta(days=1)
-        d2_expected_json = {
-            "date": tomorrow.isoformat(),
-            "order_deadline": today.isoformat(),
-            "products_by_producer": [
-                {
-                    "id": self.producer1.id,
-                    "name": "producer1",
-                    "products": [
-                        {
-                            "id": self.product1.id,
-                            "name": "product1",
-                            "unit_price": "0.50",
-                        },
-                    ],
-                },
-                {
-                    "id": self.producer2.id,
-                    "name": "producer2",
-                    "products": [
-                        {
-                            "id": self.product3.id,
-                            "name": "product3",
-                            "unit_price": "1.15",
-                        }
-                    ],
-                },
-            ],
-            "message": "delivery 2",
-            "is_open": True,
-        }
-
-        response = self.c.get(f"/deliveries/{self.d2.id}")
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), d2_expected_json)

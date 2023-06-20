@@ -22,20 +22,6 @@ class Producer(models.Model):
         verbose_name = "producteur"
         ordering = ["name"]
 
-    def serialize(self, delivery_id_to_filter_products=None):
-        if delivery_id_to_filter_products is not None:
-            products_to_show = self.products.filter(
-                deliveries__id=delivery_id_to_filter_products
-            )
-        else:
-            products_to_show = self.products.all()
-        products_to_show = products_to_show.filter(is_active=True)
-        return {
-            "id": self.id,
-            "name": self.name,
-            "products": [product.serialize() for product in products_to_show],
-        }
-
     def __str__(self):
         return f"{self.name}"
 
@@ -134,21 +120,6 @@ class Delivery(models.Model):
     class Meta:
         verbose_name = "livraison"
         ordering = ["date"]
-
-    def serialize(self):
-        delivery_producers = Producer.objects.filter(
-            products__in=self.products.all()
-        ).distinct()
-        return {
-            "date": self.date,
-            "order_deadline": self.order_deadline,
-            "products_by_producer": [
-                producer.serialize(delivery_id_to_filter_products=self.id)
-                for producer in delivery_producers.all()
-            ],
-            "message": self.message,
-            "is_open": self.is_open,
-        }
 
     def save(self, *args, **kwargs):
         if not self.order_deadline:

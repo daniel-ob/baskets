@@ -212,7 +212,7 @@ async function updateOrderView(selectedOrderListItem) {
 async function saveOrder() {
   // Create or Update order
   const selectedOrderListItem = document.querySelector('.table-active');
-  const deliveryId = selectedOrderListItem.querySelector('.delivery').dataset.url.split('/').pop();
+  const deliveryId = selectedOrderListItem.querySelector('.delivery').dataset.url.split('/').at(-2);
   const orderView = document.querySelector('#order-view');
   const orderAmount = document.querySelector('#order-amount').innerText;
   let orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;

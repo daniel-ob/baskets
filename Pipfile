@@ -10,6 +10,8 @@ django-extensions = "==3.2.1"
 psycopg2-binary = "==2.9.6"
 xlsxwriter = "==3.0.2"
 django-allauth = "==0.54.0"
+djangorestframework = "==3.14.0"
+djangorestframework-simplejwt = "==4.7.2"
 
 [dev-packages]
 selenium = "==4.10.0"

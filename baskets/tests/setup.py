@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from allauth.account.models import EmailAddress
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
+from rest_framework.test import APIClient
 
 from baskets.models import Producer, Product, Delivery, Order, OrderItem
 
@@ -105,8 +106,9 @@ class BasketsTestCase(TestCase):
             order=self.o3, product=self.product1, quantity=2
         )  # 1.00
 
-        # Create test client
+        # Create test clients
         self.c = Client()
+        self.api_c = APIClient()
 
     @staticmethod
     def create_producer():

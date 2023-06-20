@@ -81,6 +81,7 @@ All functionalities except "contact" requires authentication.
 In addition to **Django**, the following libraries has been used:
 
 - **Django-allauth**: to manage user login, register and password reset
+- **Django-REST-Framework**: to build the API
 - **XlsxWriter**: to create xlsx files in `baskets/export.py`
 - **Selenium**: to do browser end-to-end testing in `baskets/tests/test_functional.py`
 
@@ -156,7 +157,7 @@ Launch only functional tests:
 List deliveries for which we can still order.
 
 ```
-GET /deliveries
+GET /api/v1/deliveries/
 ```
 
 **Response**
@@ -167,11 +168,11 @@ GET /deliveries
 ```
 [
     {
-        "id": 5,
+        "url": "http://domain.com/api/v1/deliveries/5/",
         "date": "2021-11-30"
     },
     {
-        "id": 6,
+        "url": "http://domain.com/api/v1/deliveries/6/",
         "date": "2021-12-07"
     }
 ]
@@ -180,7 +181,7 @@ GET /deliveries
 ### Get delivery details
 
 ```
-GET /deliveries/{delivery_id}
+GET /api/v1/deliveries/{delivery_id}/
 ```
 
 **Response**
@@ -190,11 +191,11 @@ GET /deliveries/{delivery_id}
 ```
 ```
 {
+    "id": 2,
     "date": "2023-05-30",
     "order_deadline": "2023-05-25",
     "products_by_producer": [
         {
-            "id": 1,
             "name": "producer1",
             "products": [
                 {
@@ -205,7 +206,6 @@ GET /deliveries/{delivery_id}
             ]
         },
         {
-            "id": 2,
             "name": "producer2",
             "products": [
                 {
@@ -217,7 +217,6 @@ GET /deliveries/{delivery_id}
         }
     ],
     "message": "This week meat producer is on vacation",
-    "is_open": true
 }
 ```
 

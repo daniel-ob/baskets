@@ -1,6 +1,10 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
 from . import views
+
+router = DefaultRouter()
+router.register(r"deliveries", views.DeliveryViewSet, "delivery")
 
 urlpatterns = [
     path("", views.index, name="index"),  # 'next orders' page
@@ -10,8 +14,7 @@ urlpatterns = [
     # API Routes
     path("orders", views.orders, name="orders"),
     path("orders/<int:order_id>", views.order, name="order"),
-    path("deliveries", views.deliveries, name="deliveries"),
-    path("deliveries/<int:delivery_id>", views.delivery, name="delivery"),
+    path("api/v1/", include(router.urls)),
 
     # Staff exports
     path(

@@ -40,10 +40,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+
     # 3rd party
     "allauth",
     "allauth.account",
     "django_extensions",
+    "rest_framework",
+    "rest_framework_simplejwt",
+
     # local
     "accounts",
     "baskets",
@@ -178,3 +182,13 @@ ACCOUNT_FORMS = {
     "reset_password_from_key": "accounts.forms.CustomResetPasswordKeyForm",
 }
 ACCOUNT_LOGOUT_ON_GET = True  # Do not ask for confirmation before logging out
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',  # for Browsable API log in / log out
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ]
+}

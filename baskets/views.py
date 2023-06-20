@@ -7,6 +7,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import FileResponse, HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from rest_framework import viewsets
 
 from .email import email_staff_contact
 from .export import (
@@ -16,6 +17,7 @@ from .export import (
 )
 from .forms import ContactForm
 from .models import Delivery, Order, OrderItem, Producer, Product
+from .serializers import DeliveryListSerializer, DeliveryDetailSerializer
 
 
 @login_required
@@ -267,24 +269,19 @@ def order(request, order_id):
         return HttpResponseNotAllowed(["GET", "PUT", "DELETE"])
 
 
-def deliveries(request):
-    """Deliveries API: GET the list of opened deliveries"""
+class DeliveryViewSet(viewsets.ReadOnlyModelViewSet):
+    """Opened Deliveries API"""
 
-    opened_deliveries = Delivery.objects.filter(
-        order_deadline__gte=date.today()
-    ).order_by("date")
-    d_list = [{"id": d.id, "date": d.date} for d in opened_deliveries]
-    return JsonResponse(d_list, safe=False)
+    serializer_class = DeliveryListSerializer
+    detail_serializer_class = DeliveryDetailSerializer
+    queryset = Delivery.objects.filter(order_deadline__gte=date.today()).order_by(
+        "date"
+    )
 
-
-def delivery(request, delivery_id):
-    """Delivery API: GET Delivery details"""
-
-    # Attempt to retrieve delivery
-    d = get_object_or_404(Delivery, id=delivery_id)
-
-    if request.method == "GET":
-        return JsonResponse(d.serialize())
+    def get_serializer_class(self):
+        if self.action == "retrieve" and self.detail_serializer_class is not None:
+            return self.detail_serializer_class
+        return super().get_serializer_class()
 
 
 @staff_member_required
