@@ -211,8 +211,8 @@ class FunctionalTestCase(StaticLiveServerTestCase):
         self.assertEqual(history_page.get_items_count(), self.o1.items.count())
         for index, item in enumerate(self.o1.items.all()):
             self.assertEqual(
-                history_page.get_item_unit_price(index), item.saved_p_unit_price
+                history_page.get_item_unit_price(index), item.product_unit_price
             )
-            self.assertEqual(history_page.get_item_name(index), item.saved_p_name)
+            self.assertEqual(history_page.get_item_name(index), item.product_name)
             self.assertEqual(history_page.get_item_quantity(index), item.quantity)
             self.assertEqual(history_page.get_item_amount(index), item.amount)

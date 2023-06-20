@@ -153,8 +153,8 @@ class ModelsTestCase(BasketsTestCase):
 
         [elem.refresh_from_db() for elem in [self.o1, self.o1i1, self.o1i2]]
         self.assertEqual(self.o1.items.count(), 2)
-        self.assertEqual(self.o1i1.saved_p_name, "product1")
-        self.assertEqual(self.o1i1.saved_p_unit_price, 0.50)
+        self.assertEqual(self.o1i1.product_name, "product1")
+        self.assertEqual(self.o1i1.product_unit_price, 0.50)
         self.assertEqual(self.o1i1.amount, initial_item1_amount)
         self.assertEqual(self.o1i2.amount, initial_item2_amount)
         self.assertEqual(self.o1.amount, initial_order_amount)
@@ -251,9 +251,10 @@ class ModelsTestCase(BasketsTestCase):
 
         self.assertFalse(self.o1.is_open)
 
-        self.o1i1.saved_p_unit_price += 0.25
+        self.o1i1.product_unit_price += 0.25
         self.o1i1.save()
 
+        self.o1i1.refresh_from_db()
         self.assertEqual(self.o1i1.amount, 3.00)
         self.assertEqual(self.o1.amount, 4.00)
 

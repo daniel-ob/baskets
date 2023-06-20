@@ -1,13 +1,11 @@
 from datetime import date
-import json
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.exceptions import PermissionDenied
-from django.http import FileResponse, HttpResponse, HttpResponseNotAllowed, JsonResponse
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404, render
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic import FormView
 from rest_framework import viewsets
 
@@ -18,8 +16,13 @@ from .export import (
     get_producer_export_xlsx,
 )
 from .forms import ContactForm
-from .models import Delivery, Order, OrderItem, Producer, Product
-from .serializers import DeliveryListSerializer, DeliveryDetailSerializer
+from .models import Delivery, Order
+from .serializers import (
+    DeliverySerializer,
+    DeliveryDetailSerializer,
+    OrderSerializer,
+    OrderDetailSerializer,
+)
 
 
 @login_required
@@ -94,191 +97,32 @@ class ContactFormView(SuccessMessageMixin, FormView):
         return super().form_valid(form)
 
 
-def orders(request):
-    """Orders API:
-    - GET: Get the list of user orders
-    - POST: Create order for given delivery
-    """
-
-    # User must be authenticated to create/retrieve orders
-    if not request.user.is_authenticated:
-        return HttpResponse("Unauthorized", status=401)
-
-    if request.method == "GET":
-        order_list = [
-            {
-                "id": o.id,
-                "delivery_id": o.delivery.id,
-            }
-            for o in request.user.orders.all().order_by("-delivery__date")
-        ]
-        return JsonResponse(order_list, safe=False)
-
-    if request.method != "POST":
-        return HttpResponseNotAllowed(["GET", "POST"])
-
-    data = json.loads(request.body)
-
-    # Attempt to retrieve delivery
-    d_id = data["delivery_id"]
-    d = get_object_or_404(Delivery, pk=d_id)
-
-    # Delivery must be opened (still accepting orders)
-    if not d.is_open:
-        return JsonResponse(
-            {"error": "The order deadline for this delivery has passed"}, status=400
-        )
-
-    # User can only have one order per delivery
-    if d.orders.filter(user=request.user):
-        return JsonResponse(
-            {"error": "User already has an order for this delivery"}, status=400
-        )
-
-    o = Order.objects.create(
-        user=request.user, delivery=d, message=data.get("message", "")
-    )
-
-    # Add order items
-    if data.get("items") is None:
-        o.delete()
-        return JsonResponse(
-            {"error": "Order must contain at least one item"}, status=400
-        )
-    else:
-        for item in data["items"]:
-            # Attempt to retrieve product
-            try:
-                product = Product.objects.get(id=item["product_id"])
-            except Product.DoesNotExist:
-                o.delete()
-                return JsonResponse(
-                    {"error": f"Product with id {item['product_id']} does not exist"},
-                    status=404,
-                )
-            order_item = OrderItem.objects.create(
-                order=o, product=product, quantity=int(item["quantity"])
-            )
-            if not order_item.is_valid():
-                # Delete order with related items
-                o.delete()
-                return JsonResponse(
-                    {
-                        "error": "Invalid order. All products must be available in the delivery and "
-                        "quantities must be greater than zero"
-                    },
-                    status=400,
-                )
-        o.save()
-
-    return JsonResponse(
-        {
-            "message": "Order has been successfully created",
-            "url": reverse("order", args=[o.id]),
-            "amount": o.amount,
-        },
-        status=201,
-    )
-
-
-def order(request, order_id):
-    """Order API:
-    - GET: Get Order details
-    - PUT: Update existing Order (items, message)
-    - DELETE: Delete Order
-    """
-
-    # User must be authenticated to access orders
-    if not request.user.is_authenticated:
-        return HttpResponse("Unauthorized", status=401)
-
-    # Attempt to retrieve order
-    o = get_object_or_404(Order, id=order_id)
-
-    # User can only access its own orders
-    if o.user != request.user:
-        raise PermissionDenied
-
-    if request.method == "GET":
-        return JsonResponse(o.serialize())
-
-    elif request.method == "PUT":
-        # Orders can only be updated if their related delivery is open
-        if not o.delivery.is_open:
-            return JsonResponse(
-                {"error": "Related delivery is closed. Order can no longer be updated"},
-                status=400,
-            )
-
-        data = json.loads(request.body)
-
-        if data.get("items") is not None:
-            # Update order items (add new, remove old)
-            old_order_items_ids = [oi.id for oi in o.items.all()]
-
-            for item in data["items"]:
-                # Attempt to retrieve product
-                try:
-                    product = Product.objects.get(id=item["product_id"])
-                except Product.DoesNotExist:
-                    return JsonResponse(
-                        {
-                            "error": f"Product with id {item['product_id']} does not exist"
-                        },
-                        status=404,
-                    )
-                new_order_item = OrderItem(
-                    order=o, product=product, quantity=int(item["quantity"])
-                )
-                if not new_order_item.is_valid():
-                    return JsonResponse(
-                        {
-                            "error": "All products must be available in the delivery and "
-                            "quantities must be greater than zero"
-                        },
-                        status=400,
-                    )
-                new_order_item.save()
-
-            OrderItem.objects.filter(id__in=old_order_items_ids).delete()
-
-        if data.get("message") is not None:
-            o.message = data["message"]
-
-        o.save()
-
-        return JsonResponse(
-            {
-                "message": "Order has been successfully updated",
-                "amount": "{:.2f}".format(o.amount),
-            },
-            status=200,
-        )
-
-    elif request.method == "DELETE":
-        o.delete()
-        return JsonResponse(
-            {
-                "message": "Order has been successfully deleted",
-            },
-            status=200,
-        )
-
-    else:
-        return HttpResponseNotAllowed(["GET", "PUT", "DELETE"])
-
-
 class DeliveryViewSet(viewsets.ReadOnlyModelViewSet):
     """Opened Deliveries API"""
 
-    serializer_class = DeliveryListSerializer
+    serializer_class = DeliverySerializer
     detail_serializer_class = DeliveryDetailSerializer
     queryset = Delivery.objects.filter(order_deadline__gte=date.today()).order_by(
         "date"
     )
 
     def get_serializer_class(self):
-        if self.action == "retrieve" and self.detail_serializer_class is not None:
+        if self.action == "retrieve":
+            return self.detail_serializer_class
+        return super().get_serializer_class()
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    """User orders API"""
+
+    serializer_class = OrderSerializer
+    detail_serializer_class = OrderDetailSerializer
+
+    def get_queryset(self):
+        return self.request.user.orders.all().order_by("-delivery__date")
+
+    def get_serializer_class(self):
+        if self.action in ["retrieve", "create", "update"]:
             return self.detail_serializer_class
         return super().get_serializer_class()
 

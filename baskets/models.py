@@ -51,9 +51,6 @@ class Product(models.Model):
         verbose_name = "produit"
         ordering = ["producer", "name"]  # for "Next Orders" and "DeliveryAdmin" pages
 
-    def serialize(self):
-        return {"id": self.id, "name": self.name, "unit_price": self.unit_price}
-
     def __str__(self):
         return f"{self.name}" if self.is_active else f"({self.name})"
 
@@ -181,15 +178,6 @@ class Order(models.Model):
         ]
         verbose_name = "commande"
 
-    def serialize(self):
-        return {
-            "delivery_id": self.delivery.id,
-            "items": [item.serialize() for item in self.items.all()],
-            "amount": self.amount,
-            "message": self.message,
-            "is_open": self.is_open,
-        }
-
     def save(self, *args, **kwargs):
         # Order amount is the sum of its items amounts
         order_items = self.items.all()
@@ -226,11 +214,11 @@ class OrderItem(models.Model):
         "montant", default=0.00, max_digits=8, decimal_places=2, editable=False
     )
 
-    # product data to be used for closed orders to prevent inconsistencies (due to product update or delete)
-    saved_p_name = models.CharField(
+    # saved product data to prevent inconsistencies due to product update or delete
+    product_name = models.CharField(
         "nom du produit (sauvegardé)", null=True, blank=True, max_length=64
     )
-    saved_p_unit_price = models.DecimalField(
+    product_unit_price = models.DecimalField(
         "prix unitaire (sauvegardé)",
         null=True,
         blank=True,
@@ -242,27 +230,15 @@ class OrderItem(models.Model):
         verbose_name = "ligne de commande"
         verbose_name_plural = "lignes de commande"
 
-    def serialize(self):
-        return {
-            "product": self.product.serialize()
-            if self.order.is_open
-            else {
-                "name": self.saved_p_name,
-                "unit_price": self.saved_p_unit_price,
-            },
-            "quantity": self.quantity,
-            "amount": self.amount,
-        }
-
     def save(self, *args, **kwargs):
         if self.order.is_open or (
-            not self.saved_p_unit_price and self.product  # to create closed orders
+            not self.product_unit_price and self.product  # to create closed orders
         ):
-            self.saved_p_name = self.product.name
-            self.saved_p_unit_price = self.product.unit_price
+            self.product_name = self.product.name
+            self.product_unit_price = self.product.unit_price
             self.amount = self.quantity * self.product.unit_price
         else:
-            self.amount = self.quantity * self.saved_p_unit_price
+            self.amount = self.quantity * self.product_unit_price
         # Save item
         super().save(*args, **kwargs)
         # Recalculate order.amount with this item
@@ -282,5 +258,4 @@ class OrderItem(models.Model):
         return self.product in self.order.delivery.products.all() and self.quantity > 0
 
     def __str__(self):
-        product_name = self.product.name if self.product else self.saved_p_name
-        return f"{self.order}: {self.quantity} x {product_name}"
+        return f"{self.order}: {self.quantity} x {self.product_name}"

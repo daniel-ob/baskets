@@ -1,4 +1,7 @@
-const csrftoken = getCookie('csrftoken');
+const headers = {
+  'X-CSRFToken': getCookie('csrftoken'),
+  'Content-Type': 'application/json; charset=UTF-8',
+};
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -168,7 +171,7 @@ async function updateOrderView(selectedOrderListItem) {
     const orderViewItems = document.querySelectorAll('.order-view-item');
     orderViewItems.forEach(orderViewItem => {
       let productId = parseInt(orderViewItem.dataset.productid);
-      let orderItem = order.items.find(item => item.product.id === productId)
+      let orderItem = order.items.find(item => item.product === productId)
       if (orderItem) {
         const orderViewItemQuantity = orderViewItem.querySelector('.quantity');
         const orderViewItemAmount = orderViewItem.querySelector('.amount');
@@ -187,8 +190,8 @@ async function updateOrderView(selectedOrderListItem) {
       orderViewItem.className = "order-view-item";
       orderViewItem.dataset.productid = item.product.id;
       orderViewItem.innerHTML = `
-        <td class="product-name">${item.product.name}</td>
-        <td class="col-2 text-end"><span class="unit-price">${item.product.unit_price}</span> €/U</td>
+        <td class="product-name">${item.product_name}</td>
+        <td class="col-2 text-end"><span class="unit-price">${item.product_unit_price}</span> €/U</td>
         <td class="col-1 text-end quantity">x${item.quantity}</td>
         <td class="col-2 text-end"><span class="amount">${item.amount}</span> €</td>`;
       orderViewItemsContainer.append(orderViewItem);
@@ -222,10 +225,10 @@ async function saveOrder() {
   if (orderItems.length > 0) {
     if (orderUrl === '') {
       result = await requestCreateOrder(deliveryId, orderItems);
-      orderUrl = result.url; // new order url
     } else {
-      result = await requestUpdateOrder(orderUrl, orderItems);
+      result = await requestUpdateOrder(orderUrl, deliveryId, orderItems);
     }
+    orderUrl = result.url; // new or updated order url
 
     // if order amount sent by back-end matches front-end one, order has been successfully created/updated
     if (result.amount === orderAmount) {
@@ -250,8 +253,8 @@ async function saveOrder() {
       // valid order items have quantity greater than 0
       if (quantity > 0) {
         orderItems.push({
-          'product_id': orderViewItem.dataset.productid,
-          'quantity': quantity
+          'product': orderViewItem.dataset.productid,
+          'quantity': quantity,
         });
       }
     })
@@ -265,9 +268,9 @@ async function deleteOrder() {
   const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
   const orderView = document.querySelector('#order-view');
 
-  const result = await requestDeleteOrder(orderUrl);
+  const response = await requestDeleteOrder(orderUrl);
 
-  if (result.message) {
+  if (response.status == 204) {
     updateSelectedOrderListItem(null, '');
     highlightOrderListItem(null);
     showAlert('successRemove');
@@ -294,11 +297,9 @@ async function requestCreateOrder(deliveryId, orderItems) {
   const createOrderUrl = document.querySelector('#create-order').dataset.url;
   const response = await fetch(createOrderUrl, {
     method: 'POST',
-    headers: {
-      'X-CSRFToken': csrftoken
-    },
+    headers: headers,
     body: JSON.stringify({
-      'delivery_id': deliveryId,
+      'delivery': deliveryId,
       'items': orderItems,
     })
   })
@@ -306,14 +307,13 @@ async function requestCreateOrder(deliveryId, orderItems) {
   return response.json();
 }
 
-async function requestUpdateOrder(orderUrl, orderItems) {
+async function requestUpdateOrder(orderUrl, deliveryId, orderItems) {
   // Send 'PUT' request to update order in back-end
   const response = await fetch(orderUrl, {
     method: 'PUT',
-    headers: {
-      'X-CSRFToken': csrftoken
-    },
+    headers: headers,
     body: JSON.stringify({
+      'delivery': deliveryId,
       'items': orderItems,
     })
   })
@@ -325,12 +325,10 @@ async function requestDeleteOrder(orderUrl) {
   // Send 'DELETE' order request to back-end
   const response = await fetch(orderUrl, {
     method: 'DELETE',
-    headers: {
-      'X-CSRFToken': csrftoken
-    }
+    headers: headers,
   })
   .catch(error => showAlert(error.message));
-  return response.json();
+  return response;
 }
 
 function updateSelectedOrderListItem(orderAmount, orderUrl) {

@@ -152,6 +152,25 @@ Launch only functional tests:
 
 ## API Reference <a name="api-ref"></a>
 
+A Postman collection demonstrating the use of the API can be found [here](baskets_API.postman_collection.json).
+
+### Browseable API
+
+If settings.DEBUG is set to True, browseable API provided by REST framework can be visited on [http://127.0.0.1:8000/api/v1/](http://127.0.0.1:8000/api/v1/)
+
+### API Authentication
+
+All API endpoints requires token authentication.
+
+JWT token pair can be requested on `/api/token/` providing `username` and `password` on request Body form-data. 
+This returns `access` and `refresh` tokens.
+
+To authenticate requests, `access` token must be added to headers:
+
+    Authorization: Bearer {{access_token}}
+
+When expired, `access` token can be refreshed on `/api/token/refresh/` providing `refresh` token.
+
 ### List open deliveries
 
 List deliveries for which we can still order.
@@ -168,17 +187,18 @@ GET /api/v1/deliveries/
 ```
 [
     {
-        "url": "http://domain.com/api/v1/deliveries/5/",
-        "date": "2021-11-30"
+        "url": "http://127.0.0.1:8000/api/v1/deliveries/3/",
+        "date": "2023-06-27",
+        "order_deadline": "2023-06-23"
     },
     {
-        "url": "http://domain.com/api/v1/deliveries/6/",
-        "date": "2021-12-07"
+        "url": "http://127.0.0.1:8000/api/v1/deliveries/2/",
+        "date": "2023-07-04",
+        "order_deadline": "2023-06-30"
     }
-]
 ```
 
-### Get delivery details
+### Get delivery detail
 
 ```
 GET /api/v1/deliveries/{delivery_id}/
@@ -222,10 +242,8 @@ GET /api/v1/deliveries/{delivery_id}/
 
 ### List user orders
 
-Requires authentication
-
 ```
-GET /orders
+GET /api/v1/orders/
 ```
 
 **Response**
@@ -236,22 +254,22 @@ GET /orders
 ```
 [
     {
-        "id": 2,
-        "delivery_id": 1
-    },
-    {
-        "id": 38,
-        "delivery_id": 3
+        "url": "http://127.0.0.1:8000/api/v1/orders/30/",
+        "delivery": {
+            "url": "http://127.0.0.1:8000/api/v1/deliveries/2/",
+            "date": "2023-07-04",
+            "order_deadline": "2023-06-30"
+        },
+        "amount": "220.00",
+        "is_open": true
     }
 ]
 ```
 
-### Get order details
-
-Requires authentication
+### Get order detail
 
 ```
-GET /orders/{order_id}
+GET /api/v1/orders/{order_id}/
 ```
 
 **Response**
@@ -261,55 +279,48 @@ GET /orders/{order_id}
 ```
 ```
 {
-    "delivery_id": 3,
+    "url": "http://127.0.0.1:8000/api/v1/orders/30/",
+    "delivery": 2,
     "items": [
         {
-            "product": {
-                "id": 2,
-                "name": "Big vegetables basket",
-                "unit_price": "17.00"
-            },
+            "product": 5,
+            "product_name": "Package of meat (5kg)",
+            "product_unit_price": "110.00",
             "quantity": 2,
-            "amount": "34.00"
+            "amount": "220.00"
         }
     ],
-    "amount": "34.00",
-    "message": "API test order"
+    "amount": "220.00",
+    "message": "",
+    "is_open": true
 }
 ```
 
 ### Create an order
 
-Requires authentication
-
-**X-CSRFToken** header must be set to the value of **csrftoken** cookie
-
 ```
-POST /orders
+POST /api/v1/orders/
 ```
 ```
-{
-    "delivery_id": 5,
+{   
+    "delivery": 3,
     "items": [
         {
-            "product_id": 1,
-            "quantity": 1
-        },
-        {
-            "product_id": 2,
+            "product": 14,
             "quantity": 2
         }
     ],
     "message": "is it possible to come and pick it up the next day?"
+
 }
 ```
 
 Request must follow this rules:
 
-- delivery must be opened for orders (delivery.is_open == true)
+- delivery must be opened for orders (`delivery.is_open == true`)
 - a user can only post an order per delivery
 - order must contain at least one item
-- all item products must be available in delivery.products
+- all item products must be available in `delivery.products`
 - all item quantities must be greater than zero
 
 **Response**
@@ -317,43 +328,31 @@ Request must follow this rules:
 Status: 201 Created
 ```
 ```
-{
-    "message": "Order has been successfully created",
-    "url": "/orders/48",
-    "amount": "36.00"
-}
+(Created order detail)
 ```
 
 ### Update an order
 
-Requires authentication.
-
-Orders can be updated while related delivery.order_deadline is not passed.
-
-**X-CSRFToken** header must be set to the value of **csrftoken** cookie.
+Orders can be updated until `delivery.order_deadline`.
 
 ```
-PUT /orders/{order_id}
+PUT /api/v1/orders/{order_id}/
 ```
 ```
-{
+{   
+    "delivery": 3,
     "items": [
         {
-            "product_id": 1,
-            "quantity": 2
-        },
-        {
-            "product_id": 3,
+            "product": 14,
             "quantity": 1
         }
-    ],
-    "message": ""
+    ]
 }
 ```
 
 Updated items must follow this rules:
 
-- all item products must be available in delivery.products
+- all item products must be available in `delivery.products`
 - all item quantities must be greater than zero
 
 **Response**
@@ -362,29 +361,17 @@ Updated items must follow this rules:
  Status: 200 OK
 ```
 ```
-{
-    "message": "Order has been successfully updated",
-    "amount": "7.00"
-}
+(Updated order detail)
 ```
 
 ### Delete an order
 
-Requires authentication
-
-**X-CSRFToken** header must be set to the value of **csrftoken** cookie.
-
 ```
-DELETE /orders/{order_id}
+DELETE /api/v1/orders/{order_id}/
 ```
 
 **Response**
 
 ```
- Status: 200 OK
-```
-```
-{
-    "message": "Order has been successfully deleted"
-}
+ Status: 204 No Content
 ```

@@ -253,7 +253,7 @@ class OrderItemInlineOpen(admin.TabularInline):
 
 class OrderItemInlineClosed(admin.TabularInline):
     model = OrderItem
-    fields = ["saved_p_name", "saved_p_unit_price", "quantity", "amount"]
+    fields = ["product_name", "product_unit_price", "quantity", "amount"]
     readonly_fields = ["amount"]
     extra = 0
 

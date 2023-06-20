@@ -190,5 +190,12 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',  # for Browsable API log in / log out
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+    ],
 }
+
+# Disable browseable API on prod
+if not DEBUG:
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = (
+            "rest_framework.renderers.JSONRenderer",
+        )
+
