@@ -9,7 +9,7 @@ router.register(r"deliveries", views.DeliveryViewSet, "delivery")
 urlpatterns = [
     path("", views.index, name="index"),  # 'next orders' page
     path("history/", views.order_history, name="order_history"),
-    path("contact/", views.contact, name="contact"),
+    path("contact/", views.ContactFormView.as_view(), name="contact"),
 
     # API Routes
     path("orders", views.orders, name="orders"),

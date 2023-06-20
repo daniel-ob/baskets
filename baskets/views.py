@@ -1,13 +1,14 @@
 from datetime import date
 import json
 
-from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.http import FileResponse, HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.views.generic import FormView
 from rest_framework import viewsets
 
 from .email import email_staff_contact
@@ -66,32 +67,31 @@ def order_history(request):
     )
 
 
-def contact(request):
+class ContactFormView(SuccessMessageMixin, FormView):
     """Contact admins:
     - GET: render 'Contact' page
-    - POST: submit contact form to admins by email
+    - POST: submit contact form to staff by email
     """
 
-    if request.method == "POST":
-        form = ContactForm(request.POST)
-        if not form.is_valid():
-            return render(request, "baskets/contact.html", {"form": form})
+    template_name = "baskets/contact.html"
+    form_class = ContactForm
+    success_url = reverse_lazy("contact")
+    success_message = "Votre message a été envoyé."
 
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["from_email"] = (
+            self.request.user.email if self.request.user.is_authenticated else None
+        )
+        return initial
+
+    def form_valid(self, form):
         email_staff_contact(
             from_email=form.cleaned_data["from_email"],
             subject=form.cleaned_data["subject"],
             message=form.cleaned_data["message"],
         )
-        messages.add_message(request, messages.SUCCESS, "Votre message a été envoyé.")
-
-    default_data = {
-        "from_email": request.user.email if request.user.is_authenticated else None
-    }
-    return render(
-        request,
-        "baskets/contact.html",
-        {"form": ContactForm(initial=default_data)},
-    )
+        return super().form_valid(form)
 
 
 def orders(request):
