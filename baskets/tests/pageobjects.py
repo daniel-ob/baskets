@@ -71,7 +71,7 @@ class IndexPage(BasePage):
     SELECTED_ORDER = (By.CLASS_NAME, "table-active")
     ORDER_VIEW = (By.ID, "order-view")
     ORDER_VIEW_TITLE = (By.ID, "order-view-title")
-    PRODUCERS = (By.CSS_SELECTOR, ".producer.block")  # only shown producers
+    PRODUCERS = (By.CLASS_NAME, "producer")
     PRODUCER_NAMES = (By.CLASS_NAME, "producer-name")
     PRODUCER_BADGES = (By.CLASS_NAME, "badge")
     ITEMS = (By.CLASS_NAME, "order-view-item")

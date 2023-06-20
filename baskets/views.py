@@ -40,7 +40,6 @@ def index(request):
         {
             "title": "Commandes à venir",
             "deliveries_orders": deliveries_orders,
-            "producers": Producer.objects.all(),
         },
     )
 

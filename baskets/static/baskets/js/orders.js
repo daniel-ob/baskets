@@ -89,9 +89,19 @@ async function updateOrderView(selectedOrderListItem) {
 
   function addProducersAndItems(delivery) {
     delivery.products_by_producer.forEach((producer, index) => {
+      const producerDiv = createProducerDiv(producer, index);
+      producerList.append(producerDiv);
+      const productList = producerDiv.querySelector('.product-list');
+      // add new .order-view-item for each product
+      producer.products.forEach(product => {
+        const orderViewItemDiv = createOrderViewItemDiv(product);
+        productList.append(orderViewItemDiv);
+      })
+    })
+
+    function createProducerDiv(producer, index) {
       const producerDiv = document.createElement('div');
       producerDiv.className = 'producer accordion block';
-      producerDiv.dataset.producerid = producer.id;
       producerDiv.innerHTML = `
         <div class="accordion-item">
           <h3 class="accordion-header" id="panelsStayOpen-heading${index}">
@@ -105,39 +115,38 @@ async function updateOrderView(selectedOrderListItem) {
           <div id="collapse${index}" class="accordion-collapse collapse"
                aria-labelledby="panelsStayOpen-heading${index}">
             <div class="accordion-body">
-              <div class="product-list" data-producerid="${producer.id}">
+              <div class="product-list">
                 <!-- .order-view-items are appended here on 'next orders' page -->
               </div>
             </div>
           </div>
         </div>`
-      producerList.append(producerDiv);
-      const productList = producerDiv.querySelector('.product-list');
-      // add new .order-view-item for each product
-      producer.products.forEach(product => {
-        const orderViewItem = document.createElement('div');
-        orderViewItem.className = 'order-view-item container p-0';
-        orderViewItem.dataset.productid = product.id;
-        orderViewItem.innerHTML = `
-          <div class="row align-items-center border">
-            <div class="product-name col-sm-6 p-2">${product.name}</div>
-            <div class="col-sm-6">
-              <div class="row align-items-center">
-                <div class="col text-end"><span class="unit-price">${product.unit_price}</span> €/U</div>
-                <div class="col"><input type="number" class="quantity form-control form-control-sm text-end" value="0" min="0"></div>
-                <div class="col text-end"><span class="amount">0.00</span> €</div>
-              </div>
+        return producerDiv;
+    }
+
+    function createOrderViewItemDiv(product) {
+      const orderViewItemDiv = document.createElement('div');
+      orderViewItemDiv.className = 'order-view-item container p-0';
+      orderViewItemDiv.dataset.productid = product.id;
+      orderViewItemDiv.innerHTML = `
+        <div class="row align-items-center border">
+          <div class="product-name col-sm-6 p-2">${product.name}</div>
+          <div class="col-sm-6">
+            <div class="row align-items-center">
+              <div class="col text-end"><span class="unit-price">${product.unit_price}</span> €/U</div>
+              <div class="col"><input type="number" class="quantity form-control form-control-sm text-end" value="0" min="0"></div>
+              <div class="col text-end"><span class="amount">0.00</span> €</div>
             </div>
-          </div>`
-        // set action on quantity input change
-        orderViewItem.querySelector('.quantity').addEventListener('input', () => {
-          clearAlert();
-          updateOrderViewAmounts();
-          updateBadges();
-        })
-        productList.append(orderViewItem);
+          </div>
+        </div>`
+      // set action on quantity input change
+      orderViewItemDiv.querySelector('.quantity').addEventListener('input', () => {
+        clearAlert();
+        updateOrderViewAmounts();
+        updateBadges();
       })
-    })
+      return orderViewItemDiv;
+    }
 
     function updateOrderViewAmounts() {
       // Re-calculate order-view amounts (items and total) according to items quantities
