@@ -8,6 +8,13 @@
 
     <form method="POST" action="{% url 'account_login' %}">
         {% csrf_token %}
+        {% if form.errors %}
+            {% for error in form.non_field_errors %}
+                <div class="text-danger">
+                    <strong>{{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endif %}
         {% for field in form %}
             {% include 'form_field.html' %}
         {% endfor %}
