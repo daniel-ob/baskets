@@ -58,6 +58,7 @@ All functionalities except "contact" requires authentication.
 - **Producers** page allows to: 
   - Manage producers and its products (name and unit price).
   - Export .xlsx file containing recap of monthly quantities ordered for each product (one sheet per producer)
+  - If a product is deleted or its unit price changes, related opened orders will be updated and a message will be shown to email affected users.
 - **Deliveries** page allows to:
   - Set each delivery date, order deadline and available products.
     - If "order deadline" is left blank, it will be set to `ORDER_DEADLINE_DAYS_BEFORE` before delivery date.
@@ -66,9 +67,12 @@ All functionalities except "contact" requires authentication.
     - View "orders count", which links to related orders.
     - **Export related order forms**: Once a delivery deadline is passed, a link will be shown to download delivery order forms in *xlsx* format. The file will contain one sheet per order including user information and order items.
     - Email users having ordered for selected deliveries.
+  - If a product is removed from an opened delivery, related opened orders will be updated and a message will be shown to email affected users.
 - **Orders** page allows to:
   - View and update user orders.
-  - Export .xlsx file containing recap of monthly order amounts per user.
+  - In "Orders list" page: 
+    - Export .xlsx file containing recap of monthly order amounts per user.
+    - If one or several orders are deleted, a message will be shown to email affected users.
 
 ### Other
 
