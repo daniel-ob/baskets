@@ -89,7 +89,7 @@ In addition to **Django**, the following libraries has been used:
 - **XlsxWriter**: to create xlsx files in `baskets/export.py`
 - **Selenium**: to do browser end-to-end testing in `baskets/tests/test_functional.py`
 
-See required versions in `requirements` folder (pip) or Pipfile (pipenv).
+See required versions in [requirements](requirements) (pip) or [Pipfile](Pipfile) (pipenv).
 
 ## Run using Docker <a name="run"></a>
  
@@ -110,24 +110,31 @@ POSTGRES_PASSWORD=postgres_password
 
 ```
 SECRET_KEY= # set to a unique, unpredictable value
-DEBUG=True  # set to False in PROD
+DEBUG=True  # set to False on PROD
 ALLOWED_HOSTS=127.0.0.1
 DATABASE_URL=postgres://postgres:postgres_password@db:5432/baskets
-SECURE_SSL_REDIRECT=False  # Set to True in PROD
-# Email sending
+SECURE_SSL_REDIRECT=False  # Set to True on PROD
+DEFAULT_FROM_EMAIL=contact@example.com
+
+# SMTP server config (if used)
 EMAIL_HOST=
 EMAIL_HOST_PASSWORD=
 EMAIL_HOST_USER=
 EMAIL_PORT=
 EMAIL_USE_TLS=
-DEFAULT_FROM_EMAIL=
 ```
+
+By default SMTP backend is used for email sending but if you don't want to configure it, you can also set on `config/settings.py`:
+
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+So emails will be written to `stdout`.
 
 Then run:
 
     $ docker-compose up -d
 
-And finally, create a superuser:
+And finally, create a superuser (for admin interface):
 
     $ docker-compose exec web python manage.py createsuperuser
 
@@ -138,7 +145,7 @@ And finally, create a superuser:
 
 First launch and apply migrations to `db`:
     
-    $ docker-compose up -d
+    $ docker-compose up -d db
 
 Create virtual environment and install dependencies:
 
@@ -157,7 +164,7 @@ Launch only functional tests:
 
 ## API Reference <a name="api-ref"></a>
 
-A Postman collection demonstrating the use of the API can be found [here](baskets_API.postman_collection.json).
+A Postman collection to test the API can be found [here](baskets_API.postman_collection.json).
 
 ### Browseable API
 
@@ -167,7 +174,7 @@ If settings.DEBUG is set to True, browseable API provided by REST framework can 
 
 All API endpoints requires token authentication.
 
-JWT token pair can be requested on `/api/token/` providing `username` and `password` on request Body form-data. 
+JWT token pair can be requested on `/api/token/` providing `username` and `password` (request Body form-data). 
 This returns `access` and `refresh` tokens.
 
 To authenticate requests, `access` token must be added to headers:
