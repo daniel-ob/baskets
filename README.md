@@ -112,7 +112,7 @@ POSTGRES_PASSWORD=postgres_password
 SECRET_KEY= # set to a unique, unpredictable value
 DEBUG=True  # set to False in PROD
 ALLOWED_HOSTS=127.0.0.1
-DATABASE_URL=postgres://postgres:postgres_password@baskets-db:5432/baskets
+DATABASE_URL=postgres://postgres:postgres_password@db:5432/baskets
 SECURE_SSL_REDIRECT=False  # Set to True in PROD
 # Email sending
 EMAIL_HOST=
@@ -139,9 +139,10 @@ And finally, create a superuser:
 First launch and apply migrations to `db`:
     
     $ docker-compose up -d
-    
+
 Create virtual environment and install dependencies:
 
+    $ cp .envs/.local/.web .env
     $ pipenv shell
     $ pipenv install --dev
 
