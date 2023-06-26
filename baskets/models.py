@@ -2,6 +2,7 @@ from datetime import date, timedelta
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum, UniqueConstraint
@@ -252,6 +253,16 @@ class OrderItem(models.Model):
         # Delete empty order
         if not self.order.items.count():
             self.order.delete()
+
+    def clean(self):
+        """This will display an error message when saving OrderItemInline if product isn't available on delivery"""
+        if (
+            hasattr(self.order, "delivery")  # prevent error on saving OrderItemInline if no delivery is set
+            and self.product not in self.order.delivery.products.all()
+        ):
+            raise ValidationError(
+                f"Le produit '{self.product}' n'est pas disponible dans cette livraison"
+            )
 
     def is_valid(self):
         """Order item is valid if product is available in related delivery and quantity is greater than 0"""
