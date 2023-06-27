@@ -8,9 +8,9 @@ router.register(r"deliveries", views.DeliveryViewSet, "delivery")
 router.register(r"orders", views.OrderViewSet, "order")
 
 urlpatterns = [
-    path("", views.index, name="index"),  # 'next orders' page
-    path("history/", views.order_history, name="order_history"),
-    path("contact/", views.ContactFormView.as_view(), name="contact"),
+    path("", views.IndexPageView.as_view(), name="index"),  # 'next orders' page
+    path("history/", views.OrderHistoryPageView.as_view(), name="order_history"),
+    path("contact/", views.ContactPageView.as_view(), name="contact"),
 
     # API Routes
     path("api/v1/", include(router.urls)),

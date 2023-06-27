@@ -1,12 +1,12 @@
 from datetime import date
 
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import FileResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView
 from rest_framework import viewsets
 
 from .email import email_staff_contact
@@ -16,65 +16,55 @@ from .export import (
     get_producer_export_xlsx,
 )
 from .forms import ContactForm
-from .models import Delivery, Order
+from .models import Delivery
 from .serializers import (
-    DeliverySerializer,
     DeliveryDetailSerializer,
-    OrderSerializer,
+    DeliverySerializer,
     OrderDetailSerializer,
+    OrderSerializer,
 )
 
 
-@login_required
-def index(request):
+class IndexPageView(LoginRequiredMixin, TemplateView):
     """Render 'Next Orders' page: a list of opened deliveries and its related orders in chronological order"""
 
-    opened_deliveries = Delivery.objects.filter(
-        order_deadline__gte=date.today()
-    ).order_by("date")
+    template_name = "baskets/index.html"
 
-    deliveries_orders = [
-        {
-            "delivery": d,
-            "order": Order.objects.filter(user=request.user, delivery=d).first(),
-        }
-        for d in opened_deliveries
-    ]
+    def get_context_data(self, **kwargs):
+        opened_deliveries = Delivery.objects.filter(
+            order_deadline__gte=date.today()
+        ).order_by("date")
 
-    return render(
-        request,
-        "baskets/index.html",
-        {
+        return {
             "title": "Commandes à venir",
-            "deliveries_orders": deliveries_orders,
-        },
-    )
+            "deliveries_orders": [
+                {
+                    "delivery": d,
+                    "order": d.orders.filter(user=self.request.user).first(),
+                }
+                for d in opened_deliveries
+            ],
+        }
 
 
-@login_required
-def order_history(request):
+class OrderHistoryPageView(LoginRequiredMixin, TemplateView):
     """Render 'Order history' page: a list of closed user orders in reverse chronological order"""
 
-    closed_user_orders = Order.objects.filter(
-        user=request.user, delivery__order_deadline__lt=date.today()
-    ).order_by("-delivery__date")
+    template_name = "baskets/index.html"
 
-    deliveries_orders = [
-        {"delivery": o.delivery, "order": o} for o in closed_user_orders
-    ]
+    def get_context_data(self, **kwargs):
+        closed_user_orders = self.request.user.orders.filter(
+            delivery__order_deadline__lt=date.today()
+        ).order_by("-delivery__date")
 
-    return render(
-        request,
-        "baskets/index.html",
-        {"title": "Historique", "deliveries_orders": deliveries_orders},
-    )
+        deliveries_orders = [
+            {"delivery": o.delivery, "order": o} for o in closed_user_orders
+        ]
+
+        return {"title": "Historique", "deliveries_orders": deliveries_orders}
 
 
-class ContactFormView(SuccessMessageMixin, FormView):
-    """Contact admins:
-    - GET: render 'Contact' page
-    - POST: submit contact form to staff by email
-    """
+class ContactPageView(SuccessMessageMixin, FormView):
 
     template_name = "baskets/contact.html"
     form_class = ContactForm
