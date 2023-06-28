@@ -131,8 +131,9 @@ class ModelsTestCase(BasketsTestCase):
         self.product1.unit_price += 0.25
         self.product1.save()
 
-        [elem.refresh_from_db() for elem in [self.o2, self.o2i1]]
+        self.o2i1.refresh_from_db()
         self.assertEqual(float(self.o2i1.amount), 0.75)
+        self.o2.refresh_from_db()
         self.assertEqual(float(self.o2.amount), 4.20)
 
     def test_product_update_or_delete_doesnt_update_closed_orders(self):
@@ -151,13 +152,15 @@ class ModelsTestCase(BasketsTestCase):
         self.product1.save()
         self.product2.delete()
 
-        [elem.refresh_from_db() for elem in [self.o1, self.o1i1, self.o1i2]]
+        self.o1.refresh_from_db()
         self.assertEqual(self.o1.items.count(), 2)
+        self.assertEqual(self.o1.amount, initial_order_amount)
+        self.o1i1.refresh_from_db()
         self.assertEqual(self.o1i1.product_name, "product1")
         self.assertEqual(self.o1i1.product_unit_price, 0.50)
         self.assertEqual(self.o1i1.amount, initial_item1_amount)
+        self.o1i2.refresh_from_db()
         self.assertEqual(self.o1i2.amount, initial_item2_amount)
-        self.assertEqual(self.o1.amount, initial_order_amount)
 
     def test_delivery_orders_count(self):
         self.assertEqual(self.d1.orders.count(), 1)

@@ -30,7 +30,8 @@ class Producer(models.Model):
         if soft_delete:
             self.is_active = False
             self.save()
-            [product.delete() for product in self.products.all()]
+            for p in self.products.all():
+                p.delete()
         else:
             super().delete(*args, **kwargs)  # will also hard-delete related products
 
@@ -63,7 +64,8 @@ class Product(models.Model):
             super().delete(*args, **kwargs)
         # Delete related opened order items (and order if empty)
         opened_order_items, user_id_list = self.get_opened_order_items_and_users()
-        [oi.delete() for oi in opened_order_items]
+        for oi in opened_order_items:
+            oi.delete()
         # Delete product from opened deliveries
         for d in Delivery.objects.filter(
             products__in=[self], order_deadline__gte=date.today()
@@ -88,7 +90,7 @@ class Product(models.Model):
             .objects.filter(orders__items__in=opened_order_items)
             .distinct()
             .values_list("id", flat=True)
-        )  # can't use User QuerySet based on order_items because they will be deleted, so QuerySet will be empty
+        )  # use list(id) because User QuerySet would be empty when order_items are deleted
         return opened_order_items, user_id_list
 
 
@@ -141,7 +143,8 @@ def delivery_product_removed(action, instance, pk_set, **kwargs):
         if order_items := OrderItem.objects.filter(
             product__id__in=pk_set, order__delivery=instance
         ):
-            [oi.delete() for oi in order_items]
+            for oi in order_items:
+                oi.delete()
 
 
 m2m_changed.connect(delivery_product_removed, sender=Delivery.products.through)
@@ -257,7 +260,9 @@ class OrderItem(models.Model):
     def clean(self):
         """This will display an error message when saving OrderItemInline if product isn't available on delivery"""
         if (
-            hasattr(self.order, "delivery")  # prevent error on saving OrderItemInline if no delivery is set
+            hasattr(
+                self.order, "delivery"
+            )  # prevent error on saving OrderItemInline if no delivery is set
             and self.product not in self.order.delivery.products.all()
         ):
             raise ValidationError(

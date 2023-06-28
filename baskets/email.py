@@ -12,7 +12,9 @@ def email_staff_contact(from_email, subject, message):
         subject=f"[{app_name}] Contact: {subject}",
         body=f"Message de {from_email}:\n{message}",
         from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[staff.email for staff in get_user_model().objects.filter(is_staff=True)],
+        to=get_user_model()
+        .objects.filter(is_staff=True)
+        .values_list("email", flat=True),
         reply_to=[from_email],
     )
     email.send()

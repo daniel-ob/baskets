@@ -13,8 +13,9 @@ User = get_user_model()
 
 
 def show_message_email_users(request, status_message, user_id_list):
-    users = User.objects.filter(id__in=user_id_list)
-    emails_str = ", ".join([user.email for user in users])
+    emails_str = ", ".join(
+        User.objects.filter(id__in=user_id_list).values_list("email", flat=True)
+    )
     messages.add_message(
         request,
         messages.SUCCESS,

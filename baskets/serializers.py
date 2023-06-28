@@ -112,18 +112,21 @@ class OrderDetailSerializer(serializers.ModelSerializer):
         order = Order.objects.create(
             user=self.context["request"].user, **validated_data
         )
-        [order.items.create(**item_data) for item_data in items_data]
+        for item_data in items_data:
+            order.items.create(**item_data)
         return order
 
     def update(self, instance, validated_data):
         # remove previous items, before instance.save() otherwise we get `save() prohibited` error
-        [item.delete() for item in instance.items.all()]
+        for item in instance.items.all():
+            item.delete()
 
         instance.delivery = validated_data.get("delivery", instance.delivery)
         instance.message = validated_data.get("message", instance.message)
         instance.save()
 
         # add new items
-        [instance.items.create(**item_data) for item_data in validated_data["items"]]
+        for item_data in validated_data["items"]:
+            instance.items.create(**item_data)
 
         return instance

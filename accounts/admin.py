@@ -59,10 +59,8 @@ class GroupAdmin(admin.ModelAdmin):
         return obj.user_set.count()
 
     @staticmethod
-    def email(obj):
-        group_users = obj.user_set.all()
-        emails = [user.email for user in group_users]
-        emails_str = ", ".join(emails)
+    def email(group):
+        emails_str = ", ".join(group.user_set.values_list("email", flat=True))
         return format_html(
-            f"<a href='mailto:?bcc={emails_str}'>envoyer un email au groupe {obj.name}</a>"
+            f"<a href='mailto:?bcc={emails_str}'>envoyer un email au groupe '{group.name}'</a>"
         )
