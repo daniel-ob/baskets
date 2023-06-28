@@ -186,28 +186,20 @@ class DeliveryAdmin(admin.ModelAdmin):
 
         d = obj
         if d.is_open and "products" in form.changed_data:
-            previous_products_ids = obj.products.values_list("id", flat=True)
-            new_products_ids = [int(str_id) for str_id in form["products"].data]
-            if removed_products_ids := set(previous_products_ids).difference(
-                new_products_ids
-            ):
-                if removed_order_items := OrderItem.objects.filter(
-                    product__id__in=removed_products_ids, order__delivery=d
+            previous_products = obj.products.all()
+            new_products = form.cleaned_data["products"]
+            if removed_products := previous_products.exclude(id__in=new_products):
+                if related_order_items := OrderItem.objects.filter(
+                    product__in=removed_products, order__delivery=d
                 ):
                     products_html_list = "</li><li>".join(
-                        [
-                            p.name
-                            for p in Product.objects.filter(id__in=removed_products_ids)
-                        ]
+                        removed_products.values_list("name", flat=True)
                     )
-                    user_id_list = User.objects.filter(
-                        orders__items__in=removed_order_items
-                    ).values("id")
                     show_message_email_users(
                         request,
                         f"Le(s) produit(s): <ul><li>{products_html_list}</li></ul>"
                         f"ont été supprimé(s) des commandes ouvertes.",
-                        user_id_list,
+                        related_order_items.values("order__user__id"),
                     )
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
