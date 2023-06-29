@@ -101,12 +101,11 @@ class Delivery(models.Model):
         f"{ORDER_DEADLINE_DAYS_BEFORE} jours avant la Date de Livraison"
     )
 
-    date = models.DateField(blank=False)
+    date = models.DateField(blank=False, unique=True)
     order_deadline = models.DateField(
         "date limite de commande",
         blank=True,
-        unique=True,
-        help_text=ORDER_DEADLINE_HELP_TEXT,  # for /admin
+        help_text=ORDER_DEADLINE_HELP_TEXT,  # for admin interface
     )
     products = models.ManyToManyField(
         Product,
