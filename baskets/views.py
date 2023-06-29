@@ -3,7 +3,7 @@ from datetime import date
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import FileResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView
@@ -65,7 +65,6 @@ class OrderHistoryPageView(LoginRequiredMixin, TemplateView):
 
 
 class ContactPageView(SuccessMessageMixin, FormView):
-
     template_name = "baskets/contact.html"
     form_class = ContactForm
     success_url = reverse_lazy("contact")
@@ -117,30 +116,40 @@ class OrderViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
 
+def _prepare_excel_http_headers(filename):
+    return {
+        "Content-Type": "application/vnd.ms-excel",
+        "Content-Disposition": f"attachment; filename={filename}",
+    }
+
+
 @staff_member_required
 def delivery_export(request, delivery_id):
     """Download delivery related orders forms"""
 
-    # Attempt to retrieve delivery
     d = get_object_or_404(Delivery, id=delivery_id)
 
-    buffer = get_order_forms_xlsx(d)
-    return FileResponse(
-        buffer, as_attachment=True, filename=f"{d.date}_bons_commande.xlsx"
+    return HttpResponse(
+        get_order_forms_xlsx(d),
+        headers=_prepare_excel_http_headers(f"{d.date}_bons_commande.xlsx"),
     )
 
 
 @staff_member_required
 def order_export(request):
-    """Download orders summary for accounting"""
+    """Download summary of user order amounts per month"""
 
-    buffer = get_orders_export_xlsx()
-    return FileResponse(buffer, as_attachment=True, filename="export_commandes.xlsx")
+    return HttpResponse(
+        get_orders_export_xlsx(),
+        headers=_prepare_excel_http_headers("export_commandes.xlsx"),
+    )
 
 
 @staff_member_required
 def producer_export(request):
-    """Download summary of ordered products, one sheet per producer"""
+    """Download summary of ordered product quantities per month, one sheet per producer"""
 
-    buffer = get_producer_export_xlsx()
-    return FileResponse(buffer, as_attachment=True, filename="export_producteurs.xlsx")
+    return HttpResponse(
+        get_producer_export_xlsx(),
+        headers=_prepare_excel_http_headers("export_producteurs.xlsx"),
+    )
