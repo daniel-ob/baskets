@@ -3,7 +3,7 @@ from io import BytesIO
 import openpyxl
 from django.urls import reverse
 
-from baskets.tests.setup import BasketsTestCase
+from baskets.tests.common import BasketsTestCase
 
 
 class TestExports(BasketsTestCase):

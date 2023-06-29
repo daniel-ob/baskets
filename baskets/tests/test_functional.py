@@ -4,7 +4,7 @@ from selenium import webdriver
 
 from baskets.models import Producer
 from baskets.tests.pageobjects import LoginPage
-from baskets.tests.setup import BasketsTestCase
+from baskets.tests.common import BasketsTestCase
 
 
 class FunctionalTestCase(StaticLiveServerTestCase):

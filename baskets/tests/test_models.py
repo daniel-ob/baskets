@@ -1,7 +1,14 @@
 from datetime import date, timedelta
 
 from baskets.models import Delivery, Order, OrderItem, Product, Producer
-from baskets.tests.setup import BasketsTestCase
+from baskets.tests.common import (
+    BasketsTestCase,
+    create_producer,
+    create_product,
+    create_opened_delivery,
+    create_closed_delivery,
+    create_order_item,
+)
 
 
 class ModelsTestCase(BasketsTestCase):
@@ -11,8 +18,8 @@ class ModelsTestCase(BasketsTestCase):
 
     def test_producer_soft_delete(self):
         """Test that by default, a producer is not deleted but just deactivated"""
-        producer = self.create_producer()
-        products = [self.create_product(producer) for _ in range(3)]
+        producer = create_producer()
+        products = [create_product(producer) for _ in range(3)]
 
         producer.delete()
 
@@ -24,8 +31,8 @@ class ModelsTestCase(BasketsTestCase):
             self.assertFalse(product.is_active)
 
     def test_producer_hard_delete(self):
-        producer = self.create_producer()
-        products = [self.create_product(producer) for _ in range(3)]
+        producer = create_producer()
+        products = [create_product(producer) for _ in range(3)]
 
         producer.delete(soft_delete=False)
 
@@ -39,13 +46,11 @@ class ModelsTestCase(BasketsTestCase):
 
     def test_product_soft_delete(self):
         """Test that by default, a product is not deleted but just deactivated"""
-        product = self.create_product()
-        opened_delivery = self.create_opened_delivery([product])
-        opened_order_item = self.create_order_item(
-            delivery=opened_delivery, product=product
-        )
-        closed_order_item = self.create_order_item(
-            delivery=self.create_closed_delivery([product]), product=product
+        product = create_product()
+        opened_delivery = create_opened_delivery([product])
+        opened_order_item = create_order_item(delivery=opened_delivery, product=product)
+        closed_order_item = create_order_item(
+            delivery=create_closed_delivery([product]), product=product
         )
 
         product.delete()
@@ -54,10 +59,10 @@ class ModelsTestCase(BasketsTestCase):
         self.assertFalse(product.is_active)
 
     def test_product_hard_delete(self):
-        product = self.create_product()
-        opened_delivery = self.create_opened_delivery([product])
-        closed_order_item = self.create_order_item(
-            delivery=self.create_closed_delivery([product]), product=product
+        product = create_product()
+        opened_delivery = create_opened_delivery([product])
+        closed_order_item = create_order_item(
+            delivery=create_closed_delivery([product]), product=product
         )
 
         product.delete(soft_delete=False)
@@ -68,18 +73,18 @@ class ModelsTestCase(BasketsTestCase):
         """Check that when a product is deleted, related order items are deleted.
         Then, if any of the orders has no more items remaining, it's also deleted"""
 
-        product = self.create_product()
-        closed_delivery = self.create_closed_delivery([product])
-        opened_delivery = self.create_opened_delivery([product])
-        closed_order_item = self.create_order_item(closed_delivery, product)
+        product = create_product()
+        closed_delivery = create_closed_delivery([product])
+        opened_delivery = create_opened_delivery([product])
+        closed_order_item = create_order_item(closed_delivery, product)
         # opened order with 1 item
-        opened_order_item_1 = self.create_order_item(opened_delivery, product)
+        opened_order_item_1 = create_order_item(opened_delivery, product)
         opened_order_1 = opened_order_item_1.order
         # opened order with 2 items
-        opened_order_item_2 = self.create_order_item(opened_delivery, product)
+        opened_order_item_2 = create_order_item(opened_delivery, product)
         opened_order_2 = opened_order_item_2.order
         opened_order_item_3 = opened_order_2.items.create(
-            product=self.create_product(), quantity=2
+            product=create_product(), quantity=2
         )  # item for another product
 
         product.delete()
@@ -97,14 +102,14 @@ class ModelsTestCase(BasketsTestCase):
     def test_product_delete_returns_users_list(self):
         """Check that product.delete() returns list of user ids with related opened orders"""
 
-        product = self.create_product()
-        opened_delivery = self.create_opened_delivery([product])
-        closed_delivery = self.create_closed_delivery([product])
+        product = create_product()
+        opened_delivery = create_opened_delivery([product])
+        closed_delivery = create_closed_delivery([product])
         opened_order_items = [
-            self.create_order_item(opened_delivery, product) for _ in range(3)
+            create_order_item(opened_delivery, product) for _ in range(3)
         ]
         closed_order_items = [
-            self.create_order_item(closed_delivery, product) for _ in range(3)
+            create_order_item(closed_delivery, product) for _ in range(3)
         ]
 
         user_id_list = product.delete()
@@ -113,9 +118,9 @@ class ModelsTestCase(BasketsTestCase):
         self.assertCountEqual(expected_user_id_list, user_id_list)  # have same elements
 
     def test_product_delete_updates_opened_delivery_products(self):
-        product = self.create_product()
-        opened_delivery = self.create_opened_delivery([product])
-        closed_delivery = self.create_closed_delivery([product])
+        product = create_product()
+        opened_delivery = create_opened_delivery([product])
+        closed_delivery = create_closed_delivery([product])
 
         product.delete()
 
@@ -182,11 +187,11 @@ class ModelsTestCase(BasketsTestCase):
     def test_delivery_product_remove_removes_opened_order_item(self):
         """Check that when a product is removed from an opened delivery, related order_items are deleted"""
 
-        product = self.create_product()
-        opened_delivery = self.create_opened_delivery([product])
-        closed_delivery = self.create_closed_delivery([product])
-        opened_order_item = self.create_order_item(opened_delivery, product)
-        closed_order_item = self.create_order_item(closed_delivery, product)
+        product = create_product()
+        opened_delivery = create_opened_delivery([product])
+        closed_delivery = create_closed_delivery([product])
+        opened_order_item = create_order_item(opened_delivery, product)
+        closed_order_item = create_order_item(closed_delivery, product)
 
         opened_delivery.products.remove(product)
         closed_delivery.products.remove(product)

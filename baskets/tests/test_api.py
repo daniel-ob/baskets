@@ -5,7 +5,7 @@ from django.urls import reverse, reverse_lazy
 from rest_framework import status
 
 from baskets.models import Order, OrderItem, Product, Delivery
-from baskets.tests.setup import BasketsTestCase
+from baskets.tests.common import BasketsTestCase
 
 
 SERVER_NAME = "http://testserver"

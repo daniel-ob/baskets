@@ -1,4 +1,4 @@
-from baskets.tests.setup import BasketsTestCase
+from baskets.tests.common import BasketsTestCase
 
 from django.urls import reverse
 
