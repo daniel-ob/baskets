@@ -95,6 +95,9 @@ class BasketsTestCase(TestCase):
         self.producer3 = Producer.objects.create(
             name="producer3"
         )  # not present in deliveries
+        self.producer4 = Producer.objects.create(
+            name="inactive producer", is_active=False
+        )
 
         # Create products
         self.product1 = Product.objects.create(
@@ -108,6 +111,12 @@ class BasketsTestCase(TestCase):
         )
         self.product4 = Product.objects.create(
             producer=self.producer3, name="product4", unit_price=15.30
+        )
+        self.product5 = Product.objects.create(
+            producer=self.producer4,
+            name="inactive product",
+            unit_price=5.10,
+            is_active=False,
         )
 
         # Create deliveries
