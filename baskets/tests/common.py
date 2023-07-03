@@ -4,8 +4,10 @@ from datetime import date, timedelta
 
 from allauth.account.models import EmailAddress
 from django.contrib.auth import get_user_model
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import Client, TestCase
 from rest_framework.test import APIClient
+from selenium import webdriver
 
 from baskets.models import Producer, Product, Delivery, Order, OrderItem
 
@@ -37,8 +39,11 @@ def create_product(producer=None):
 def create_opened_delivery(products=None):
     today = date.today()
     delivery = Delivery.objects.create(
-        date=today + timedelta(days=7),
-        order_deadline=today + timedelta(days=6),
+        date=today
+        + timedelta(
+            days=Delivery.objects.count()
+        ),  # can't have more than one delivery per day
+        order_deadline=today,
         message="opened delivery",
     )
     assert delivery.is_open
@@ -49,9 +54,10 @@ def create_opened_delivery(products=None):
 
 def create_closed_delivery(products=None):
     today = date.today()
+    d_date = today - timedelta(days=Delivery.objects.count())
     delivery = Delivery.objects.create(
-        date=today - timedelta(days=7),
-        order_deadline=today - timedelta(days=8),
+        date=d_date,
+        order_deadline=d_date - timedelta(days=2),
         message="closed delivery",
     )
     assert not delivery.is_open
@@ -61,13 +67,15 @@ def create_closed_delivery(products=None):
 
 
 def create_order_item(delivery, product):
-    order = Order.objects.create(
-        user=User.objects.create(username=f"test_user_{get_random_string()}"),
-        delivery=delivery,
-    )
+    order = Order.objects.create(user=create_user(), delivery=delivery)
     order_item = order.items.create(product=product, quantity=4)
     assert order.items.count() == 1
     return order_item
+
+
+def create_user():
+    username = f"test_user_{get_random_string()}"
+    return User.objects.create(username=username, email=f"{username}@baskets.com")
 
 
 class BasketsTestCase(TestCase):
@@ -170,3 +178,17 @@ class BasketsTestCase(TestCase):
         # Create test clients
         self.c = Client()
         self.api_c = APIClient()
+
+
+class SeleniumTestCase(StaticLiveServerTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.driver = webdriver.Chrome()
+        cls.driver.maximize_window()
+        cls.driver.implicitly_wait(10)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+        super().tearDownClass()

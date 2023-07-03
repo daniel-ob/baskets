@@ -1,25 +1,11 @@
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
-from selenium import webdriver
 
 from baskets.models import Producer
 from baskets.tests.pageobjects import LoginPage
-from baskets.tests.common import BasketsTestCase
+from baskets.tests.common import BasketsTestCase, SeleniumTestCase
 
 
-class FunctionalTestCase(StaticLiveServerTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.driver = webdriver.Chrome()
-        cls.driver.maximize_window()
-        cls.driver.implicitly_wait(10)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.driver.quit()
-        super().tearDownClass()
-
+class FunctionalTestCase(SeleniumTestCase):
     def setUp(self):
         BasketsTestCase.setUp(self)
 
