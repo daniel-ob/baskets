@@ -111,11 +111,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = "fr-fr"
+LANGUAGE_CODE = "en"
 
 TIME_ZONE = "Europe/Paris"
 
 USE_I18N = True
+
+LOCALE_PATHS = [os.path.join(BASE_DIR, "locale/")]
 
 USE_L10N = True
 
@@ -186,17 +188,16 @@ ACCOUNT_LOGOUT_ON_GET = True  # Do not ask for confirmation before logging out
 
 # rest_framework
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',  # for Browsable API log in / log out
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",  # for Browsable API log in / log out
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
 }
 # Disable browseable API on prod
 if not DEBUG:
     REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = (
-            "rest_framework.renderers.JSONRenderer",
-        )
-
+        "rest_framework.renderers.JSONRenderer",
+    )

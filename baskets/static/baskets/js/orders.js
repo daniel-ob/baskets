@@ -24,6 +24,7 @@ async function updateOrderView(selectedOrderListItem) {
   // Load selected order-list-item in order-view. If item has no order, display an empty order form.
   const deliveryDate = selectedOrderListItem.querySelector('.delivery').innerText;
   const deliveryUrl = selectedOrderListItem.querySelector('.delivery').dataset.url;
+  const deliveryOrderDeadline = selectedOrderListItem.querySelector('.delivery').dataset.orderdeadline;
   const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
   const spinner = document.querySelector('#spinner');
   const orderView = document.querySelector('#order-view');
@@ -48,17 +49,17 @@ async function updateOrderView(selectedOrderListItem) {
   if (order) {
       orderView.classList.add('border-success');
       orderView.classList.add('shadow');
-      orderViewTitle.innerText = `Commande pour le ${deliveryDate}`;
+      orderViewTitle.innerText = gettext('Order for ') + deliveryDate;
       if (order.is_open) {
         // order can be updated and deleted
         delivery = await requestGetDelivery(deliveryUrl);
-        orderViewSubtitle.innerText = `Peut être modifiée jusqu'au ${formatDate(delivery.order_deadline)}`;
+        orderViewSubtitle.innerText = gettext('Can be updated until: ') + deliveryOrderDeadline;
         orderViewMessage.innerText = delivery.message;
         delivery.message ? show(orderViewMessage) : hide(orderViewMessage);
         addProducersAndItems(delivery);
         updateItemsFromOrder(order);
         show(deleteIcon);
-        saveIcon.innerText = 'Mettre à jour'
+        saveIcon.innerText = gettext('Update');
         show(saveIcon);
       } else {
         // order in view-only mode (history page)
@@ -73,14 +74,14 @@ async function updateOrderView(selectedOrderListItem) {
     // new order
     orderView.classList.remove('border-success');
     orderView.classList.remove('shadow');
-    orderViewTitle.innerText = `Nouvelle commande pour le ${deliveryDate}`;
+    orderViewTitle.innerText = gettext('New order for ') + deliveryDate;
     delivery = await requestGetDelivery(deliveryUrl);
-    orderViewSubtitle.innerText = `Dernier jour pour commander: ${formatDate(delivery.order_deadline)}`;
+    orderViewSubtitle.innerText = gettext('Last day to order: ') + deliveryOrderDeadline;
     orderViewMessage.innerText = delivery.message;
     delivery.message ? show(orderViewMessage) : hide(orderViewMessage);
     addProducersAndItems(delivery);
     hide(deleteIcon);
-    saveIcon.innerText = 'Créer'
+    saveIcon.innerText = gettext('Create');
     show(saveIcon);
     let orderAmount = 0;
     orderAmountSpan.innerText = orderAmount.toFixed(2);
@@ -335,7 +336,7 @@ function updateSelectedOrderListItem(orderAmount, orderUrl) {
   const selectedOrderListItem = document.querySelector('.table-active');
   const selectedOrder = selectedOrderListItem.querySelector('.order');
 
-  selectedOrder.innerText = orderAmount ? orderAmount + ' €' : 'Commander';
+  selectedOrder.innerText = orderAmount ? orderAmount + ' €' : gettext('Click to order');
   selectedOrder.dataset.url = orderUrl;
 }
 
@@ -354,19 +355,19 @@ function showAlert(alertType) {
   switch(alertType) {
     case 'successSave':
       alert.classList.add('text-success');
-      alert.innerText = "La commande a été enregistrée avec succès";
+      alert.innerText = gettext('Order has been successfully saved');
       break;
     case 'successRemove':
       alert.classList.add('text-success');
-      alert.innerText = "La commande a été supprimée avec succès";
+      alert.innerText = gettext('Order has been successfully removed');
       break;
     case 'errorSave':
       alert.classList.add('text-danger');
-      alert.innerText = "Une erreur est survenue lors de l'enregistrement de la commande. Veuillez recharger la page et réesayer";
+      alert.innerText = gettext('An error occurred when trying to save order. Please reload page and try again');
       break;
     case 'errorItems':
       alert.classList.add('text-danger');
-      alert.innerText = "Au moins un produit doit avoir une quantité supérieure à 0";
+      alert.innerText = gettext('At least one item must have quantity greater than 0');
       break;
     default:
       alert.classList.add('text-danger');
@@ -396,13 +397,6 @@ function restartAnimation(element) {
   element.classList.remove('run-animation');
   element.offsetWidth;  // trigger reflow
   element.classList.add('run-animation');
-}
-
-function formatDate(date) {
-  // format date to DD/MM/YYYY (Note that ISOString format is YYYY-MM-DDTHH:mm:ss.sssZ)
-  // TODO: do this on back-end?
-  const dateISO = new Date(date).toISOString();
-  return dateISO.slice(0, 10).split('-').reverse().join('/');
 }
 
 // from https://docs.djangoproject.com/en/3.2/ref/csrf/

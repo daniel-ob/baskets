@@ -16,6 +16,7 @@ Please note that, for the moment, this website is in French. English translation
 4. [Run using Docker](#run)
 5. [Tests run](#tests-run)
 6. [API Reference](#api-ref)
+7. [UI Language](#language)
 
 ## Background and goal <a name="background"></a> 
 
@@ -79,6 +80,8 @@ All functionalities except "contact" requires authentication.
 - **Soft-delete** has been implemented for `Producer` and `Product` models. When deleting them, by default they are just deactivated. They won't be anymore shown on User or Admin interfaces but we keep them on database.
 - **Mobile-responsiveness**: This has been achieved using Bootstrap framework in user interface. Moreover, Django admin interface is also mobile responsive.
 - **API**: User orders can be managed using an API. See [API reference](#api-ref) for further details.
+- **UI Translation**: *Translation strings* have been used for all UI text to facilitate translation. See [UI Language](#language) for further details.
+
 
 ## Dependencies <a name="dependencies"></a>
 
@@ -387,3 +390,31 @@ DELETE /api/v1/orders/{order_id}/
 ```
  Status: 204 No Content
 ```
+
+## UI Language <a name="language"></a>
+
+*Translation strings* has been used for all text of user and admin interfaces, 
+so all of them can be extracted into messages files (`.po`) to facilitate translation.
+
+In addition to default language (English), French translation is available and can be set on `settings.py`:    
+  
+    LANGUAGE_CODE = "fr"
+
+Server must be restarted to apply changes.
+
+### Adding new translations 
+
+From base directory, run:
+
+    django-admin makemessages -l LANG
+    django-admin makemessages -d djangojs -l LANG
+
+Where `LANG` can be, for example: es, es_AR, de ...
+
+This will generate `django.po` and `djangojs.mo` translation files inside `locale/LANG/LC_MESSAGES` folder.
+
+Once all `msgstr` in `.po` files are translated, run:
+
+    django-admin compilemessages
+
+This will generate corresponding `.mo` files.

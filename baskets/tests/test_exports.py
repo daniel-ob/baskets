@@ -49,7 +49,7 @@ class TestOrderExport(BasketsTestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertIn(
-            "filename=export_commandes.xlsx", response.headers["Content-Disposition"]
+            "filename=order_export.xlsx", response.headers["Content-Disposition"]
         )
         wb = openpyxl.load_workbook(BytesIO(response.content))
         self.assertEqual(len(wb.worksheets), 1)
@@ -75,7 +75,7 @@ class TestProducerExport(BasketsTestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertIn(
-            "filename=export_producteurs.xlsx", response.headers["Content-Disposition"]
+            "filename=producer_export.xlsx", response.headers["Content-Disposition"]
         )
         wb = openpyxl.load_workbook(BytesIO(response.content))
         self.assertEqual(

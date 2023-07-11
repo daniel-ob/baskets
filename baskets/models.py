@@ -7,20 +7,21 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum, UniqueConstraint
 from django.db.models.signals import m2m_changed
+from django.utils.translation import gettext_lazy as _
 
 from config.settings import FR_PHONE_REGEX
 
 
 class Producer(models.Model):
-    name = models.CharField("nom", blank=False, max_length=64)
+    name = models.CharField(_("name"), blank=False, max_length=64)
     phone = models.CharField(
-        "téléphone", blank=True, validators=[FR_PHONE_REGEX], max_length=18
+        _("phone"), blank=True, validators=[FR_PHONE_REGEX], max_length=18
     )
     email = models.EmailField(blank=True)
     is_active = models.BooleanField(default=True)  # for soft-delete
 
     class Meta:
-        verbose_name = "producteur"
+        verbose_name = _("producer")
         ordering = ["name"]
 
     def __str__(self):
@@ -39,18 +40,17 @@ class Producer(models.Model):
 class Product(models.Model):
     producer = models.ForeignKey(
         Producer,
-        verbose_name="producteur",
         on_delete=models.CASCADE,
         related_name="products",
     )
-    name = models.CharField("nom", blank=False, max_length=64)
+    name = models.CharField(_("name"), blank=False, max_length=64)
     unit_price = models.DecimalField(
-        "prix unitaire", blank=False, max_digits=8, decimal_places=2
+        _("unit price"), blank=False, max_digits=8, decimal_places=2
     )
     is_active = models.BooleanField(default=True)  # for soft-delete
 
     class Meta:
-        verbose_name = "produit"
+        verbose_name = _("product")
         ordering = ["producer", "name"]  # for "Next Orders" and "DeliveryAdmin" pages
 
     def __str__(self):
@@ -96,28 +96,28 @@ class Product(models.Model):
 
 class Delivery(models.Model):
     ORDER_DEADLINE_DAYS_BEFORE = 4
-    ORDER_DEADLINE_HELP_TEXT = (
-        f"Date limite de commande.<br> Si pas définie, elle sera automatiquement fixée à "
-        f"{ORDER_DEADLINE_DAYS_BEFORE} jours avant la Date de Livraison"
-    )
+    ORDER_DEADLINE_HELP_TEXT = _(
+        "Last day to order. If left blank, it will be automatically set to {} days before Delivery date"
+    ).format(ORDER_DEADLINE_DAYS_BEFORE)
 
     date = models.DateField(blank=False, unique=True)
     order_deadline = models.DateField(
-        "date limite de commande",
+        _("last day to order"),
         blank=True,
         help_text=ORDER_DEADLINE_HELP_TEXT,  # for admin interface
     )
     products = models.ManyToManyField(
         Product,
-        verbose_name="produits",
+        verbose_name=_("products"),
         related_name="deliveries",
-        help_text="A gauche tous les produits. "
-        "A droite les produits disponibles à la commande pour cette livraison<br>",  # for /admin
+        help_text="All products on the left. "
+        "On the right, products available for this delivery.<br>",  # for /admin
     )
     message = models.CharField(blank=True, max_length=128)
 
     class Meta:
-        verbose_name = "livraison"
+        verbose_name = _("delivery")
+        verbose_name_plural = _("deliveries")
         ordering = ["date"]
 
     def save(self, *args, **kwargs):
@@ -152,24 +152,24 @@ m2m_changed.connect(delivery_product_removed, sender=Delivery.products.through)
 class Order(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        verbose_name="utilisateur",
+        verbose_name=_("user"),
         on_delete=models.PROTECT,
         related_name="orders",
     )
     delivery = models.ForeignKey(
         Delivery,
-        verbose_name="livraison",
+        verbose_name=_("delivery"),
         on_delete=models.PROTECT,
         related_name="orders",
     )
-    creation_date = models.DateTimeField("date de création", auto_now_add=True)
+    creation_date = models.DateTimeField(_("creation date"), auto_now_add=True)
     amount = models.DecimalField(
-        "montant", default=0.00, max_digits=8, decimal_places=2, editable=False
+        _("amount"), default=0.00, max_digits=8, decimal_places=2, editable=False
     )
     message = models.CharField(
         blank=True,
         max_length=128,
-        help_text="Message interne seulement visible par l'équipe",
+        help_text=_("Internal message only visible by stuff members"),
     )
 
     class Meta:
@@ -179,7 +179,7 @@ class Order(models.Model):
                 name="user can only place one order per delivery",
             )
         ]
-        verbose_name = "commande"
+        verbose_name = _("order")
 
     def save(self, *args, **kwargs):
         # Order amount is the sum of its items amounts
@@ -200,29 +200,29 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(
-        Order, verbose_name="commande", on_delete=models.CASCADE, related_name="items"
+        Order, verbose_name=_("order"), on_delete=models.CASCADE, related_name="items"
     )
     product = models.ForeignKey(
         to=Product,
         null=True,  # possible when order is closed
         blank=True,  # possible when order is closed
-        verbose_name="produit",
+        verbose_name=_("product"),
         on_delete=models.SET_NULL,
         related_name="order_items",
     )
     quantity = models.PositiveIntegerField(
-        "quantité", null=False, default=1, validators=[MinValueValidator(1)]
+        _("quantity"), null=False, default=1, validators=[MinValueValidator(1)]
     )
     amount = models.DecimalField(
-        "montant", default=0.00, max_digits=8, decimal_places=2, editable=False
+        _("amount"), default=0.00, max_digits=8, decimal_places=2, editable=False
     )
 
     # saved product data to prevent inconsistencies due to product update or delete
     product_name = models.CharField(
-        "nom du produit (sauvegardé)", null=True, blank=True, max_length=64
+        _("product name (saved)"), null=True, blank=True, max_length=64
     )
     product_unit_price = models.DecimalField(
-        "prix unitaire (sauvegardé)",
+        _("product unit price (saved)"),
         null=True,
         blank=True,
         max_digits=8,
@@ -230,8 +230,8 @@ class OrderItem(models.Model):
     )
 
     class Meta:
-        verbose_name = "ligne de commande"
-        verbose_name_plural = "lignes de commande"
+        verbose_name = _("order item")
+        verbose_name_plural = _("order items")
 
     def save(self, *args, **kwargs):
         if self.order.is_open or (
@@ -265,7 +265,7 @@ class OrderItem(models.Model):
             and self.product not in self.order.delivery.products.all()
         ):
             raise ValidationError(
-                f"Le produit '{self.product}' n'est pas disponible dans cette livraison"
+                _("product '{}' not available on this delivery").format(self.product)
             )
 
     def is_valid(self):

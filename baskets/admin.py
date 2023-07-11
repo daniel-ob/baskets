@@ -6,6 +6,8 @@ from django.db.models import Count, Sum, Case, When
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
+
 
 from .models import Producer, Product, Delivery, Order, OrderItem
 
@@ -16,13 +18,13 @@ def show_message_email_users(request, status_message, user_id_list):
     emails_str = ", ".join(
         User.objects.filter(id__in=user_id_list).values_list("email", flat=True)
     )
+    link_text = _("Email affected users")
     messages.add_message(
         request,
         messages.SUCCESS,
         mark_safe(
-            f"{status_message}"
-            f"<br>Pour envoyer un email aux utilisateurs concernés "
-            f"<a href='mailto:?bcc={emails_str}'>cliquez ici</a>"
+            f"{status_message}<br>"
+            f"<a href='mailto:?bcc={emails_str}'>{link_text}</a>"
         ),
     )
 
@@ -60,7 +62,9 @@ class ProducerAdmin(admin.ModelAdmin):
             if user_id_list := product.delete():
                 show_message_email_users(
                     request,
-                    f"Le produit « {product} » a été supprimé des commandes ouvertes.",
+                    _("Product '{}' has been removed from opened orders.").format(
+                        product
+                    ),
                     user_id_list,
                 )
         for product in products_new_or_updated:
@@ -72,7 +76,9 @@ class ProducerAdmin(admin.ModelAdmin):
                 if product.unit_price != previous_price and user_id_list:
                     show_message_email_users(
                         request,
-                        f"Le produit « {product} » a été mis à jour dans les commandes ouvertes.",
+                        _("Product '{}' has been updated on opened orders.").format(
+                            product
+                        ),
                         user_id_list,
                     )
             except Product.DoesNotExist:  # new product
@@ -94,17 +100,17 @@ class ProducerAdmin(admin.ModelAdmin):
 
 class DeliveryProductInline(admin.TabularInline):
     model = Delivery.products.through
-    verbose_name_plural = "Liste des quantités commandées par produit"
+    verbose_name_plural = _("Total ordered quantities per product")
     readonly_fields = ["producer", "product", "total_ordered_quantity"]
     ordering = ["product__producer", "product__name"]
     extra = 0
     can_delete = False
 
-    @admin.display(description="producteur")
+    @admin.display(description=_("producer"))
     def producer(self, obj):
         return obj.product.producer
 
-    @admin.display(description="quantité totale commandée")
+    @admin.display(description=_("total ordered quantity"))
     def total_ordered_quantity(self, obj):
         d = obj.delivery
         p = obj.product
@@ -115,19 +121,18 @@ class DeliveryProductInline(admin.TabularInline):
             f"?order__delivery__id__exact={d.id}&product__id__exact={p.id}"
         )
 
-        if total_quantity:
-            return format_html(
-                f"<a href='{order_items_admin_url}'>{total_quantity}</a>"
-            )
-        else:
-            return 0
+        return (
+            format_html(f"<a href='{order_items_admin_url}'>{total_quantity}</a>")
+            if total_quantity
+            else 0
+        )
 
     def has_add_permission(self, request, obj):
         """Hide 'add' line at the bottom of inline"""
         return False
 
 
-@admin.action(description="Envoyer email aux utilisateurs des livraisons selectionnées")
+@admin.action(description=_("Email users from selected deliveries"))
 def mailto_users_from_deliveries(modeladmin, request, queryset):
     deliveries = queryset
     show_message_email_users(
@@ -153,21 +158,20 @@ class DeliveryAdmin(admin.ModelAdmin):
         qs = qs.annotate(Count("orders"))
         return qs
 
-    @admin.display(description="nombre de commandes", ordering="orders__count")
+    @admin.display(description=_("number of orders"), ordering="orders__count")
     def orders_count(self, obj):
         delivery_orders_url = (
             reverse("admin:baskets_order_changelist") + f"?delivery__id__exact={obj.id}"
         )
         return format_html(f"<a href='{delivery_orders_url}'>{obj.orders__count}</a>")
 
-    @admin.display(description="exporter")
+    @admin.display(description=_("export"))
     def export(self, obj):
         d = obj
         delivery_export_url = reverse("delivery_export", args=[d.id])
+        link_text = _("Export order forms")
         if d.orders.count() and not d.is_open:
-            return format_html(
-                f"<a href='{delivery_export_url}'>Exporter les bons de commande</a>"
-            )
+            return format_html(f"<a href='{delivery_export_url}'>{link_text}</a>")
         else:
             return "-"
 
@@ -195,10 +199,12 @@ class DeliveryAdmin(admin.ModelAdmin):
                     products_html_list = "</li><li>".join(
                         removed_products.values_list("name", flat=True)
                     )
+                    message_text = _(
+                        "The following product(s) have been removed from opened orders:"
+                    )
                     show_message_email_users(
                         request,
-                        f"Le(s) produit(s): <ul><li>{products_html_list}</li></ul>"
-                        f"ont été supprimé(s) des commandes ouvertes.",
+                        f"{message_text} <ul><li>{products_html_list}</li></ul>",
                         related_order_items.values("order__user__id"),
                     )
 
@@ -214,19 +220,19 @@ class DeliveryAdmin(admin.ModelAdmin):
 class OrderIsOpenFilter(admin.SimpleListFilter):
     """Add filter by order.is_open property"""
 
-    title = "Ouverte"
+    title = _("open")
     parameter_name = "open"
 
     def lookups(self, request, model_admin):
         return (
-            ("Yes", "Oui"),
-            ("No", "Non"),
+            ("yes", _("yes")),
+            ("no", _("no")),
         )
 
     def queryset(self, request, queryset):
-        if self.value() == "Yes":
+        if self.value() == "yes":
             return queryset.filter(delivery__order_deadline__gte=date.today())
-        elif self.value() == "No":
+        elif self.value() == "no":
             return queryset.exclude(delivery__order_deadline__gte=date.today())
         else:
             return queryset
@@ -238,7 +244,7 @@ class OrderItemInlineOpen(admin.TabularInline):
     readonly_fields = ["unit_price", "amount"]
     extra = 0
 
-    @admin.display(description="prix unitaire")
+    @admin.display(description=_("unit price"))
     def unit_price(self, obj):
         p = obj.product
         return p.unit_price
@@ -261,7 +267,7 @@ class OrderAdmin(admin.ModelAdmin):
     class Media:
         css = {"all": ("baskets/css/hide_admin_original.css",)}
 
-    @admin.display(description="livraison", ordering="delivery")
+    @admin.display(description=_("delivery"), ordering="delivery")
     def delivery_link(self, obj):
         d = obj.delivery
         d_admin_url = reverse("admin:baskets_delivery_change", args=[d.id])
@@ -278,7 +284,7 @@ class OrderAdmin(admin.ModelAdmin):
         )
         return qs
 
-    @admin.display(description="Ouverte", boolean=True, ordering="open_")
+    @admin.display(description=_("open"), boolean=True, ordering="open_")
     def open(self, obj):
         """represent order.is_open property"""
         return obj.is_open
@@ -307,11 +313,7 @@ class OrderAdmin(admin.ModelAdmin):
             queryset.values_list("user__id", flat=True)
         )  # needs to convert into list, otherwise queryset will be empty after queryset.delete()
         queryset.delete()
-        show_message_email_users(
-            request,
-            "Le(s) commande(s) ont été supprimée(s).",
-            user_id_list,
-        )
+        show_message_email_users(request, "", user_id_list)
 
 
 @admin.register(OrderItem)
@@ -320,11 +322,11 @@ class OrderItemAdmin(admin.ModelAdmin):
     list_editable = ("quantity",)
     list_filter = ("order__delivery", "product")
 
-    @admin.display(description="livraison")
+    @admin.display(description=_("delivery"))
     def delivery(self, obj):
         return obj.order.delivery
 
-    @admin.display(description="utilisateur", ordering="order__user")
+    @admin.display(description=_("user"), ordering="order__user")
     def user(self, obj):
         user = obj.order.user
         user_admin_url = reverse("admin:accounts_customuser_change", args=[user.id])

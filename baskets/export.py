@@ -3,6 +3,7 @@ from io import BytesIO
 from django.contrib.auth import get_user_model
 from django.db.models import Sum, Q, DecimalField
 from django.db.models.functions import Coalesce
+from django.utils.translation import gettext as _
 from xlsxwriter.workbook import Workbook
 
 from baskets.models import Delivery, Producer
@@ -44,31 +45,31 @@ def get_order_forms_xlsx(delivery):
             # order header
             row = 0
             col = 0
-            worksheet.write(row, col, "Commande de paniers", wb.bold)
-            worksheet.write(row + 1, col, "Livraison du")
+            worksheet.write(row, col, _("Baskets order"), wb.bold)
+            worksheet.write(row + 1, col, _("Delivery for"))
             worksheet.write(row + 1, col + 1, str(delivery.date.strftime("%d/%m/%Y")))
 
             # user info
             row = 3
-            worksheet.write(row, col, "Utilisateur")
+            worksheet.write(row, col, _("user"))
             worksheet.write(
                 row, col + 1, f"{order.user.first_name} {order.user.last_name}", wb.bold
             )
-            worksheet.write(row + 1, col, "Groupe")
+            worksheet.write(row + 1, col, _("group"))
             worksheet.write(
                 row + 1,
                 col + 1,
                 order.user.groups.first().name if order.user.groups.first() else "",
             )
-            worksheet.write(row + 2, col, "Téléphone")
+            worksheet.write(row + 2, col, _("phone"))
             worksheet.write(row + 2, col + 1, order.user.phone)
 
             # order items headers
             row = 7
-            worksheet.write(row, col, "Produit", wb.bold)
-            worksheet.write(row, col + 1, "Prix unitaire", wb.bold_right)
-            worksheet.write(row, col + 2, "Quantité", wb.bold_right)
-            worksheet.write(row, col + 3, "Montant", wb.bold_right)
+            worksheet.write(row, col, _("product"), wb.bold)
+            worksheet.write(row, col + 1, _("unit price"), wb.bold_right)
+            worksheet.write(row, col + 2, _("quantity"), wb.bold_right)
+            worksheet.write(row, col + 3, _("amount"), wb.bold_right)
             row += 1
 
             # order items
@@ -85,7 +86,7 @@ def get_order_forms_xlsx(delivery):
 
             # order total
             row += 1  # one empty row
-            worksheet.write(row, col + 2, "Total", wb.bold_right)
+            worksheet.write(row, col + 2, _("Total"), wb.bold_right)
             worksheet.write_number(row, col + 3, order.amount, wb.money)
 
         return wb.buffer
@@ -126,7 +127,7 @@ def get_orders_export_xlsx():
     """Generate an 'in memory' Excel workbook containing total order amount per user and month"""
 
     with InMemoryWorkbook() as wb:
-        worksheet = wb.workbook.add_worksheet("commandes")
+        worksheet = wb.workbook.add_worksheet(_("orders"))
         for row_num, (user, value) in enumerate(
             get_amount_per_user_and_month().items(), start=1
         ):

@@ -1,0 +1,396 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-07-12 11:08+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: accounts/admin.py:36
+msgid "groups"
+msgstr "groupes"
+
+#: accounts/admin.py:47
+msgid "List of group members"
+msgstr "Liste des membres du groupe"
+
+#: accounts/admin.py:60
+msgid "number of members"
+msgstr "nombre de membres"
+
+#: accounts/admin.py:67
+msgid "email the group"
+msgstr "envoyer un email au groupe"
+
+#: accounts/models.py:10
+msgid "first name"
+msgstr "prénom"
+
+#: accounts/models.py:11
+msgid "last name"
+msgstr "nom"
+
+#: accounts/models.py:15 baskets/export.py:64 baskets/models.py:18
+msgid "phone"
+msgstr "téléphone"
+
+#: accounts/models.py:17
+msgid "address"
+msgstr "adresse"
+
+#: accounts/models.py:20 baskets/admin.py:329 baskets/export.py:54
+#: baskets/models.py:155
+msgid "user"
+msgstr "utilisateur"
+
+#: baskets/admin.py:21
+msgid "Email affected users"
+msgstr "Envoyer un email aux utilisateurs concernés"
+
+#: baskets/admin.py:65
+msgid "Product '{}' has been removed from opened orders."
+msgstr "Le produit '{}' a été supprimé des commandes ouvertes."
+
+#: baskets/admin.py:79
+msgid "Product '{}' has been updated on opened orders."
+msgstr "Le produit '{}' a été mis à jour dans les commandes ouvertes."
+
+#: baskets/admin.py:103
+msgid "Total ordered quantities per product"
+msgstr "Quantités totales commandées par produit"
+
+#: baskets/admin.py:109 baskets/models.py:24
+msgid "producer"
+msgstr "producteur"
+
+#: baskets/admin.py:113
+msgid "total ordered quantity"
+msgstr "quantité totale commandée"
+
+#: baskets/admin.py:135
+msgid "Email users from selected deliveries"
+msgstr "Envoyer email aux utilisateurs des livraisons selectionnées"
+
+#: baskets/admin.py:161
+msgid "number of orders"
+msgstr "nombre de commandes"
+
+#: baskets/admin.py:168
+msgid "export"
+msgstr "exporter"
+
+#: baskets/admin.py:172
+msgid "Export order forms"
+msgstr "Exporter les bons de commande"
+
+#: baskets/admin.py:203
+msgid "The following product(s) have been removed from opened orders:"
+msgstr "Les produits suivants ont été supprimés des commandes ouvertes :"
+
+#: baskets/admin.py:223 baskets/admin.py:287
+msgid "open"
+msgstr "ouverte"
+
+#: baskets/admin.py:228
+msgid "yes"
+msgstr "oui"
+
+#: baskets/admin.py:229
+msgid "no"
+msgstr "non"
+
+#: baskets/admin.py:247 baskets/export.py:70 baskets/models.py:48
+msgid "unit price"
+msgstr "prix unitaire"
+
+#: baskets/admin.py:270 baskets/admin.py:325 baskets/models.py:119
+#: baskets/models.py:161
+msgid "delivery"
+msgstr "livraison"
+
+#: baskets/apps.py:8
+msgid "Baskets"
+msgstr "Paniers"
+
+#: baskets/email.py:12
+msgid "Message from"
+msgstr "Message de"
+
+#: baskets/export.py:48
+msgid "Baskets order"
+msgstr "Commande de paniers"
+
+#: baskets/export.py:49
+msgid "Delivery for"
+msgstr "Livraison du"
+
+#: baskets/export.py:58
+msgid "group"
+msgstr "groupe"
+
+#: baskets/export.py:69 baskets/models.py:53 baskets/models.py:209
+msgid "product"
+msgstr "produit"
+
+#: baskets/export.py:71 baskets/models.py:214
+msgid "quantity"
+msgstr "quantité"
+
+#: baskets/export.py:72 baskets/models.py:167 baskets/models.py:217
+msgid "amount"
+msgstr "montant"
+
+#: baskets/export.py:89 templates/baskets/orders.html:25
+msgid "Total"
+msgstr "Total"
+
+#: baskets/export.py:130
+msgid "orders"
+msgstr "commandes"
+
+#: baskets/forms.py:11
+msgid "Email"
+msgstr "Email"
+
+#: baskets/forms.py:18
+msgid "Subject"
+msgstr "Object"
+
+#: baskets/forms.py:23
+msgid "Your message"
+msgstr "Votre message"
+
+#: baskets/models.py:16 baskets/models.py:46
+msgid "name"
+msgstr "nom"
+
+#: baskets/models.py:100
+msgid ""
+"Last day to order. If left blank, it will be automatically set to {} days "
+"before Delivery date"
+msgstr ""
+"Date limite de commande. Si pas définie, elle sera automatiquement fixée à {} jours "
+"avant la Date de Livraison"
+
+#: baskets/models.py:105
+msgid "last day to order"
+msgstr "dernier jour pour commander"
+
+#: baskets/models.py:111
+msgid "products"
+msgstr "produits"
+
+#: baskets/models.py:120
+msgid "deliveries"
+msgstr "livraisons"
+
+#: baskets/models.py:165
+msgid "creation date"
+msgstr "date de création"
+
+#: baskets/models.py:172
+msgid "Internal message only visible by stuff members"
+msgstr "Message interne seulement visible par l'équipe"
+
+#: baskets/models.py:182 baskets/models.py:203
+msgid "order"
+msgstr "commande"
+
+#: baskets/models.py:222
+msgid "product name (saved)"
+msgstr "nom de produit (sauvegardé)"
+
+#: baskets/models.py:225
+msgid "product unit price (saved)"
+msgstr "prix unitaire (sauvegardé)"
+
+#: baskets/models.py:233
+msgid "order item"
+msgstr "ligne de commande"
+
+#: baskets/models.py:234
+msgid "order items"
+msgstr "lignes de commande"
+
+#: baskets/models.py:268
+msgid "product '{}' not available on this delivery"
+msgstr "produit '{}' pas disponible dans cette livraison"
+
+#: baskets/views.py:41 templates/layout.html:29
+msgid "Next orders"
+msgstr "Commandes à venir"
+
+#: baskets/views.py:66
+msgid "Order history"
+msgstr "Historique"
+
+#: baskets/views.py:73
+msgid "Your message have been sent"
+msgstr "Votre message a été envoyé"
+
+#: templates/account/email_confirm.html:6
+#: templates/account/email_confirm.html:10
+msgid "Confirm E-mail Address"
+msgstr "Confirmez l'Adresse Email"
+
+#: templates/account/email_confirm.html:16
+#, python-format
+msgid ""
+"Please confirm that <a href=\"mailto:%(email)s\">%(email)s</a> is an e-mail "
+"address for user %(user_display)s."
+msgstr ""
+"Veuillez confirmer que <a href=\"mailto:%(email)s\">%(email)s</a> est une adresse e-mail "
+"pour l'utilisateur %(user_display)s."
+
+#: templates/account/email_confirm.html:20
+msgid "Confirm"
+msgstr "Confirmer"
+
+#: templates/account/email_confirm.html:27
+#, python-format
+msgid ""
+"This e-mail confirmation link expired or is invalid. Please <a href="
+"\"%(email_url)s\">issue a new e-mail confirmation request</a>."
+msgstr ""
+"Ce lien de confirmation d'e-mail a expiré ou est invalide. Veuillez <a href="
+"\"%(email_url)s\">faire une nouvelle demande de confirmation d'e-mail</a>."
+
+#: templates/account/login.html:7 templates/account/login.html:21
+#: templates/layout.html:49
+msgid "Sign In"
+msgstr "Connexion"
+
+#: templates/account/login.html:25
+#, python-format
+msgid ""
+"If you have not created an account yet, then please\n"
+"<a href=\"%(signup_url)s\">sign up</a> first."
+msgstr ""
+"Si vous n'avez pas encore de compte, veuillez\n"
+"d'abord <a href=\"%(signup_url)s\">vous inscrire</a>."
+
+#: templates/account/login.html:27
+msgid "Forgot Password?"
+msgstr "Mot de passe oublié ?"
+
+#: templates/account/password_reset.html:6
+#: templates/account/password_reset.html:10
+msgid "Password Reset"
+msgstr "Réinitialisation de mot de passe"
+
+#: templates/account/password_reset.html:15
+msgid ""
+"Forgotten your password? Enter your e-mail address below, and we'll send you "
+"an e-mail allowing you to reset it."
+msgstr ""
+"Mot de passe oublié ? Entrez votre adresse e-mail ci-dessous et nous vous enverrons "
+"un e-mail pour le réinitliaser."
+
+#: templates/account/password_reset.html:20
+msgid "Reset My Password"
+msgstr "Réinitialiser mon mot de passe"
+
+#: templates/account/password_reset.html:23
+msgid "Please contact us if you have any trouble resetting your password."
+msgstr "N'hésitez pas à nous contacter si vous rencontrez des difficultés pour réinitialiser votre mot de passe"
+
+#: templates/account/password_reset_from_key.html:4
+#: templates/account/password_reset_from_key.html:7
+msgid "Change Password"
+msgstr "Changer le mot de passe"
+
+#: templates/account/password_reset_from_key.html:7
+msgid "Bad Token"
+msgstr "Mauvais Token"
+
+#: templates/account/password_reset_from_key.html:11
+#, python-format
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please request a <a href=\"%(passwd_reset_url)s\">new password reset</"
+"a>."
+msgstr ""
+"Le lien de réinitialisation de mot de passe est invalide, possiblement car il a déjà été "
+"utilisé.  Veuillez faire une nouvelle demande de <a href=\"%(passwd_reset_url)s\">réinitialisation de mot de passe</"
+"a>."
+
+#: templates/account/password_reset_from_key.html:18
+msgid "change password"
+msgstr "modifier le mot de passe"
+
+#: templates/account/profile.html:7
+msgid "Profile"
+msgstr "Profil"
+
+#: templates/account/profile.html:14
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: templates/account/signup.html:5
+msgid "Signup"
+msgstr "S'inscrire"
+
+#: templates/account/signup.html:8 templates/account/signup.html:20
+#: templates/layout.html:52
+msgid "Sign Up"
+msgstr "S'inscrire"
+
+#: templates/account/signup.html:10
+#, python-format
+msgid ""
+"Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
+msgstr ""
+"Vous avez déjà un compte ? Vous pouvez donc <a href=\"%(login_url)s\">vous connecter</a>."
+
+#: templates/admin/baskets/order/change_list.html:15
+#: templates/admin/baskets/producer/change_list.html:15
+#, python-format
+msgid "Add %(name)s"
+msgstr "Ajouter %(name)s"
+
+#: templates/baskets/contact.html:6
+msgid "Contact form"
+msgstr "Formulaire de contact"
+
+#: templates/baskets/contact.html:13
+msgid "Send"
+msgstr "Envoyer"
+
+#: templates/baskets/orders.html:24
+msgid "Delivery Date"
+msgstr "Date de Livraison"
+
+#: templates/baskets/orders.html:41
+msgid "Click to order"
+msgstr "Commander"
+
+#: templates/baskets/orders.html:48
+msgid "There are no orders in this section yet"
+msgstr "Il n'y a pas encore de commande dans cette section"
+
+#: templates/baskets/orders.html:77
+msgid "Delete order"
+msgstr "Supprimer commande"
+
+#: templates/layout.html:33
+msgid "Order History"
+msgstr "Historique"
+
+#: templates/layout.html:45
+msgid "Sign Out"
+msgstr "Déconnexion"
+
+#: templates/layout.html:73
+msgid "Contact us"
+msgstr "Nous contacter"

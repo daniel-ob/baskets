@@ -14,7 +14,7 @@ class FunctionalTestCase(SeleniumTestCase):
         login_page.load()
         # Check that 'Login' page is correctly loaded
         self.assertEqual(self.driver.current_url, self.live_server_url + login_page.url)
-        self.assertEqual(login_page.title, "Connexion")
+        self.assertEqual(login_page.title, "Sign In")
 
         login_page.set_email("user1@baskets.com")
         login_page.set_password("secret")
@@ -23,7 +23,7 @@ class FunctionalTestCase(SeleniumTestCase):
         self.assertEqual(
             self.driver.current_url, self.live_server_url + reverse("index")
         )
-        self.assertEqual(next_orders_page.title, "Commandes à venir")
+        self.assertEqual(next_orders_page.title, "Next orders")
         self.assertEqual(next_orders_page.username, "user1")
         return next_orders_page
 
@@ -180,7 +180,7 @@ class FunctionalTestCase(SeleniumTestCase):
     def test_view_closed_order(self):
         next_orders_page = self._login()
         history_page = next_orders_page.load_history_page()
-        self.assertEqual(history_page.title, "Historique")
+        self.assertEqual(history_page.title, "Order history")
 
         delivery_index = 0  # self.d1
         self.assertEqual(history_page.get_order_amount(delivery_index), self.o1.amount)

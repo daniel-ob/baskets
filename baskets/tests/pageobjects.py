@@ -12,7 +12,7 @@ class BasePage(object):
 
     TITLE = (By.TAG_NAME, "h1")
     USERNAME = (By.ID, "username")
-    HISTORY_LINK = (By.LINK_TEXT, "Historique")
+    HISTORY_LINK = (By.ID, "nav-history")
 
     url = None
 

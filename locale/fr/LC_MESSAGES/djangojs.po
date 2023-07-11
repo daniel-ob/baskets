@@ -1,0 +1,69 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-07-12 11:08+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: baskets/static/baskets/js/admin_add_help_text_to_productinline.js:5
+msgid ""
+"Please do not replace products: You can add new ones or delete existing ones"
+msgstr ""
+"Veuillez ne pas remplacer des produits : Vous pouvez en ajouter des nouveaux et supprimer les existants"
+
+#: baskets/static/baskets/js/orders.js:52
+msgid "Order for "
+msgstr "Commande pour le "
+
+#: baskets/static/baskets/js/orders.js:56
+msgid "Can be updated until: "
+msgstr "Peut être modifiée jusqu'au : "
+
+#: baskets/static/baskets/js/orders.js:62
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: baskets/static/baskets/js/orders.js:77
+msgid "New order for "
+msgstr "Nouvelle commande pour le "
+
+#: baskets/static/baskets/js/orders.js:79
+msgid "Last day to order: "
+msgstr "Dernier jour pour commander : "
+
+#: baskets/static/baskets/js/orders.js:84
+msgid "Create"
+msgstr "Créer"
+
+#: baskets/static/baskets/js/orders.js:339
+msgid "Click to order"
+msgstr "Commander"
+
+#: baskets/static/baskets/js/orders.js:358
+msgid "Order has been successfully saved"
+msgstr "La commande a été enregistrée avec succès"
+
+#: baskets/static/baskets/js/orders.js:362
+msgid "Order has been successfully removed"
+msgstr "La commande a été supprimée avec succès"
+
+#: baskets/static/baskets/js/orders.js:366
+msgid ""
+"An error occurred when trying to save order. Please reload page and try again"
+msgstr "Une erreur est survenue lors de l'enregistrement de la commande. Veuillez recharger la page et réesayer"
+
+#: baskets/static/baskets/js/orders.js:370
+msgid "At least one item must have quantity greater than 0"
+msgstr "Au moins un produit doit avoir une quantité supérieure à 0"

@@ -6,6 +6,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, TemplateView
 from rest_framework import viewsets
 
@@ -36,7 +37,7 @@ class IndexPageView(LoginRequiredMixin, TemplateView):
         ).order_by("date")
 
         return {
-            "title": "Commandes à venir",
+            "title": _("Next orders"),
             "deliveries_orders": [
                 {
                     "delivery": d,
@@ -61,14 +62,14 @@ class OrderHistoryPageView(LoginRequiredMixin, TemplateView):
             {"delivery": o.delivery, "order": o} for o in closed_user_orders
         ]
 
-        return {"title": "Historique", "deliveries_orders": deliveries_orders}
+        return {"title": _("Order history"), "deliveries_orders": deliveries_orders}
 
 
 class ContactPageView(SuccessMessageMixin, FormView):
     template_name = "baskets/contact.html"
     form_class = ContactForm
     success_url = reverse_lazy("contact")
-    success_message = "Votre message a été envoyé."
+    success_message = _("Your message have been sent")
 
     def get_initial(self):
         initial = super().get_initial()
@@ -131,7 +132,7 @@ def delivery_export(request, delivery_id):
 
     return HttpResponse(
         get_order_forms_xlsx(d),
-        headers=_prepare_excel_http_headers(f"{d.date}_bons_commande.xlsx"),
+        headers=_prepare_excel_http_headers(f"{d.date}_order_forms.xlsx"),
     )
 
 
@@ -141,7 +142,7 @@ def order_export(request):
 
     return HttpResponse(
         get_orders_export_xlsx(),
-        headers=_prepare_excel_http_headers("export_commandes.xlsx"),
+        headers=_prepare_excel_http_headers("order_export.xlsx"),
     )
 
 
@@ -151,5 +152,5 @@ def producer_export(request):
 
     return HttpResponse(
         get_producer_export_xlsx(),
-        headers=_prepare_excel_http_headers("export_producteurs.xlsx"),
+        headers=_prepare_excel_http_headers("producer_export.xlsx"),
     )

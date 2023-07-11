@@ -1,5 +1,4 @@
-{% load static %}
-{% load baskets_extras %}
+{% load i18n static baskets_extras %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -27,11 +26,11 @@
                     {% if user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == index_url %} active {% endif %}"
-                               href="{% url 'index' %}">Commandes à venir</a>
+                               href="{% url 'index' %}">{% translate 'Next orders' %}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == history_url %} active {% endif %}"
-                               href="{% url 'order_history' %}">Historique</a>
+                            <a id="nav-history" class="nav-link {% if request.path == history_url %} active {% endif %}"
+                               href="{% url 'order_history' %}">{% translate 'Order History' %}</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -43,14 +42,14 @@
                                href="{% url 'profile' %}">{{ user.username }}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'account_logout' %}">Déconnexion</a>
+                            <a class="nav-link" href="{% url 'account_logout' %}">{% translate 'Sign Out' %}</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'account_login' %}">Connexion</a>
+                            <a class="nav-link" href="{% url 'account_login' %}">{% translate 'Sign In' %}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'account_signup' %}">S'inscrire</a>
+                            <a class="nav-link" href="{% url 'account_signup' %}">{% translate 'Sign Up' %}</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -71,7 +70,7 @@
         </div>
 
         <footer class="mt-auto p-3 text-end bg-light">
-            <a class="text-muted" href="{% url 'contact' %}">Nous contacter</a>
+            <a class="text-muted" href="{% url 'contact' %}">{% translate 'Contact us' %}</a>
         </footer>
         {% block script %}{% endblock %}
     </body>

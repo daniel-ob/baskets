@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.postgres.aggregates import StringAgg
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
+
 
 from accounts.models import CustomUser
 
@@ -31,7 +33,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         )  # PostgreSQL specific aggregation function
         return qs
 
-    @admin.display(description="groupe(s)", ordering="groups_")
+    @admin.display(description=_("groups"), ordering="groups_")
     def groups_str(self, obj):
         return obj.groups_
 
@@ -42,6 +44,7 @@ admin.site.unregister(Group)
 
 class MembershipInline(admin.TabularInline):
     model = Group.user_set.through
+    verbose_name_plural = _("List of group members")
     extra = 0
 
 
@@ -54,13 +57,16 @@ class GroupAdmin(admin.ModelAdmin):
     class Media:
         css = {"all": ("baskets/css/hide_admin_original.css",)}
 
-    @admin.display(description="nombre de membres")
+    @admin.display(description=_("number of members"))
     def members_count(self, obj):
         return obj.user_set.count()
 
     @staticmethod
     def email(group):
         emails_str = ", ".join(group.user_set.values_list("email", flat=True))
-        return format_html(
-            f"<a href='mailto:?bcc={emails_str}'>envoyer un email au groupe '{group.name}'</a>"
+        link_text = _("email the group")
+        return (
+            format_html(f"<a href='mailto:?bcc={emails_str}'>{link_text}</a>")
+            if emails_str
+            else ""
         )

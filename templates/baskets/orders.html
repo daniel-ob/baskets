@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% load static %}
+{% load i18n static %}
 
 {% block style %}
     <link href="{% static 'baskets/css/orders.css' %}" rel="stylesheet">
@@ -8,7 +8,8 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'baskets/js/orders.js' %}?v=6"></script>
+    <script src="{% url 'javascript-catalog' %}"></script>
+    <script src="{% static 'baskets/js/orders.js' %}?v=7"></script>
 {% endblock %}
 
 {% block content %}
@@ -20,29 +21,31 @@
             <table class="table table-hover table-sm table-fixed-head">
                 <thead>
                     <tr>
-                        <th scope="col">Date de livraison</th>
-                        <th scope="col">Total</th>
+                        <th scope="col">{% translate 'Delivery Date' %}</th>
+                        <th scope="col">{% translate 'Total' %}</th>
                     </tr>
                 </thead>
                 <tbody title="click on a row to see details">
                     {% for item in deliveries_orders %}
                         <tr class="order-list-item">
-                            <td class="delivery" data-url="{% url 'delivery-detail' item.delivery.id %}">
-                                {{ item.delivery.date|date:"d/m/Y"}}
+                            <td class="delivery"
+                                data-url="{% url 'delivery-detail' item.delivery.id %}"
+                                data-orderdeadline="{{ item.delivery.order_deadline|date:'SHORT_DATE_FORMAT'}}">
+                                    {{ item.delivery.date|date:"SHORT_DATE_FORMAT"}}
                             </td>
                             {% if item.order %}
                                 <td class="order" data-url="{% url 'order-detail' item.order.id %}">
                                     {{ item.order.amount }} €
                                 </td>
                             {% else %}
-                                <td class="order" data-url="">Commander</td>
+                                <td class="order" data-url="">{% translate 'Click to order' %}</td>
                             {% endif %}
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% else %}
-            <p>Il n'y a pas encore de commande dans cette section</p>
+            <p>{% translate 'There are no orders in this section yet' %}</p>
         {% endif %}
     </div>
 
@@ -71,7 +74,7 @@
         </div>
 
         <div class="order-buttons d-flex justify-content-end align-items-center">
-            <button class="btn btn-secondary m-1 d-none" id="delete" title="Supprimer commande">
+            <button class="btn btn-secondary m-1 d-none" id="delete" title="{% translate 'Delete order' %}">
                 <i class="bi bi-trash-fill"></i>
             </button>
             <button class="btn btn-primary d-none" id="save"></button>

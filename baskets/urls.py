@@ -1,4 +1,5 @@
 from django.urls import path, include
+from django.views.i18n import JavaScriptCatalog
 from rest_framework.routers import DefaultRouter
 
 from . import views
@@ -23,4 +24,7 @@ urlpatterns = [
     ),
     path("orders/export", views.order_export, name="order_export"),
     path("producers/export", views.producer_export, name="producer_export"),
+
+    # Javascript internationalization
+    path("jsi18n/", JavaScriptCatalog.as_view(), name="javascript-catalog"),
 ]

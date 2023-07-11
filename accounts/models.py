@@ -12,12 +12,12 @@ class CustomUser(AbstractUser):
 
     # add new fields
     phone = models.CharField(
-        "téléphone", validators=[FR_PHONE_REGEX], max_length=18, blank=True
+        _("phone"), validators=[FR_PHONE_REGEX], max_length=18, blank=True
     )
-    address = models.CharField("adresse", max_length=128, blank=True)
+    address = models.CharField(_("address"), max_length=128, blank=True)
 
     class Meta:
-        verbose_name = "utilisateur"
+        verbose_name = _("user")
         ordering = ["username"]
 
     def __str__(self):
