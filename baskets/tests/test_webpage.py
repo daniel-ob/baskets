@@ -7,7 +7,7 @@ class WebPageTestCase(BasketsTestCase):
     def test_index_template(self):
         self.c.force_login(self.u1)
         response = self.c.get(reverse("index"))
-        self.assertTemplateUsed(response, "baskets/index.html")
+        self.assertTemplateUsed(response, "baskets/orders.html")
 
     def test_index_not_authenticated_redirects_to_login(self):
         response = self.c.get(reverse("index"))

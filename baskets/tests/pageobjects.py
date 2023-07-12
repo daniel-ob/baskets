@@ -38,7 +38,7 @@ class BasePage(object):
     def load_history_page(self):
         history_link = self.driver.find_element(*self.HISTORY_LINK)
         history_link.click()
-        return IndexPage(
+        return OrdersPage(
             self.driver, self.live_server_url
         )  # history page is also an IndexPage
 
@@ -59,11 +59,11 @@ class LoginPage(BasePage):
     def submit(self):
         login_button = self.driver.find_element(*self.LOGIN_BUTTON)
         login_button.click()
-        return IndexPage(self.driver, self.live_server_url)
+        return OrdersPage(self.driver, self.live_server_url)
 
 
-class IndexPage(BasePage):
-    """Abstracts interactions with index.html template"""
+class OrdersPage(BasePage):
+    """Abstracts interactions with orders.html template"""
 
     # page locators
     DELIVERIES = (By.CLASS_NAME, "delivery")

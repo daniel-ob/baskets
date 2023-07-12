@@ -28,7 +28,7 @@ from .serializers import (
 class IndexPageView(LoginRequiredMixin, TemplateView):
     """Render 'Next Orders' page: a list of opened deliveries and its related orders in chronological order"""
 
-    template_name = "baskets/index.html"
+    template_name = "baskets/orders.html"
 
     def get_context_data(self, **kwargs):
         opened_deliveries = Delivery.objects.filter(
@@ -50,7 +50,7 @@ class IndexPageView(LoginRequiredMixin, TemplateView):
 class OrderHistoryPageView(LoginRequiredMixin, TemplateView):
     """Render 'Order history' page: a list of closed user orders in reverse chronological order"""
 
-    template_name = "baskets/index.html"
+    template_name = "baskets/orders.html"
 
     def get_context_data(self, **kwargs):
         closed_user_orders = self.request.user.orders.filter(
