@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, TemplateView
 from rest_framework import viewsets
 
-from .email import email_staff_contact
+from .email import email_staff
 from .export import (
     get_order_forms_xlsx,
     get_orders_export_xlsx,
@@ -49,8 +49,6 @@ class IndexPageView(LoginRequiredMixin, TemplateView):
 
 
 class OrderHistoryPageView(LoginRequiredMixin, TemplateView):
-    """Render 'Order history' page: a list of closed user orders in reverse chronological order"""
-
     template_name = "baskets/orders.html"
 
     def get_context_data(self, **kwargs):
@@ -79,7 +77,7 @@ class ContactPageView(SuccessMessageMixin, FormView):
         return initial
 
     def form_valid(self, form):
-        email_staff_contact(
+        email_staff(
             from_email=form.cleaned_data["from_email"],
             subject=form.cleaned_data["subject"],
             message=form.cleaned_data["message"],

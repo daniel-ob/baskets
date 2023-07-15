@@ -17,7 +17,7 @@ class ModelsTestCase(BasketsTestCase):
         self.assertEqual(self.producer2.products.count(), 1)
 
     def test_producer_soft_delete(self):
-        """Test that by default, a producer is not deleted but just deactivated"""
+        """By default, a producer is not deleted but just deactivated"""
         producer = create_producer()
         products = [create_product(producer) for _ in range(3)]
 
@@ -45,7 +45,7 @@ class ModelsTestCase(BasketsTestCase):
         self.assertEqual(self.product1.deliveries.count(), 3)
 
     def test_product_soft_delete(self):
-        """Test that by default, a product is not deleted but just deactivated"""
+        """By default, a product is not deleted but just deactivated"""
         product = create_product()
         opened_delivery = create_opened_delivery([product])
         opened_order_item = create_order_item(delivery=opened_delivery, product=product)
@@ -91,7 +91,6 @@ class ModelsTestCase(BasketsTestCase):
 
         self.assertNotIn(opened_order_item_1, OrderItem.objects.all())
         self.assertNotIn(opened_order_item_2, OrderItem.objects.all())
-        # order amount should have been updated
         opened_order_2.refresh_from_db()
         self.assertEqual(opened_order_2.amount, opened_order_item_3.amount)
         # order with only one item should have been deleted
@@ -129,8 +128,6 @@ class ModelsTestCase(BasketsTestCase):
         self.assertIn(product, closed_delivery.products.all())
 
     def test_product_price_update_updates_opened_order_amount(self):
-        """Test that opened order updates its amounts (total and items) when related product unit price is updated"""
-
         self.assertTrue(self.o2.is_open)
 
         self.product1.unit_price += 0.25
@@ -142,9 +139,6 @@ class ModelsTestCase(BasketsTestCase):
         self.assertEqual(float(self.o2.amount), 4.20)
 
     def test_product_update_or_delete_doesnt_update_closed_orders(self):
-        """Test that closed order keeps amounts (total and items) and saved product info unchanged when related products
-        are updated or deleted"""
-
         self.assertFalse(self.o1.is_open)
         self.assertEqual(self.o1.items.count(), 2)
 

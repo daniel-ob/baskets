@@ -20,7 +20,6 @@ class ProducerSerializer(serializers.ModelSerializer):
     def get_products(self, obj):
         queryset = obj.products.all()
         if self.products_filter:
-            # filter by delivery.products
             queryset = obj.products.filter(id__in=self.products_filter)
         serializer = ProductSerializer(queryset, many=True)
         return serializer.data
@@ -125,7 +124,6 @@ class OrderDetailSerializer(serializers.ModelSerializer):
         instance.message = validated_data.get("message", instance.message)
         instance.save()
 
-        # add new items
         for item_data in validated_data["items"]:
             instance.items.create(**item_data)
 

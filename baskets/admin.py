@@ -36,7 +36,7 @@ class ProductInline(admin.TabularInline):
     extra = 0
 
     def get_queryset(self, request):
-        """override InlineModelAdmin method to filter queryset (not show inactive products)"""
+        """Override InlineModelAdmin method to filter queryset (don't show inactive products)"""
         queryset = super().get_queryset(request)
         if not self.has_view_or_change_permission(request):
             queryset = queryset.none()
@@ -56,7 +56,6 @@ class ProducerAdmin(admin.ModelAdmin):
 
     def save_formset(self, request, form, formset, change):
         """If a product is deleted or its unit_price changes, update related opened orders and show a message"""
-
         products_new_or_updated = formset.save(commit=False)  # don't save them yet
         for product in formset.deleted_objects:
             if user_id_list := product.delete():
@@ -184,7 +183,8 @@ class DeliveryAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """If a product is removed from an opened delivery, related opened order_items will be deleted by
-        delivery_product_removed (triggered by m2m_changed signal). Here we show a message to notify concerned users
+        delivery_product_removed (triggered by m2m_changed signal).
+        Here we show a message to notify concerned users
         """
         super().save_model(request, obj, form, change)
 
@@ -274,7 +274,7 @@ class OrderAdmin(admin.ModelAdmin):
         return format_html(f"<a href='{d_admin_url}'>{d.date}</a>")
 
     def get_queryset(self, request):
-        """add 'open_' to queryset for sorting 'open'"""
+        """Add 'open_' to queryset for sorting 'open' field"""
         qs = super().get_queryset(request)
         qs = qs.annotate(
             open_=Case(
@@ -286,7 +286,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("open"), boolean=True, ordering="open_")
     def open(self, obj):
-        """represent order.is_open property"""
+        """Allow using @property as 'list_display' field"""
         return obj.is_open
 
     def get_formsets_with_inlines(self, request, obj=None):

@@ -12,14 +12,12 @@ class FunctionalTestCase(SeleniumTestCase):
     def _login(self):
         login_page = LoginPage(self.driver, self.live_server_url)
         login_page.load()
-        # Check that 'Login' page is correctly loaded
         self.assertEqual(self.driver.current_url, self.live_server_url + login_page.url)
         self.assertEqual(login_page.title, "Sign In")
 
         login_page.set_email("user1@baskets.com")
         login_page.set_password("secret")
         next_orders_page = login_page.submit()
-        # Check that 'Next orders' page is correctly loaded and user1 is logged-in
         self.assertEqual(
             self.driver.current_url, self.live_server_url + reverse("index")
         )
@@ -28,8 +26,6 @@ class FunctionalTestCase(SeleniumTestCase):
         return next_orders_page
 
     def _check_producers(self, next_orders_page, delivery):
-        """Check order-view producers: count, name and products. Check that we only show producers that have products
-        available on delivery."""
         producers_to_show = Producer.objects.filter(
             products__in=delivery.products.all()
         ).distinct()
@@ -64,12 +60,10 @@ class FunctionalTestCase(SeleniumTestCase):
         """Check that order view items match delivery products"""
         delivery_products = delivery.products.all()
 
-        # Check available products count
-        items_count = next_orders_page.get_items_count()
-        self.assertEqual(items_count, len(delivery_products))
+        available_products_count = next_orders_page.get_items_count()
+        self.assertEqual(available_products_count, len(delivery_products))
 
-        # Check products name, unit price
-        for index in range(items_count):
+        for index in range(available_products_count):
             self.assertEqual(
                 next_orders_page.get_item_name(index), delivery_products[index].name
             )
@@ -79,7 +73,6 @@ class FunctionalTestCase(SeleniumTestCase):
             )
 
     def _update_item_quantity(self, next_orders_page, item_index, item_quantity):
-        """set item quantity and check updated item amount"""
         self.assertTrue(next_orders_page.item_quantity_is_writable(item_index))
         item_unit_price = next_orders_page.get_item_unit_price(item_index)
         expected_item_amount = item_quantity * item_unit_price
@@ -124,18 +117,16 @@ class FunctionalTestCase(SeleniumTestCase):
             next_orders_page.get_order_view_amount(), expected_order_amount
         )
 
-        # check badges
         for producer_index in range(next_orders_page.get_producers_count()):
             self._check_producer_badge(next_orders_page, producer_index)
 
-        # Save order and check that order list is updated
         next_orders_page.save_order()
+        # Check that order-list is updated
         self.assertIsNotNone(next_orders_page.get_order_url(delivery_index))
         self.assertEqual(
             next_orders_page.get_order_amount(delivery_index), expected_order_amount
         )
 
-        # Check that order has been created in database
         self.assertEqual(self.u1.orders.last().amount, expected_order_amount)
 
     def test_update_order(self):
@@ -161,8 +152,8 @@ class FunctionalTestCase(SeleniumTestCase):
             next_orders_page.get_order_view_amount(), expected_order_amount
         )
 
-        # Save order and check that it has been correctly updated in order list and database
         next_orders_page.save_order()
+        # Check that it has been correctly updated in order-list and database
         self.assertEqual(
             next_orders_page.get_order_amount(delivery_index), expected_order_amount
         )

@@ -5,9 +5,7 @@ from django.core.mail import EmailMessage
 from django.utils.translation import gettext_lazy as _
 
 
-def email_staff_contact(from_email, subject, message):
-    """Send email to staff with 'Contact' form data"""
-
+def email_staff(from_email, subject, message):
     app_name = apps.get_app_config("baskets").verbose_name
     body_text = _("Message from")
     email = EmailMessage(

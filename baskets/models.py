@@ -75,7 +75,6 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # update related opened order items
         opened_order_items, user_id_list = self.get_opened_order_items_and_users()
         for oi in opened_order_items:
             oi.save()
@@ -129,7 +128,6 @@ class Delivery(models.Model):
 
     @property
     def is_open(self):
-        """Delivery is open (accepts orders) until its order_deadline"""
         return date.today() <= self.order_deadline
 
     def __str__(self):
@@ -182,12 +180,10 @@ class Order(models.Model):
         verbose_name = _("order")
 
     def save(self, *args, **kwargs):
-        # Order amount is the sum of its items amounts
         order_items = self.items.all()
         self.amount = (
             order_items.aggregate(Sum("amount"))["amount__sum"] if order_items else 0.00
         )
-        # Save order
         super().save(*args, **kwargs)
 
     @property
@@ -242,22 +238,19 @@ class OrderItem(models.Model):
             self.amount = self.quantity * self.product.unit_price
         else:
             self.amount = self.quantity * self.product_unit_price
-        # Save item
         super().save(*args, **kwargs)
         # Recalculate order.amount with this item
         self.order.save()
 
     def delete(self, *args, **kwargs):
-        # Delete item
         super().delete(*args, **kwargs)
         # Recalculate related order.amount
         self.order.save()
-        # Delete empty order
         if not self.order.items.count():
             self.order.delete()
 
     def clean(self):
-        """This will display an error message when saving OrderItemInline if product isn't available on delivery"""
+        """Display error message when saving OrderItemInline if product isn't available on delivery"""
         if (
             hasattr(
                 self.order, "delivery"
@@ -269,7 +262,6 @@ class OrderItem(models.Model):
             )
 
     def is_valid(self):
-        """Order item is valid if product is available in related delivery and quantity is greater than 0"""
         return self.product in self.order.delivery.products.all() and self.quantity > 0
 
     def __str__(self):
