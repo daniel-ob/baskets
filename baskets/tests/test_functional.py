@@ -193,3 +193,7 @@ class FunctionalTestCase(SeleniumTestCase):
             self.assertEqual(history_page.get_item_name(index), item.product_name)
             self.assertEqual(history_page.get_item_quantity(index), item.quantity)
             self.assertEqual(history_page.get_item_amount(index), item.amount)
+
+        # When clicking again on same order, same #order-view-items must be shown
+        history_page.open_order(delivery_index)
+        self.assertEqual(history_page.get_items_count(), self.o1.items.count())
