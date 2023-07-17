@@ -15,8 +15,9 @@ Please note that, for the moment, this website is in French. English translation
 3. [Dependencies](#dependencies)
 4. [Run using Docker](#run)
 5. [Tests run](#tests-run)
-6. [API Reference](#api-ref)
-7. [UI Language](#language)
+6. [Populate dummy database](#dummy-db) 
+7. [API Reference](#api-ref)
+8. [UI Language](#language)
 
 ## Background and goal <a name="background"></a> 
 
@@ -154,16 +155,19 @@ Create virtual environment and install dependencies:
 
     $ cp .envs/.local/.web .env
     $ pipenv shell
-    $ pipenv install --dev
+    (baskets)$ pipenv install --dev
 
 Launch all tests:
 
-    $ python manage.py test
+    (baskets)$ python manage.py test
 
 Launch only functional tests:
 
-    $ python manage.py test baskets.tests.test_functional
+    (baskets)$ python manage.py test baskets.tests.test_functional
 
+## Populate dummy database <a name="dummy-db"></a>
+
+    (baskets)$ python manage.py shell < populate_dummy_db.py
 
 ## API Reference <a name="api-ref"></a>
 
