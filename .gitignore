@@ -1,12 +1,12 @@
 __pycache__/
-.envs/
+
+# Environments
 .env
-
-# prod
-static
-
-# local
-.idea/
-db_bkp/
-TODO*
+.envs/
 venv/
+
+# Static files are collected with `collectstatic` command
+static/
+
+# PyCharm
+.idea/
