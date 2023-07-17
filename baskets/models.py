@@ -230,17 +230,23 @@ class OrderItem(models.Model):
         verbose_name_plural = _("order items")
 
     def save(self, *args, **kwargs):
-        if self.order.is_open or (
-            not self.product_unit_price and self.product  # to create closed orders
-        ):
-            self.product_name = self.product.name
-            self.product_unit_price = self.product.unit_price
-            self.amount = self.quantity * self.product.unit_price
-        else:
-            self.amount = self.quantity * self.product_unit_price
+        self._update_product_data()
+        self._update_amount()
         super().save(*args, **kwargs)
         # Recalculate order.amount with this item
         self.order.save()
+
+    def _update_product_data(self):
+        """Product data is updated for opened orders and initialised when creating closed ones (tests or admin)"""
+        if self.order.is_open or not self.product_unit_price:
+            self.product_name = self.product.name
+            self.product_unit_price = self.product.unit_price
+
+    def _update_amount(self):
+        unit_price = (
+            self.product.unit_price if self.order.is_open else self.product_unit_price
+        )
+        self.amount = self.quantity * unit_price
 
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
