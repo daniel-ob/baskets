@@ -87,6 +87,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # example: DATABASE_URL=postgres://POSTGRES_USER:POSTGRES_PASSWORD@HOST:5432/POSTGRES_DB
 # if using Docker set HOST=baskets-db
 DATABASES = {"default": dj_database_url.config(conn_max_age=600)}
+DATABASES["default"]["TEST"] = {"NAME": "test_baskets"}
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 
