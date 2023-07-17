@@ -78,7 +78,7 @@ All functionalities except "contact" requires authentication.
 
 ### Other
 
-- **Soft-delete** has been implemented for `Producer` and `Product` models. When deleting them, by default they are just deactivated. They won't be anymore shown on User or Admin interfaces but we keep them on database.
+- **Soft-delete** has been implemented for *Producers* and *Products*. When deleting them, by default, they are just deactivated. They won't be anymore shown on User or Admin interfaces but we keep them on database.
 - **Mobile-responsiveness**: This has been achieved using Bootstrap framework in user interface. Moreover, Django admin interface is also mobile responsive.
 - **API**: User orders can be managed using an API. See [API reference](#api-ref) for further details.
 - **UI Translation**: *Translation strings* have been used for all UI text to facilitate translation. See [UI Language](#language) for further details.
@@ -147,21 +147,28 @@ And finally, create a superuser (for admin interface):
 
 ## Tests run <a name="tests-run"></a>
 
-First launch and apply migrations to `db`:
-    
+First launch `db` container:
+
     $ docker-compose up -d db
 
-Create virtual environment and install dependencies:
+Then create `.env` file that pipenv will automatically load on opening:
 
     $ cp .envs/.local/.web .env
+
+In this file we update database HOST like this:
+
+    DATABASE_URL=postgres://postgres:postgres_password@localhost:5432/baskets
+
+Then open virtual environment and install all dependencies:
+
     $ pipenv shell
     (baskets)$ pipenv install --dev
 
-Launch all tests:
+Finally, run all tests:
 
     (baskets)$ python manage.py test
 
-Launch only functional tests:
+To run only functional tests:
 
     (baskets)$ python manage.py test baskets.tests.test_functional
 
