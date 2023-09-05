@@ -1,3 +1,0 @@
--r common.txt
-# Requirements for localhost only
-selenium==4.10.0
