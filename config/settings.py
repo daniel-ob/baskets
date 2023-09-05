@@ -150,7 +150,8 @@ SECURE_HSTS_SECONDS = 31536000
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 DEFAULT_FROM_EMAIL = os.environ["DEFAULT_FROM_EMAIL"]
 
 # SMTP server settings

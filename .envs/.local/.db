@@ -1,0 +1,4 @@
+# PostgreSQL
+POSTGRES_DB=baskets
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres_password

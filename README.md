@@ -14,8 +14,9 @@ Please note that, for the moment, this website is in French. English translation
 2. [Features](#features)
 3. [Dependencies](#dependencies)
 4. [Run using Docker](#run)
-5. [Tests run](#tests-run)
-6. [Populate dummy database](#dummy-db) 
+5. [Populate dummy database](#dummy-db)
+6. [Configure SMTP](#smtp)
+6. [Tests run](#tests-run)
 7. [API Reference](#api-ref)
 8. [UI Language](#language)
 
@@ -100,26 +101,34 @@ See required versions in [requirements](requirements) (pip) or [Pipfile](Pipfile
     $ git clone https://github.com/daniel-ob/baskets.git
     $ cd baskets
 
-Create following env files:
+Then run:
 
-- `.envs/.local/.db`: 
+    $ docker compose up -d
+
+And finally, create a superuser (for admin interface):
+
+    $ docker compose exec web python manage.py createsuperuser
+
+- User interface: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- Admin interface: [http://127.0.0.1:8000/admin](http://127.0.0.1:8000/admin)
+
+Please note that, for simplicity, `console` email backend is used by default for email sending, so emails will be written to `stdout`.
+
+## Populate dummy database <a name="dummy-db"></a>
+
+    docker exec baskets-web sh -c "python manage.py shell < populate_dummy_db.py"
+
+## Configure SMTP <a name="smtp"></a>
+
+- Change backend on `config/settings.py`:
 
 ```
-POSTGRES_DB=baskets
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres_password
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 ```
 
-- `.envs/.local/.web`:
+- Set SMTP server config on `.envs/.local/.web`:
 
 ```
-SECRET_KEY= # set to a unique, unpredictable value
-DEBUG=True  # set to False on PROD
-ALLOWED_HOSTS=127.0.0.1
-DATABASE_URL=postgres://postgres:postgres_password@db:5432/baskets
-SECURE_SSL_REDIRECT=False  # Set to True on PROD
-DEFAULT_FROM_EMAIL=contact@example.com
-
 # SMTP server config (if used)
 EMAIL_HOST=
 EMAIL_HOST_PASSWORD=
@@ -128,36 +137,13 @@ EMAIL_PORT=
 EMAIL_USE_TLS=
 ```
 
-By default SMTP backend is used for email sending but if you don't want to configure it, you can also set on `config/settings.py`:
-
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-So emails will be written to `stdout`.
-
-Then run:
-
-    $ docker-compose up -d
-
-And finally, create a superuser (for admin interface):
-
-    $ docker-compose exec web python manage.py createsuperuser
-
-- User interface: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-- Admin interface: [http://127.0.0.1:8000/admin](http://127.0.0.1:8000/admin)
-
 ## Tests run <a name="tests-run"></a>
+
+Be sure you have ChromeDriver installed in order to run Selenium tests. 
 
 First launch `db` container:
 
-    $ docker-compose up -d db
-
-Then create `.env` file that pipenv will automatically load on opening:
-
-    $ cp .envs/.local/.web .env
-
-In this file we update database HOST like this:
-
-    DATABASE_URL=postgres://postgres:postgres_password@localhost:5432/baskets
+    $ docker compose up -d db
 
 Then open virtual environment and install all dependencies:
 
@@ -171,10 +157,6 @@ Finally, run all tests:
 To run only functional tests:
 
     (baskets)$ python manage.py test baskets.tests.test_functional
-
-## Populate dummy database <a name="dummy-db"></a>
-
-    (baskets)$ python manage.py shell < populate_dummy_db.py
 
 ## API Reference <a name="api-ref"></a>
 

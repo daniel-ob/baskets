@@ -1,8 +1,6 @@
 __pycache__/
 
-# Environments
-.env
-.envs/
+# Virtual environment
 venv/
 
 # Static files are collected with `collectstatic` command
