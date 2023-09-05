@@ -6,8 +6,6 @@ Project built using Django, Bootstrap and JavaScript.
 
 ![Baskets screenshot](screenshot.png)
 
-Please note that, for the moment, this website is in French. English translation should be added soon.
-
 ## Table of contents
 
 1. [Background and goal](#background)
@@ -40,11 +38,11 @@ Payments are managed outside this application.
 - **Login** page: Not logged users will be redirected to "Login" page. Where they can log in using their email and password.
 - **Register** page: Users can create an account by entering their personal information and setting a password.
   - Passwords are validated to prevent weak passwords.
-  - A verification email is sent to user. Users can't log in until email is verified.
+  - A verification email is sent to user. Only users with verified email can log in.
 - **Next Orders** page: shows the list of deliveries for which we can still order, in chronological order.
   - Clicking on each delivery opens a frame below showing delivery details: date when baskets will be delivered, last day to order and available products arranged by producer.
   - User can create one order per delivery.
-  - Orders can be updated or deleted until deadline.
+  - Orders can be updated or deleted until their deadline.
 - **Order history** page: shows a list of user's closed orders in reverse chronological order. Clicking on each order will open its details below.
 - **Password reset**:
   - In "Login" page, a link allows users to request password reset entering their email address. 
@@ -79,11 +77,10 @@ All functionalities except "contact" requires authentication.
 
 ### Other
 
-- **Soft-delete** has been implemented for *Producers* and *Products*. When deleting them, by default, they are just deactivated. They won't be anymore shown on User or Admin interfaces but we keep them on database.
-- **Mobile-responsiveness**: This has been achieved using Bootstrap framework in user interface. Moreover, Django admin interface is also mobile responsive.
+- **Soft-delete** has been implemented for *Producers* and *Products*. When deleting them, by default, they are just deactivated. They won't be anymore shown on User or Admin interfaces but they are kept on database.
+- **Mobile-responsiveness**: This has been achieved using Bootstrap framework for user interface. Moreover, Django admin interface is also mobile responsive.
 - **API**: User orders can be managed using an API. See [API reference](#api-ref) for further details.
 - **UI Translation**: *Translation strings* have been used for all UI text to facilitate translation. See [UI Language](#language) for further details.
-
 
 ## Dependencies <a name="dependencies"></a>
 
@@ -92,9 +89,10 @@ In addition to **Django**, the following libraries has been used:
 - **Django-allauth**: to manage user login, register and password reset
 - **Django-REST-Framework**: to build the API
 - **XlsxWriter**: to create xlsx files in `baskets/export.py`
+- **OpenPyxl**: to test file exports in `baskets/tests/test_exports.py`
 - **Selenium**: to do browser end-to-end testing in `baskets/tests/test_functional.py`
 
-See required versions in [requirements](requirements) (pip) or [Pipfile](Pipfile) (pipenv).
+Required versions can be seen in [requirements](requirements) (pip) or [Pipfile](Pipfile) (pipenv).
 
 ## Run using Docker <a name="run"></a>
  
