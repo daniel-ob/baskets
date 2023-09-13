@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-06 18:40+0200\n"
+"POT-Creation-Date: 2023-10-20 10:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,19 +17,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: accounts/admin.py:36
+#: accounts/admin.py:35
 msgid "groups"
 msgstr "groupes"
 
-#: accounts/admin.py:47
+#: accounts/admin.py:46
 msgid "List of group members"
 msgstr "Liste des membres du groupe"
 
-#: accounts/admin.py:60
+#: accounts/admin.py:59
 msgid "number of members"
 msgstr "nombre de membres"
 
-#: accounts/admin.py:67
+#: accounts/admin.py:66
 msgid "email the group"
 msgstr "envoyer un email au groupe"
 
@@ -41,7 +41,7 @@ msgstr "prénom"
 msgid "last name"
 msgstr "nom"
 
-#: accounts/models.py:15 baskets/export.py:68 baskets/models.py:18
+#: accounts/models.py:15 baskets/models.py:18 export/base.py:68
 msgid "phone"
 msgstr "téléphone"
 
@@ -49,8 +49,8 @@ msgstr "téléphone"
 msgid "address"
 msgstr "adresse"
 
-#: accounts/models.py:20 baskets/admin.py:325 baskets/export.py:58
-#: baskets/models.py:143
+#: accounts/models.py:20 baskets/admin.py:328 baskets/models.py:156
+#: export/base.py:58
 msgid "user"
 msgstr "utilisateur"
 
@@ -58,68 +58,73 @@ msgstr "utilisateur"
 msgid "Your details have been updated"
 msgstr "Vos coordonnées ont été mises à jour"
 
-#: baskets/admin.py:21
+#: baskets/admin.py:20
 msgid "Email affected users"
 msgstr "Envoyer un email aux utilisateurs concernés"
 
-#: baskets/admin.py:74
+#: baskets/admin.py:68
 msgid "Product '{}' has been removed from opened orders."
 msgstr "Le produit '{}' a été supprimé des commandes ouvertes."
 
-#: baskets/admin.py:81
+#: baskets/admin.py:75
 msgid "Product '{}' has been updated on opened orders."
 msgstr "Le produit '{}' a été mis à jour dans les commandes ouvertes."
 
-#: baskets/admin.py:93
+#: baskets/admin.py:87
 msgid "Total ordered quantities per product"
 msgstr "Quantités totales commandées par produit"
 
-#: baskets/admin.py:99 baskets/models.py:24
+#: baskets/admin.py:94 baskets/models.py:24
 msgid "producer"
 msgstr "producteur"
 
-#: baskets/admin.py:103
+#: baskets/admin.py:98 baskets/models.py:51 baskets/models.py:211
+#: export/base.py:73
+msgid "product"
+msgstr "produit"
+
+#: baskets/admin.py:106
 msgid "total ordered quantity"
 msgstr "quantité totale commandée"
 
-#: baskets/admin.py:125
+#: baskets/admin.py:128
 msgid "Email users from selected deliveries"
 msgstr "Envoyer email aux utilisateurs des livraisons selectionnées"
 
-#: baskets/admin.py:151
+#: baskets/admin.py:154
 msgid "number of orders"
 msgstr "nombre de commandes"
 
-#: baskets/admin.py:158
+#: baskets/admin.py:161
 msgid "export"
 msgstr "exporter"
 
-#: baskets/admin.py:162
+#: baskets/admin.py:165
 msgid "Export order forms"
 msgstr "Exporter les bons de commande"
 
-#: baskets/admin.py:194
+#: baskets/admin.py:197
 msgid "The following product(s) have been removed from opened orders:"
 msgstr "Les produits suivants ont été supprimés des commandes ouvertes :"
 
-#: baskets/admin.py:212 baskets/admin.py:283
+#: baskets/admin.py:215 baskets/admin.py:286
 msgid "open"
 msgstr "ouverte"
 
-#: baskets/admin.py:217
+#: baskets/admin.py:220
 msgid "yes"
 msgstr "oui"
 
-#: baskets/admin.py:218
+#: baskets/admin.py:221
 msgid "no"
 msgstr "non"
 
-#: baskets/admin.py:236 baskets/export.py:74 baskets/models.py:46
+#: baskets/admin.py:239 baskets/models.py:46 export/base.py:74
 msgid "unit price"
 msgstr "prix unitaire"
 
-#: baskets/admin.py:266 baskets/admin.py:321 baskets/models.py:108
-#: baskets/models.py:149
+#: baskets/admin.py:269 baskets/admin.py:324 baskets/models.py:114
+#: baskets/models.py:162
 msgid "delivery"
 msgstr "livraison"
 
@@ -130,38 +135,6 @@ msgstr "Paniers"
 #: baskets/email.py:10
 msgid "Message from"
 msgstr "Message de"
-
-#: baskets/export.py:52
-msgid "Baskets order"
-msgstr "Commande de paniers"
-
-#: baskets/export.py:53
-msgid "Delivery for"
-msgstr "Livraison du"
-
-#: baskets/export.py:62
-msgid "group"
-msgstr "groupe"
-
-#: baskets/export.py:73 baskets/models.py:51 baskets/models.py:196
-msgid "product"
-msgstr "produit"
-
-#: baskets/export.py:75 baskets/models.py:201
-msgid "quantity"
-msgstr "quantité"
-
-#: baskets/export.py:76 baskets/models.py:156 baskets/models.py:204
-msgid "amount"
-msgstr "montant"
-
-#: baskets/export.py:93 templates/baskets/orders.html:25
-msgid "Total"
-msgstr "Total"
-
-#: baskets/export.py:134
-msgid "orders"
-msgstr "commandes"
 
 #: baskets/forms.py:11
 msgid "Email"
@@ -183,7 +156,7 @@ msgstr "nom"
 msgid "active"
 msgstr "actif"
 
-#: baskets/models.py:89
+#: baskets/models.py:95
 msgid ""
 "Last day to order. If left blank, it will be automatically set to {} days "
 "before Delivery date"
@@ -191,70 +164,98 @@ msgstr ""
 "Date limite de commande. Si pas définie, elle sera automatiquement fixée à "
 "{} jours avant la Date de Livraison"
 
-#: baskets/models.py:94
+#: baskets/models.py:100
 msgid "last day to order"
 msgstr "dernier jour pour commander"
 
-#: baskets/models.py:100
+#: baskets/models.py:106
 msgid "products"
 msgstr "produits"
 
-#: baskets/models.py:109
+#: baskets/models.py:115
 msgid "deliveries"
 msgstr "livraisons"
 
-#: baskets/models.py:153
+#: baskets/models.py:166
 msgid "creation date"
 msgstr "date de création"
 
-#: baskets/models.py:154
+#: baskets/models.py:167
 msgid "last update date"
 msgstr "date de dernière mise à jour"
 
-#: baskets/models.py:161
+#: baskets/models.py:169 baskets/models.py:219 export/base.py:76
+msgid "amount"
+msgstr "montant"
+
+#: baskets/models.py:174
 msgid "Internal message only visible by stuff members"
 msgstr "Message interne seulement visible par l'équipe"
 
-#: baskets/models.py:171 baskets/models.py:190
+#: baskets/models.py:184 baskets/models.py:205
 msgid "order"
 msgstr "commande"
 
-#: baskets/models.py:185
+#: baskets/models.py:198
 #, python-brace-format
 msgid "From {user} for {delivery}"
 msgstr "De {user} pour {delivery}"
 
-#: baskets/models.py:209
+#: baskets/models.py:216 export/base.py:75
+msgid "quantity"
+msgstr "quantité"
+
+#: baskets/models.py:224
 msgid "product name (saved)"
 msgstr "nom de produit (sauvegardé)"
 
-#: baskets/models.py:212
+#: baskets/models.py:227
 msgid "product unit price (saved)"
 msgstr "prix unitaire (sauvegardé)"
 
-#: baskets/models.py:220
+#: baskets/models.py:235
 msgid "order item"
 msgstr "ligne de commande"
 
-#: baskets/models.py:221
+#: baskets/models.py:236
 msgid "order items"
 msgstr "lignes de commande"
 
-#: baskets/models.py:257
+#: baskets/models.py:273
 msgid "product '{}' not available on this delivery"
 msgstr "produit '{}' pas disponible dans cette livraison"
 
-#: baskets/views.py:40 templates/layout.html:29
+#: baskets/views.py:25 templates/layout.html:29
 msgid "Next orders"
 msgstr "Commandes à venir"
 
-#: baskets/views.py:63
+#: baskets/views.py:48
 msgid "Order history"
 msgstr "Historique"
 
-#: baskets/views.py:70
+#: baskets/views.py:55
 msgid "Your message have been sent"
 msgstr "Votre message a été envoyé"
+
+#: export/base.py:52
+msgid "Baskets order"
+msgstr "Commande de paniers"
+
+#: export/base.py:53
+msgid "Delivery for"
+msgstr "Livraison du"
+
+#: export/base.py:62
+msgid "group"
+msgstr "groupe"
+
+#: export/base.py:93 templates/baskets/orders.html:25
+msgid "Total"
+msgstr "Total"
+
+#: export/base.py:134
+msgid "orders"
+msgstr "commandes"
 
 #: templates/account/email_confirm.html:6
 #: templates/account/email_confirm.html:10

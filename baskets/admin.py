@@ -85,7 +85,8 @@ class ProducerAdmin(admin.ModelAdmin):
 class DeliveryProductInline(admin.TabularInline):
     model = Delivery.products.through
     verbose_name_plural = _("Total ordered quantities per product")
-    readonly_fields = ["producer", "product", "total_ordered_quantity"]
+    exclude = ["product"]  # we are showing product_html instead
+    readonly_fields = ["producer", "product_html", "total_ordered_quantity"]
     ordering = ["product__producer", "product__name"]
     extra = 0
     can_delete = False
@@ -93,6 +94,14 @@ class DeliveryProductInline(admin.TabularInline):
     @admin.display(description=_("producer"))
     def producer(self, obj):
         return obj.product.producer
+
+    @admin.display(description=_("product"))
+    def product_html(self, obj):
+        return (
+            format_html(f"<b>{obj.product}</b>")
+            if obj.product.order_items.filter(order__delivery=obj.delivery)
+            else obj.product
+        )
 
     @admin.display(description=_("total ordered quantity"))
     def total_ordered_quantity(self, obj):
