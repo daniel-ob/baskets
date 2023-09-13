@@ -1,15 +1,20 @@
 from io import BytesIO
 
-import openpyxl
 from django.contrib.auth import get_user_model
 from django.urls import reverse, reverse_lazy
+import openpyxl
 
 from baskets.models import Producer
 from baskets.tests.common import BasketsTestCase
 
+WORKSHEET_NAME_MAX_LENGTH = 31
+
 
 class TestDeliveryExport(BasketsTestCase):
     def test_success(self):
+        self.u2.username = "username_with_more_than_31_chars_that_must_be_cut_on_sheet_name"
+        self.u2.save()
+
         d = self.d2
         # staff member required for export
         self.u1.is_staff = True
@@ -25,8 +30,9 @@ class TestDeliveryExport(BasketsTestCase):
         self.assertEqual(len(wb.worksheets), d.orders.count())  # one sheet per d.order
         sheets = {sheet.title: sheet for sheet in wb.worksheets}
         for order in d.orders.all():
-            self.assertIn(order.user.username, sheets.keys())
-            sheet = sheets[order.user.username]
+            cut_username = order.user.username[:WORKSHEET_NAME_MAX_LENGTH]
+            self.assertIn(cut_username, sheets.keys())
+            sheet = sheets[cut_username]
             rows = list(sheet.iter_rows(values_only=True))
             order_amount = rows[-1][-1]
             self.assertEqual(f"{order_amount:.2f}", f"{order.amount:.2f}")
@@ -67,6 +73,9 @@ class TestProducerExport(BasketsTestCase):
     url = reverse_lazy("producer_export")
 
     def test_success(self):
+        self.producer1.name = "A long name with more than 31 chars"  # name must be cut on sheet name
+        self.producer1.save()
+
         # staff member required for export
         self.u1.is_staff = True
         self.u1.save()
@@ -86,7 +95,9 @@ class TestProducerExport(BasketsTestCase):
             (self.producer1, 2),
             (self.producer4, 1),  # inactive producer with 1 inactive product
         ]:
-            sheet = sheets[producer.name]
+            sheet = sheets[
+                producer.name[:WORKSHEET_NAME_MAX_LENGTH]
+            ]
             rows = list(sheet.iter_rows(values_only=True))
             self.assertEqual(
                 len(rows), product_count + 1

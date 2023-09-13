@@ -6,11 +6,13 @@ from django.db.models.functions import Coalesce
 from django.utils.translation import gettext as _
 from xlsxwriter.workbook import Workbook
 
-from baskets.models import Delivery, Producer
+from .models import Delivery, Producer
 
 
 class InMemoryWorkbook:
     """Context manager encapsulating xlsxwriter's Workbook and BytesIO buffer"""
+
+    WORKSHEET_NAME_MAX_LENGTH = 31
 
     def __init__(self):
         # Create a file-like buffer
@@ -40,7 +42,9 @@ def get_order_forms_xlsx(delivery):
 
     with InMemoryWorkbook() as wb:
         for order in delivery.orders.all():
-            worksheet = wb.workbook.add_worksheet(order.user.username)
+            worksheet = wb.workbook.add_worksheet(
+                order.user.username[:wb.WORKSHEET_NAME_MAX_LENGTH]
+            )
 
             # order header
             row = 0
@@ -169,7 +173,9 @@ def get_producer_export_xlsx():
 
     with InMemoryWorkbook() as wb:
         for producer in Producer.objects.all():
-            worksheet = wb.workbook.add_worksheet(producer.name)
+            worksheet = wb.workbook.add_worksheet(
+                producer.name[:wb.WORKSHEET_NAME_MAX_LENGTH]
+            )
             # Write data
             for row_num, (product, value) in enumerate(
                 get_quantity_per_producer_and_month(producer).items(), start=1
