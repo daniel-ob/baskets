@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-12 11:08+0200\n"
+"POT-Creation-Date: 2023-09-17 20:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,7 +50,7 @@ msgid "address"
 msgstr "adresse"
 
 #: accounts/models.py:20 baskets/admin.py:329 baskets/export.py:54
-#: baskets/models.py:155
+#: baskets/models.py:153
 msgid "user"
 msgstr "utilisateur"
 
@@ -58,39 +58,39 @@ msgstr "utilisateur"
 msgid "Email affected users"
 msgstr "Envoyer un email aux utilisateurs concernés"
 
-#: baskets/admin.py:65
+#: baskets/admin.py:64
 msgid "Product '{}' has been removed from opened orders."
 msgstr "Le produit '{}' a été supprimé des commandes ouvertes."
 
-#: baskets/admin.py:79
+#: baskets/admin.py:78
 msgid "Product '{}' has been updated on opened orders."
 msgstr "Le produit '{}' a été mis à jour dans les commandes ouvertes."
 
-#: baskets/admin.py:103
+#: baskets/admin.py:102
 msgid "Total ordered quantities per product"
 msgstr "Quantités totales commandées par produit"
 
-#: baskets/admin.py:109 baskets/models.py:24
+#: baskets/admin.py:108 baskets/models.py:24
 msgid "producer"
 msgstr "producteur"
 
-#: baskets/admin.py:113
+#: baskets/admin.py:112
 msgid "total ordered quantity"
 msgstr "quantité totale commandée"
 
-#: baskets/admin.py:135
+#: baskets/admin.py:134
 msgid "Email users from selected deliveries"
 msgstr "Envoyer email aux utilisateurs des livraisons selectionnées"
 
-#: baskets/admin.py:161
+#: baskets/admin.py:160
 msgid "number of orders"
 msgstr "nombre de commandes"
 
-#: baskets/admin.py:168
+#: baskets/admin.py:167
 msgid "export"
 msgstr "exporter"
 
-#: baskets/admin.py:172
+#: baskets/admin.py:171
 msgid "Export order forms"
 msgstr "Exporter les bons de commande"
 
@@ -114,8 +114,8 @@ msgstr "non"
 msgid "unit price"
 msgstr "prix unitaire"
 
-#: baskets/admin.py:270 baskets/admin.py:325 baskets/models.py:119
-#: baskets/models.py:161
+#: baskets/admin.py:270 baskets/admin.py:325 baskets/models.py:118
+#: baskets/models.py:159
 msgid "delivery"
 msgstr "livraison"
 
@@ -123,7 +123,7 @@ msgstr "livraison"
 msgid "Baskets"
 msgstr "Paniers"
 
-#: baskets/email.py:12
+#: baskets/email.py:10
 msgid "Message from"
 msgstr "Message de"
 
@@ -139,15 +139,15 @@ msgstr "Livraison du"
 msgid "group"
 msgstr "groupe"
 
-#: baskets/export.py:69 baskets/models.py:53 baskets/models.py:209
+#: baskets/export.py:69 baskets/models.py:53 baskets/models.py:206
 msgid "product"
 msgstr "produit"
 
-#: baskets/export.py:71 baskets/models.py:214
+#: baskets/export.py:71 baskets/models.py:211
 msgid "quantity"
 msgstr "quantité"
 
-#: baskets/export.py:72 baskets/models.py:167 baskets/models.py:217
+#: baskets/export.py:72 baskets/models.py:166 baskets/models.py:214
 msgid "amount"
 msgstr "montant"
 
@@ -175,7 +175,7 @@ msgstr "Votre message"
 msgid "name"
 msgstr "nom"
 
-#: baskets/models.py:100
+#: baskets/models.py:99
 msgid ""
 "Last day to order. If left blank, it will be automatically set to {} days "
 "before Delivery date"
@@ -183,43 +183,47 @@ msgstr ""
 "Date limite de commande. Si pas définie, elle sera automatiquement fixée à {} jours "
 "avant la Date de Livraison"
 
-#: baskets/models.py:105
+#: baskets/models.py:104
 msgid "last day to order"
 msgstr "dernier jour pour commander"
 
-#: baskets/models.py:111
+#: baskets/models.py:110
 msgid "products"
 msgstr "produits"
 
-#: baskets/models.py:120
+#: baskets/models.py:119
 msgid "deliveries"
 msgstr "livraisons"
 
-#: baskets/models.py:165
+#: baskets/models.py:163
 msgid "creation date"
 msgstr "date de création"
 
-#: baskets/models.py:172
+#: baskets/models.py:164
+msgid "last update date"
+msgstr "date de dernière mise à jour"
+
+#: baskets/models.py:171
 msgid "Internal message only visible by stuff members"
 msgstr "Message interne seulement visible par l'équipe"
 
-#: baskets/models.py:182 baskets/models.py:203
+#: baskets/models.py:181 baskets/models.py:200
 msgid "order"
 msgstr "commande"
 
-#: baskets/models.py:222
+#: baskets/models.py:219
 msgid "product name (saved)"
 msgstr "nom de produit (sauvegardé)"
 
-#: baskets/models.py:225
+#: baskets/models.py:222
 msgid "product unit price (saved)"
 msgstr "prix unitaire (sauvegardé)"
 
-#: baskets/models.py:233
+#: baskets/models.py:230
 msgid "order item"
 msgstr "ligne de commande"
 
-#: baskets/models.py:234
+#: baskets/models.py:231
 msgid "order items"
 msgstr "lignes de commande"
 
@@ -227,15 +231,15 @@ msgstr "lignes de commande"
 msgid "product '{}' not available on this delivery"
 msgstr "produit '{}' pas disponible dans cette livraison"
 
-#: baskets/views.py:41 templates/layout.html:29
+#: baskets/views.py:40 templates/layout.html:29
 msgid "Next orders"
 msgstr "Commandes à venir"
 
-#: baskets/views.py:66
+#: baskets/views.py:63
 msgid "Order history"
 msgstr "Historique"
 
-#: baskets/views.py:73
+#: baskets/views.py:70
 msgid "Your message have been sent"
 msgstr "Votre message a été envoyé"
 
@@ -321,9 +325,8 @@ msgid ""
 "used.  Please request a <a href=\"%(passwd_reset_url)s\">new password reset</"
 "a>."
 msgstr ""
-"Le lien de réinitialisation de mot de passe est invalide, possiblement car il a déjà été "
-"utilisé.  Veuillez faire une nouvelle demande de <a href=\"%(passwd_reset_url)s\">réinitialisation de mot de passe</"
-"a>."
+"Le lien de réinitialisation de mot de passe est invalide, possiblement car il a déjà été utilisé. "
+"Veuillez faire une nouvelle demande de <a href=\"%(passwd_reset_url)s\">réinitialisation de mot de passe</a>."
 
 #: templates/account/password_reset_from_key.html:18
 msgid "change password"

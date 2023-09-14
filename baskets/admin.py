@@ -259,9 +259,9 @@ class OrderItemInlineClosed(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "delivery_link", "amount", "creation_date", "open")
+    list_display = ("id", "user", "delivery_link", "amount", "last_updated_date", "open")
     list_filter = (OrderIsOpenFilter, "user", "delivery")
-    readonly_fields = ["amount", "creation_date", "open"]
+    readonly_fields = ["amount", "creation_date", "last_updated_date", "open"]
     inlines = [OrderItemInlineOpen, OrderItemInlineClosed]
 
     class Media:

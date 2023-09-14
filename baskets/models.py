@@ -161,6 +161,7 @@ class Order(models.Model):
         related_name="orders",
     )
     creation_date = models.DateTimeField(_("creation date"), auto_now_add=True)
+    last_updated_date = models.DateTimeField(_("last update date"), auto_now=True)
     amount = models.DecimalField(
         _("amount"), default=0.00, max_digits=8, decimal_places=2, editable=False
     )
