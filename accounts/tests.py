@@ -27,3 +27,8 @@ class AccountsTest(TestCase):
         self.assertEqual(initial_form_data["last_name"], user.last_name)
         self.assertEqual(initial_form_data["phone"], user.phone)
         self.assertEqual(initial_form_data["address"], user.address)
+
+    def test_register_template(self):
+        c = Client()
+        response = c.get(reverse("account_signup"))
+        self.assertTemplateUsed(response, "account/signup.html")
