@@ -60,6 +60,7 @@ All functionalities except "contact" requires authentication.
   - Manage producers and its products (name and unit price).
   - Export .xlsx file containing recap of monthly quantities ordered for each product (one sheet per producer)
   - If a product is deleted or its unit price changes, related opened orders will be updated and a message will be shown to email affected users.
+  - Whole producer or single products can be **deactivated**, so it won't be available for deliveries. Also, related opened orders will be removed and a message will be shown to email affected users.
 - **Deliveries** page allows to:
   - Set each delivery date, order deadline and available products.
     - If "order deadline" is left blank, it will be set to `ORDER_DEADLINE_DAYS_BEFORE` before delivery date.
@@ -77,7 +78,6 @@ All functionalities except "contact" requires authentication.
 
 ### Other
 
-- **Soft-delete** has been implemented for *Producers* and *Products*. When deleting them, by default, they are just deactivated. They won't be anymore shown on User or Admin interfaces but they are kept on database.
 - **Mobile-responsiveness**: This has been achieved using Bootstrap framework for user interface. Moreover, Django admin interface is also mobile responsive.
 - **API**: User orders can be managed using an API. See [API reference](#api-ref) for further details.
 - **UI Translation**: *Translation strings* have been used for all UI text to facilitate translation. See [UI Language](#language) for further details.

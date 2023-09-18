@@ -18,23 +18,21 @@ class Producer(models.Model):
         _("phone"), blank=True, validators=[FR_PHONE_REGEX], max_length=18
     )
     email = models.EmailField(blank=True)
-    is_active = models.BooleanField(default=True)  # for soft-delete
+    is_active = models.BooleanField(_("active"), default=True)
 
     class Meta:
         verbose_name = _("producer")
-        ordering = ["name"]
+        ordering = ["-is_active", "name"]
 
     def __str__(self):
         return f"{self.name}"
 
-    def delete(self, soft_delete=True, *args, **kwargs):
-        if soft_delete:
-            self.is_active = False
-            self.save()
-            for p in self.products.all():
-                p.delete()
-        else:
-            super().delete(*args, **kwargs)  # will also hard-delete related products
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.is_active:
+            for product in self.products.all():
+                product.is_active = False
+                product.save()
 
 
 class Product(models.Model):
@@ -47,7 +45,7 @@ class Product(models.Model):
     unit_price = models.DecimalField(
         _("unit price"), blank=False, max_digits=8, decimal_places=2
     )
-    is_active = models.BooleanField(default=True)  # for soft-delete
+    is_active = models.BooleanField(_("active"), default=True)
 
     class Meta:
         verbose_name = _("product")
@@ -56,31 +54,19 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.name}" if self.is_active else f"({self.name})"
 
-    def delete(self, soft_delete=True, *args, **kwargs):
-        if soft_delete:
-            self.is_active = False
-            self.save()
-        else:
-            super().delete(*args, **kwargs)
-        # Delete related opened order items (and order if empty)
-        opened_order_items, user_id_list = self.get_opened_order_items_and_users()
-        for oi in opened_order_items:
-            oi.delete()
-        # Delete product from opened deliveries
-        for d in Delivery.objects.filter(
-            products__in=[self], order_deadline__gte=date.today()
-        ):
-            d.products.remove(self)
-        return user_id_list
-
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        opened_order_items, user_id_list = self.get_opened_order_items_and_users()
+        if self.is_active and not self.producer.is_active:
+            self.producer.is_active = True
+            self.producer.save()
+        opened_order_items, user_id_list = self._get_opened_order_items_and_users()
         for oi in opened_order_items:
             oi.save()
+        if not self.is_active:
+            self._delete_from_opened_deliveries()
         return user_id_list
 
-    def get_opened_order_items_and_users(self):
+    def _get_opened_order_items_and_users(self):
         opened_order_items = [
             oi for oi in OrderItem.objects.filter(product=self) if oi.order.is_open
         ]
@@ -91,6 +77,10 @@ class Product(models.Model):
             .values_list("id", flat=True)
         )  # use list(id) because User QuerySet would be empty when order_items are deleted
         return opened_order_items, user_id_list
+
+    def _delete_from_opened_deliveries(self):
+        for d in Delivery.objects.filter(products__in=[self], order_deadline__gte=date.today()):
+            d.products.remove(self)
 
 
 class Delivery(models.Model):
@@ -204,7 +194,7 @@ class OrderItem(models.Model):
         null=True,  # possible when order is closed
         blank=True,  # possible when order is closed
         verbose_name=_("product"),
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name="order_items",
     )
     quantity = models.PositiveIntegerField(
@@ -214,7 +204,7 @@ class OrderItem(models.Model):
         _("amount"), default=0.00, max_digits=8, decimal_places=2, editable=False
     )
 
-    # saved product data to prevent inconsistencies due to product update or delete
+    # saved product data to prevent inconsistencies due to product update
     product_name = models.CharField(
         _("product name (saved)"), null=True, blank=True, max_length=64
     )

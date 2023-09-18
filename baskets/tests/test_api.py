@@ -295,32 +295,17 @@ class TestOrderAPI(BasketsTestCase):
         self.assertIn("items", response.json())
         self.assertEqual(self.u1.orders.count(), user1_orders_count_initial)
 
-    def test_retrieve_opened_order(self):
-        """Check that user can retrieve one of its opened orders"""
+    def test_retrieve(self):
+        """Check that user can retrieve its orders (opened and closed)"""
+
+        opened_order = self.o2
+        closed_order = self.o1
 
         self.api_c.force_authenticate(self.u1)
-        response = self.api_c.get(reverse("order-detail", args=[self.o2.id]))
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json(), get_order_detail_json(self.o2))
-
-    def test_retrieve_closed_order(self):
-        """Check that user can retrieve one of its closed orders.
-        Check also that product name or unit_price update doesn't affect order"""
-
-        expected_order_json = get_order_detail_json(self.o1)
-
-        # product update or delete must not affect closed order
-        self.product1.unit_price += 0.5
-        self.product1.name += "(updated)"
-        self.product1.save()
-        self.product2.delete()
-
-        self.api_c.force_authenticate(self.u1)
-        response = self.api_c.get(reverse("order-detail", args=[self.o1.id]))
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json(), expected_order_json)
+        for order in [opened_order, closed_order]:
+            response = self.api_c.get(reverse("order-detail", args=[order.id]))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.json(), get_order_detail_json(order))
 
     def test_retrieve_invalid_user(self):
         """Check that user1 gets a 'Not Found' error when trying to retrieve an user2 order"""

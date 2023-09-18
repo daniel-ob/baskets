@@ -31,70 +31,61 @@ def show_message_email_users(request, status_message, user_id_list):
 
 class ProductInline(admin.TabularInline):
     model = Product
-    fields = ["name", "unit_price"]
-    ordering = ["name"]
+    fields = ["name", "unit_price", "is_active"]
+    ordering = ["-is_active", "name"]
     extra = 0
-
-    def get_queryset(self, request):
-        """Override InlineModelAdmin method to filter queryset (don't show inactive products)"""
-        queryset = super().get_queryset(request)
-        if not self.has_view_or_change_permission(request):
-            queryset = queryset.none()
-        return queryset.filter(is_active=True)
 
 
 @admin.register(Producer)
 class ProducerAdmin(admin.ModelAdmin):
+    list_display = ["name_html"]
     inlines = [ProductInline]
-    exclude = [
-        "is_active",
-    ]
 
     class Media:
         css = {"all": ("baskets/css/hide_admin_original.css",)}
         js = ("baskets/js/admin_add_help_text_to_productinline.js",)
 
+    @admin.display(description="nom")
+    def name_html(self, producer):
+        if producer.is_active:
+            return producer.name
+        else:
+            return format_html(f"<strike>{producer.name}</strike>")
+
     def save_formset(self, request, form, formset, change):
-        """If a product is deleted or its unit_price changes, update related opened orders and show a message"""
+        """If a product is disabled or its unit_price changes, update related orders and show a message"""
+
         products_new_or_updated = formset.save(commit=False)  # don't save them yet
         for product in formset.deleted_objects:
-            if user_id_list := product.delete():
-                show_message_email_users(
-                    request,
-                    _("Product '{}' has been removed from opened orders.").format(
-                        product
-                    ),
-                    user_id_list,
-                )
+            product.delete()
         for product in products_new_or_updated:
             try:
-                previous_price = Product.objects.get(pk=product.id).unit_price
+                product_from_db = Product.objects.get(pk=product.id)
+                previous_price = product_from_db.unit_price
+                previous_is_active = product_from_db.is_active
                 user_id_list = (
                     product.save()
                 )  # update product in DB and related opened order items
-                if product.unit_price != previous_price and user_id_list:
-                    show_message_email_users(
-                        request,
-                        _("Product '{}' has been updated on opened orders.").format(
-                            product
-                        ),
-                        user_id_list,
-                    )
+                if user_id_list:
+                    if previous_is_active and not product.is_active:
+                        show_message_email_users(
+                            request,
+                            _(
+                                "Product '{}' has been removed from opened orders."
+                            ).format(product),
+                            user_id_list,
+                        )
+                    if product.unit_price != previous_price and user_id_list:
+                        show_message_email_users(
+                            request,
+                            _("Product '{}' has been updated on opened orders.").format(
+                                product
+                            ),
+                            user_id_list,
+                        )
             except Product.DoesNotExist:  # new product
                 product.save()
         formset.save_m2m()
-
-    def get_queryset(self, request):
-        """Override ModelAdmin method to filter queryset (not show inactive producers)"""
-        queryset = super().get_queryset(request)
-        if not self.has_view_or_change_permission(request):
-            queryset = queryset.none()
-        return queryset.filter(is_active=True)
-
-    def delete_queryset(self, request, queryset):
-        """Override ModelAdmin method to force call of delete() method for each producer (do soft-delete)"""
-        for producer in queryset:
-            producer.delete()
 
 
 class DeliveryProductInline(admin.TabularInline):
@@ -209,11 +200,9 @@ class DeliveryAdmin(admin.ModelAdmin):
                     )
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        """Override method to filter products"""
+        """Override method to show only active products"""
         if db_field.name == "products":
-            kwargs["queryset"] = Product.objects.filter(
-                is_active=True
-            )  # not active hidden for all deliveries
+            kwargs["queryset"] = Product.objects.filter(is_active=True)
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
@@ -259,7 +248,14 @@ class OrderItemInlineClosed(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "delivery_link", "amount", "last_updated_date", "open")
+    list_display = (
+        "id",
+        "user",
+        "delivery_link",
+        "amount",
+        "last_updated_date",
+        "open",
+    )
     list_filter = (OrderIsOpenFilter, "user", "delivery")
     readonly_fields = ["amount", "creation_date", "last_updated_date", "open"]
     inlines = [OrderItemInlineOpen, OrderItemInlineClosed]

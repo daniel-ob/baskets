@@ -1,5 +1,7 @@
 from datetime import date, timedelta
 
+from django.db.models import ProtectedError
+
 from baskets.models import Delivery, Order, OrderItem, Product, Producer
 from baskets.tests.common import (
     BasketsTestCase,
@@ -16,90 +18,71 @@ class ModelsTestCase(BasketsTestCase):
         self.assertEqual(self.producer1.products.count(), 2)
         self.assertEqual(self.producer2.products.count(), 1)
 
-    def test_producer_soft_delete(self):
-        """By default, a producer is not deleted but just deactivated"""
+    def test_producer_deactivate(self):
+        """When a producer is deactivated, related products must be also deactivated"""
+
+        producer = create_producer()
+        assert producer.is_active
+        products = [create_product(producer) for _ in range(3)]
+
+        producer.is_active = False
+        producer.save()
+
+        for product in products:
+            product.refresh_from_db()
+            self.assertFalse(product.is_active)
+
+    def test_producer_delete(self):
+        """When a producer is deleted, related products must be also deleted"""
+
         producer = create_producer()
         products = [create_product(producer) for _ in range(3)]
 
         producer.delete()
 
-        self.assertIn(producer, Producer.objects.all())
-        self.assertFalse(producer.is_active)
-        # related products must be also soft-deleted
-        for product in products:
-            product.refresh_from_db()
-            self.assertFalse(product.is_active)
-
-    def test_producer_hard_delete(self):
-        producer = create_producer()
-        products = [create_product(producer) for _ in range(3)]
-
-        producer.delete(soft_delete=False)
-
         self.assertNotIn(producer, Producer.objects.all())
-        # related products must also be hard-deleted
         for product in products:
             self.assertNotIn(product, Product.objects.all())
 
     def test_product_deliveries_count(self):
         self.assertEqual(self.product1.deliveries.count(), 3)
 
-    def test_product_soft_delete(self):
-        """By default, a product is not deleted but just deactivated"""
+    def test_product_deactivate(self):
+        """When a product is deactivated it should be removed from opened deliveries and opened orders.
+        It should be kept in closed deliveries and orders"""
+
         product = create_product()
         opened_delivery = create_opened_delivery([product])
-        opened_order_item = create_order_item(delivery=opened_delivery, product=product)
-        closed_order_item = create_order_item(
-            delivery=create_closed_delivery([product]), product=product
-        )
-
-        product.delete()
-
-        self.assertIn(product, Product.objects.all())
-        self.assertFalse(product.is_active)
-
-    def test_product_hard_delete(self):
-        product = create_product()
-        opened_delivery = create_opened_delivery([product])
-        closed_order_item = create_order_item(
-            delivery=create_closed_delivery([product]), product=product
-        )
-
-        product.delete(soft_delete=False)
-
-        self.assertNotIn(product, Product.objects.all())
-
-    def test_product_delete_updates_opened_orders(self):
-        """Check that when a product is deleted, related order items are deleted.
-        Then, if any of the orders has no more items remaining, it's also deleted"""
-
-        product = create_product()
         closed_delivery = create_closed_delivery([product])
-        opened_delivery = create_opened_delivery([product])
-        closed_order_item = create_order_item(closed_delivery, product)
-        # opened order with 1 item
-        opened_order_item_1 = create_order_item(opened_delivery, product)
-        opened_order_1 = opened_order_item_1.order
-        # opened order with 2 items
-        opened_order_item_2 = create_order_item(opened_delivery, product)
-        opened_order_2 = opened_order_item_2.order
-        opened_order_item_3 = opened_order_2.items.create(
-            product=create_product(), quantity=2
-        )  # item for another product
+        opened_order_item = create_order_item(delivery=opened_delivery, product=product)
+        closed_order_item = create_order_item(delivery=closed_delivery, product=product)
 
-        product.delete()
+        product.is_active = False
+        product.save()
 
-        self.assertNotIn(opened_order_item_1, OrderItem.objects.all())
-        self.assertNotIn(opened_order_item_2, OrderItem.objects.all())
-        opened_order_2.refresh_from_db()
-        self.assertEqual(opened_order_2.amount, opened_order_item_3.amount)
-        # order with only one item should have been deleted
-        self.assertNotIn(opened_order_1, Order.objects.all())
-        # closed order item must not be deleted
         self.assertIn(closed_order_item, OrderItem.objects.all())
+        self.assertNotIn(opened_order_item, OrderItem.objects.all())
+        self.assertIn(product, closed_delivery.products.all())
+        self.assertNotIn(product, opened_delivery.products.all())
 
-    def test_product_delete_returns_users_list(self):
-        """Check that product.delete() returns list of user ids with related opened orders"""
+    def test_product_delete_protect(self):
+        """Check that a product can't be deleted if it has any related order_items."""
+
+        product1 = create_product()
+        product2 = create_product()
+        opened_order_item = create_order_item(
+            create_opened_delivery([product2]), product2
+        )
+
+        product1.delete()
+        self.assertNotIn(product1, Product.objects.all())
+
+        with self.assertRaises(ProtectedError):
+            product2.delete()
+        self.assertIn(opened_order_item, OrderItem.objects.all())
+
+    def test_product_update_returns_users_list(self):
+        """Check that when a product is updated, product.save() returns list of user ids with related opened orders"""
 
         product = create_product()
         opened_delivery = create_opened_delivery([product])
@@ -107,11 +90,9 @@ class ModelsTestCase(BasketsTestCase):
         opened_order_items = [
             create_order_item(opened_delivery, product) for _ in range(3)
         ]
-        closed_order_items = [
-            create_order_item(closed_delivery, product) for _ in range(3)
-        ]
+        [create_order_item(closed_delivery, product) for _ in range(3)]  # closed order items
 
-        user_id_list = product.delete()
+        user_id_list = product.save()
 
         expected_user_id_list = [oi.order.user.id for oi in opened_order_items]
         self.assertCountEqual(expected_user_id_list, user_id_list)  # have same elements
@@ -124,8 +105,7 @@ class ModelsTestCase(BasketsTestCase):
         product.delete()
 
         self.assertNotIn(product, opened_delivery.products.all())
-        # closed delivery products must not be updated
-        self.assertIn(product, closed_delivery.products.all())
+        self.assertNotIn(product, closed_delivery.products.all())
 
     def test_product_price_update_updates_opened_order_amount(self):
         self.assertTrue(self.o2.is_open)
@@ -138,28 +118,23 @@ class ModelsTestCase(BasketsTestCase):
         self.o2.refresh_from_db()
         self.assertEqual(float(self.o2.amount), 4.20)
 
-    def test_product_update_or_delete_doesnt_update_closed_orders(self):
+    def test_product_update_doesnt_update_closed_orders(self):
         self.assertFalse(self.o1.is_open)
         self.assertEqual(self.o1.items.count(), 2)
 
         initial_item1_amount = self.o1i1.amount
-        initial_item2_amount = self.o1i2.amount
         initial_order_amount = self.o1.amount
 
         self.product1.name = "product1 updated"
         self.product1.unit_price += 1.00
         self.product1.save()
-        self.product2.delete()
 
         self.o1.refresh_from_db()
-        self.assertEqual(self.o1.items.count(), 2)
         self.assertEqual(self.o1.amount, initial_order_amount)
         self.o1i1.refresh_from_db()
         self.assertEqual(self.o1i1.product_name, "product1")
         self.assertEqual(self.o1i1.product_unit_price, 0.50)
         self.assertEqual(self.o1i1.amount, initial_item1_amount)
-        self.o1i2.refresh_from_db()
-        self.assertEqual(self.o1i2.amount, initial_item2_amount)
 
     def test_delivery_orders_count(self):
         self.assertEqual(self.d1.orders.count(), 1)

@@ -34,8 +34,8 @@ class TestAdmin(SeleniumTestCase):
 
 
 class TestProducer(TestAdmin):
-    def test_product_remove(self):
-        """Test that when a product is removed, related opened order_items are removed and a message is shown with a
+    def test_product_deactivate(self):
+        """Test that when a product is deactivated, related opened order_items are removed and a message is shown with a
         'mailto' link to contact concerned users"""
 
         producer = create_producer()
@@ -53,8 +53,10 @@ class TestProducer(TestAdmin):
             self.live_server_url
             + reverse("admin:baskets_producer_change", args=[producer.id])
         )
-        delete_checkbox = self.driver.find_element(By.CSS_SELECTOR, "[type='checkbox']")
-        delete_checkbox.click()
+        active_checkbox = self.driver.find_element(
+            By.CSS_SELECTOR, "#id_products-0-is_active"
+        )
+        active_checkbox.click()
         save_button = self.driver.find_element(By.NAME, "_save")
         save_button.click()
 
@@ -67,34 +69,6 @@ class TestProducer(TestAdmin):
             f'<a href="mailto:?bcc={opened_order_item.order.user.email}">',
             message.get_attribute("innerHTML"),
         )
-
-    def test_soft_delete(self):
-        """Check that when a producer is deleted, soft-delete is applied: producer is deactivated and not shown anymore
-        on change list"""
-
-        producer = create_producer()
-        product = create_product(producer)
-
-        self.driver.get(
-            self.live_server_url + reverse("admin:baskets_producer_changelist")
-        )
-        producer_checkbox = self.driver.find_element(
-            By.CSS_SELECTOR, "[type='checkbox']"
-        )
-        producer_checkbox.click()
-        self._send_action("delete_selected")
-        confirm_button = self.driver.find_element(
-            By.CSS_SELECTOR, "input[type='submit']"
-        )
-        confirm_button.click()
-
-        producer.refresh_from_db()
-        self.assertFalse(producer.is_active)
-        product.refresh_from_db()
-        self.assertFalse(product.is_active)
-
-        producers_count = self.driver.find_element(By.CSS_SELECTOR, ".paginator")
-        self.assertIn("0", producers_count.text)
 
 
 class TestDelivery(TestAdmin):
