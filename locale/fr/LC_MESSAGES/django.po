@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-18 14:47+0200\n"
+"POT-Creation-Date: 2023-09-20 20:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,72 +49,76 @@ msgstr "téléphone"
 msgid "address"
 msgstr "adresse"
 
-#: accounts/models.py:20 baskets/admin.py:328 baskets/export.py:58
+#: accounts/models.py:20 baskets/admin.py:325 baskets/export.py:58
 #: baskets/models.py:143
 msgid "user"
 msgstr "utilisateur"
+
+#: accounts/views.py:17
+msgid "Your details have been updated"
+msgstr "Vos coordonnées ont été mises à jour"
 
 #: baskets/admin.py:21
 msgid "Email affected users"
 msgstr "Envoyer un email aux utilisateurs concernés"
 
-#: baskets/admin.py:77
+#: baskets/admin.py:74
 msgid "Product '{}' has been removed from opened orders."
 msgstr "Le produit '{}' a été supprimé des commandes ouvertes."
 
-#: baskets/admin.py:84
+#: baskets/admin.py:81
 msgid "Product '{}' has been updated on opened orders."
 msgstr "Le produit '{}' a été mis à jour dans les commandes ouvertes."
 
-#: baskets/admin.py:96
+#: baskets/admin.py:93
 msgid "Total ordered quantities per product"
 msgstr "Quantités totales commandées par produit"
 
-#: baskets/admin.py:102 baskets/models.py:24
+#: baskets/admin.py:99 baskets/models.py:24
 msgid "producer"
 msgstr "producteur"
 
-#: baskets/admin.py:106
+#: baskets/admin.py:103
 msgid "total ordered quantity"
 msgstr "quantité totale commandée"
 
-#: baskets/admin.py:128
+#: baskets/admin.py:125
 msgid "Email users from selected deliveries"
 msgstr "Envoyer email aux utilisateurs des livraisons selectionnées"
 
-#: baskets/admin.py:154
+#: baskets/admin.py:151
 msgid "number of orders"
 msgstr "nombre de commandes"
 
-#: baskets/admin.py:161
+#: baskets/admin.py:158
 msgid "export"
 msgstr "exporter"
 
-#: baskets/admin.py:165
+#: baskets/admin.py:162
 msgid "Export order forms"
 msgstr "Exporter les bons de commande"
 
-#: baskets/admin.py:197
+#: baskets/admin.py:194
 msgid "The following product(s) have been removed from opened orders:"
 msgstr "Les produits suivants ont été supprimés des commandes ouvertes :"
 
-#: baskets/admin.py:215 baskets/admin.py:286
+#: baskets/admin.py:212 baskets/admin.py:283
 msgid "open"
 msgstr "ouverte"
 
-#: baskets/admin.py:220
+#: baskets/admin.py:217
 msgid "yes"
 msgstr "oui"
 
-#: baskets/admin.py:221
+#: baskets/admin.py:218
 msgid "no"
 msgstr "non"
 
-#: baskets/admin.py:239 baskets/export.py:74 baskets/models.py:46
+#: baskets/admin.py:236 baskets/export.py:74 baskets/models.py:46
 msgid "unit price"
 msgstr "prix unitaire"
 
-#: baskets/admin.py:269 baskets/admin.py:324 baskets/models.py:108
+#: baskets/admin.py:266 baskets/admin.py:321 baskets/models.py:108
 #: baskets/models.py:149
 msgid "delivery"
 msgstr "livraison"
@@ -184,8 +188,8 @@ msgid ""
 "Last day to order. If left blank, it will be automatically set to {} days "
 "before Delivery date"
 msgstr ""
-"Date limite de commande. Si pas définie, elle sera automatiquement fixée à {} jours "
-"avant la Date de Livraison"
+"Date limite de commande. Si pas définie, elle sera automatiquement fixée à "
+"{} jours avant la Date de Livraison"
 
 #: baskets/models.py:94
 msgid "last day to order"
@@ -258,8 +262,8 @@ msgid ""
 "Please confirm that <a href=\"mailto:%(email)s\">%(email)s</a> is an e-mail "
 "address for user %(user_display)s."
 msgstr ""
-"Veuillez confirmer que <a href=\"mailto:%(email)s\">%(email)s</a> est une adresse e-mail "
-"pour l'utilisateur %(user_display)s."
+"Veuillez confirmer que <a href=\"mailto:%(email)s\">%(email)s</a> est une "
+"adresse e-mail pour l'utilisateur %(user_display)s."
 
 #: templates/account/email_confirm.html:20
 msgid "Confirm"
@@ -302,8 +306,8 @@ msgid ""
 "Forgotten your password? Enter your e-mail address below, and we'll send you "
 "an e-mail allowing you to reset it."
 msgstr ""
-"Mot de passe oublié ? Entrez votre adresse e-mail ci-dessous et nous vous enverrons "
-"un e-mail pour le réinitliaser."
+"Mot de passe oublié ? Entrez votre adresse e-mail ci-dessous et nous vous "
+"enverrons un e-mail pour le réinitliaser."
 
 #: templates/account/password_reset.html:20
 msgid "Reset My Password"
@@ -311,7 +315,9 @@ msgstr "Réinitialiser mon mot de passe"
 
 #: templates/account/password_reset.html:23
 msgid "Please contact us if you have any trouble resetting your password."
-msgstr "N'hésitez pas à nous contacter si vous rencontrez des difficultés pour réinitialiser votre mot de passe"
+msgstr ""
+"N'hésitez pas à nous contacter si vous rencontrez des difficultés pour "
+"réinitialiser votre mot de passe"
 
 #: templates/account/password_reset_from_key.html:4
 #: templates/account/password_reset_from_key.html:7
@@ -329,8 +335,9 @@ msgid ""
 "used.  Please request a <a href=\"%(passwd_reset_url)s\">new password reset</"
 "a>."
 msgstr ""
-"Le lien de réinitialisation de mot de passe est invalide, possiblement car il a déjà été utilisé. "
-"Veuillez faire une nouvelle demande de <a href=\"%(passwd_reset_url)s\">réinitialisation de mot de passe</a>."
+"Le lien de réinitialisation de mot de passe est invalide, possiblement car "
+"il a déjà été utilisé. Veuillez faire une nouvelle demande de <a href="
+"\"%(passwd_reset_url)s\">réinitialisation de mot de passe</a>."
 
 #: templates/account/password_reset_from_key.html:18
 msgid "change password"
@@ -358,7 +365,8 @@ msgstr "S'inscrire"
 msgid ""
 "Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
 msgstr ""
-"Vous avez déjà un compte ? Vous pouvez donc <a href=\"%(login_url)s\">vous connecter</a>."
+"Vous avez déjà un compte ? Vous pouvez donc <a href=\"%(login_url)s\">vous "
+"connecter</a>."
 
 #: templates/admin/baskets/order/change_list.html:15
 #: templates/admin/baskets/producer/change_list.html:15
