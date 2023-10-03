@@ -4,14 +4,15 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "==3.2.20"
 dj-database-url = "==1.0.0"
-django-extensions = "==3.2.1"
-psycopg2-binary = "==2.9.6"
-xlsxwriter = "==3.0.2"
+django = "==3.2.20"
 django-allauth = "==0.54.0"
+django-extensions = "==3.2.1"
 djangorestframework = "==3.14.0"
 djangorestframework-simplejwt = "==4.7.2"
+psycopg2-binary = "==2.9.6"
+xlsxwriter = "==3.0.2"
+certifi = ">=2023.7.22"
 
 [dev-packages]
 selenium = "==4.10.0"
