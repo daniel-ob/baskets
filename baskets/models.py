@@ -79,7 +79,9 @@ class Product(models.Model):
         return opened_order_items, user_id_list
 
     def _delete_from_opened_deliveries(self):
-        for d in Delivery.objects.filter(products__in=[self], order_deadline__gte=date.today()):
+        for d in Delivery.objects.filter(
+            products__in=[self], order_deadline__gte=date.today()
+        ):
             d.products.remove(self)
 
 
@@ -182,7 +184,9 @@ class Order(models.Model):
         return self.delivery.is_open
 
     def __str__(self):
-        return f"De {self.user} pour {self.delivery.date}"
+        return _("From {user} for {delivery}").format(
+            user=self.user, delivery=self.delivery.date
+        )
 
 
 class OrderItem(models.Model):

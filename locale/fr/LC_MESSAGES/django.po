@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-20 20:32+0200\n"
+"POT-Creation-Date: 2023-10-06 18:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,7 +54,7 @@ msgstr "adresse"
 msgid "user"
 msgstr "utilisateur"
 
-#: accounts/views.py:17
+#: accounts/views.py:16
 msgid "Your details have been updated"
 msgstr "Vos coordonnées ont été mises à jour"
 
@@ -219,6 +219,11 @@ msgstr "Message interne seulement visible par l'équipe"
 msgid "order"
 msgstr "commande"
 
+#: baskets/models.py:185
+#, python-brace-format
+msgid "From {user} for {delivery}"
+msgstr "De {user} pour {delivery}"
+
 #: baskets/models.py:209
 msgid "product name (saved)"
 msgstr "nom de produit (sauvegardé)"
@@ -235,7 +240,7 @@ msgstr "ligne de commande"
 msgid "order items"
 msgstr "lignes de commande"
 
-#: baskets/models.py:258
+#: baskets/models.py:257
 msgid "product '{}' not available on this delivery"
 msgstr "produit '{}' pas disponible dans cette livraison"
 
@@ -272,11 +277,12 @@ msgstr "Confirmer"
 #: templates/account/email_confirm.html:27
 #, python-format
 msgid ""
-"This e-mail confirmation link expired or is invalid. Please <a href="
-"\"%(email_url)s\">issue a new e-mail confirmation request</a>."
+"This e-mail confirmation link expired or is invalid. Please <a "
+"href=\"%(email_url)s\">issue a new e-mail confirmation request</a>."
 msgstr ""
-"Ce lien de confirmation d'e-mail a expiré ou est invalide. Veuillez <a href="
-"\"%(email_url)s\">faire une nouvelle demande de confirmation d'e-mail</a>."
+"Ce lien de confirmation d'e-mail a expiré ou est invalide. Veuillez <a "
+"href=\"%(email_url)s\">faire une nouvelle demande de confirmation d'e-mail</"
+"a>."
 
 #: templates/account/login.html:7 templates/account/login.html:21
 #: templates/layout.html:49
@@ -336,8 +342,8 @@ msgid ""
 "a>."
 msgstr ""
 "Le lien de réinitialisation de mot de passe est invalide, possiblement car "
-"il a déjà été utilisé. Veuillez faire une nouvelle demande de <a href="
-"\"%(passwd_reset_url)s\">réinitialisation de mot de passe</a>."
+"il a déjà été utilisé. Veuillez faire une nouvelle demande de <a "
+"href=\"%(passwd_reset_url)s\">réinitialisation de mot de passe</a>."
 
 #: templates/account/password_reset_from_key.html:18
 msgid "change password"
