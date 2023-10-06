@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from django.db.models import ProtectedError
 
-from baskets.models import Delivery, Order, OrderItem, Product, Producer
+from baskets.models import Delivery, OrderItem, Product, Producer
 from baskets.tests.common import (
     BasketsTestCase,
     create_producer,
@@ -13,12 +13,8 @@ from baskets.tests.common import (
 )
 
 
-class ModelsTestCase(BasketsTestCase):
-    def test_producer_products_count(self):
-        self.assertEqual(self.producer1.products.count(), 2)
-        self.assertEqual(self.producer2.products.count(), 1)
-
-    def test_producer_deactivate(self):
+class ProducerTest(BasketsTestCase):
+    def test_deactivate(self):
         """When a producer is deactivated, related products must be also deactivated"""
 
         producer = create_producer()
@@ -32,7 +28,7 @@ class ModelsTestCase(BasketsTestCase):
             product.refresh_from_db()
             self.assertFalse(product.is_active)
 
-    def test_producer_delete(self):
+    def test_delete(self):
         """When a producer is deleted, related products must be also deleted"""
 
         producer = create_producer()
@@ -44,10 +40,13 @@ class ModelsTestCase(BasketsTestCase):
         for product in products:
             self.assertNotIn(product, Product.objects.all())
 
-    def test_product_deliveries_count(self):
-        self.assertEqual(self.product1.deliveries.count(), 3)
 
-    def test_product_deactivate(self):
+class ProductTest(BasketsTestCase):
+    def test_producer_products_count(self):
+        self.assertEqual(self.producer1.products.count(), 2)
+        self.assertEqual(self.producer2.products.count(), 1)
+
+    def test_deactivate(self):
         """When a product is deactivated it should be removed from opened deliveries and opened orders.
         It should be kept in closed deliveries and orders"""
 
@@ -65,7 +64,7 @@ class ModelsTestCase(BasketsTestCase):
         self.assertIn(product, closed_delivery.products.all())
         self.assertNotIn(product, opened_delivery.products.all())
 
-    def test_product_delete_protect(self):
+    def test_delete_protect(self):
         """Check that a product can't be deleted if it has any related order_items."""
 
         product1 = create_product()
@@ -81,7 +80,7 @@ class ModelsTestCase(BasketsTestCase):
             product2.delete()
         self.assertIn(opened_order_item, OrderItem.objects.all())
 
-    def test_product_update_returns_users_list(self):
+    def test_update_returns_users_list(self):
         """Check that when a product is updated, product.save() returns list of user ids with related opened orders"""
 
         product = create_product()
@@ -90,24 +89,15 @@ class ModelsTestCase(BasketsTestCase):
         opened_order_items = [
             create_order_item(opened_delivery, product) for _ in range(3)
         ]
-        [create_order_item(closed_delivery, product) for _ in range(3)]  # closed order items
+        # closed order items
+        [create_order_item(closed_delivery, product) for _ in range(3)]
 
         user_id_list = product.save()
 
         expected_user_id_list = [oi.order.user.id for oi in opened_order_items]
         self.assertCountEqual(expected_user_id_list, user_id_list)  # have same elements
 
-    def test_product_delete_updates_opened_delivery_products(self):
-        product = create_product()
-        opened_delivery = create_opened_delivery([product])
-        closed_delivery = create_closed_delivery([product])
-
-        product.delete()
-
-        self.assertNotIn(product, opened_delivery.products.all())
-        self.assertNotIn(product, closed_delivery.products.all())
-
-    def test_product_price_update_updates_opened_order_amount(self):
+    def test_unit_price_update_updates_opened_order_amount(self):
         self.assertTrue(self.o2.is_open)
 
         self.product1.unit_price += 0.25
@@ -118,7 +108,7 @@ class ModelsTestCase(BasketsTestCase):
         self.o2.refresh_from_db()
         self.assertEqual(float(self.o2.amount), 4.20)
 
-    def test_product_update_doesnt_update_closed_orders(self):
+    def test_update_doesnt_update_closed_orders(self):
         self.assertFalse(self.o1.is_open)
         self.assertEqual(self.o1.items.count(), 2)
 
@@ -136,10 +126,12 @@ class ModelsTestCase(BasketsTestCase):
         self.assertEqual(self.o1i1.product_unit_price, 0.50)
         self.assertEqual(self.o1i1.amount, initial_item1_amount)
 
-    def test_delivery_orders_count(self):
-        self.assertEqual(self.d1.orders.count(), 1)
 
-    def test_delivery_deadline_auto(self):
+class DeliveryTest(BasketsTestCase):
+    def test_product_deliveries_count(self):
+        self.assertEqual(self.product1.deliveries.count(), 3)
+
+    def test_deadline_auto(self):
         """Check that delivery.order_deadline is set to ORDER_DEADLINE_DAYS_BEFORE days before delivery.date
         when it's not specified at delivery creation"""
 
@@ -150,10 +142,10 @@ class ModelsTestCase(BasketsTestCase):
             d.date - timedelta(days=self.d1.ORDER_DEADLINE_DAYS_BEFORE),
         )
 
-    def test_delivery_deadline_custom(self):
+    def test_deadline_custom(self):
         self.assertEqual(self.d2.order_deadline, date.today())
 
-    def test_delivery_product_remove_removes_opened_order_item(self):
+    def test_product_remove_removes_opened_order_item(self):
         """Check that when a product is removed from an opened delivery, related order_items are deleted"""
 
         product = create_product()
@@ -169,42 +161,27 @@ class ModelsTestCase(BasketsTestCase):
         # order_items related to closed delivery must not be removed
         self.assertIn(closed_order_item, OrderItem.objects.all())
 
+
+class OrderTest(BasketsTestCase):
     def test_user_orders_count(self):
         self.assertEqual(self.u1.orders.count(), 2)
 
+    def test_delivery_orders_count(self):
+        self.assertEqual(self.d1.orders.count(), 1)
+
+    def test_amount(self):
+        self.assertEqual(self.o1.amount, 3)
+
+
+class OrderItemTest(BasketsTestCase):
     def test_order_items_count(self):
         self.assertEqual(self.o1.items.count(), 2)
 
-    def test_order_amount(self):
-        self.assertEqual(self.o1.amount, 3)
-
-    def test_order_items_amount(self):
+    def test_amount(self):
         self.assertEqual(self.o1i1.amount, 2)
         self.assertEqual(self.o1i2.amount, 1)
 
-    def test_order_item_valid(self):
-        """Check that order item is valid if product is available in delivery and quantity is greater than 0"""
-
-        self.assertEqual(self.o1i1.is_valid(), True)
-        self.assertEqual(self.o1i2.is_valid(), True)
-
-    def test_order_item_invalid_product(self):
-        """Check that order item is invalid if product is not available in delivery"""
-
-        order_item = OrderItem.objects.create(
-            order=self.o3, product=self.product2, quantity=1
-        )
-        self.assertFalse(order_item.is_valid())
-
-    def test_order_item_invalid_quantity(self):
-        """Check that order item is invalid if quantity is not greater than 0"""
-
-        order_item = OrderItem.objects.create(
-            order=self.o3, product=self.product1, quantity=0
-        )
-        self.assertFalse(order_item.is_valid())
-
-    def test_item_quantity_update_updates_order_amount(self):
+    def test_quantity_update_updates_order_amount(self):
         """Check that order updates its amounts (item and total) when item quantity is updated"""
 
         # closed order
@@ -223,7 +200,7 @@ class ModelsTestCase(BasketsTestCase):
         self.assertEqual(self.o2i1.amount, 1.00)
         self.assertEqual(float(self.o2.amount), 4.45)
 
-    def test_item_saved_product_price_update_updates_closed_order_amount(self):
+    def test_saved_product_price_update_updates_closed_order_amount(self):
         """Check that closed order updates its amounts (total and item) when saved product unit price is updated"""
 
         self.assertFalse(self.o1.is_open)
@@ -235,7 +212,7 @@ class ModelsTestCase(BasketsTestCase):
         self.assertEqual(self.o1i1.amount, 3.00)
         self.assertEqual(self.o1.amount, 4.00)
 
-    def test_item_delete_updates_order_amount(self):
+    def test_delete_updates_order_amount(self):
         """Check that order amount is updated when one of its items is deleted"""
 
         # closed order

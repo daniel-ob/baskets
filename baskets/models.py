@@ -247,7 +247,6 @@ class OrderItem(models.Model):
             self.order.delete()
 
     def clean(self):
-        """Display error message when saving OrderItemInline if product isn't available on delivery"""
         if (
             hasattr(
                 self.order, "delivery"
@@ -257,9 +256,6 @@ class OrderItem(models.Model):
             raise ValidationError(
                 _("product '{}' not available on this delivery").format(self.product)
             )
-
-    def is_valid(self):
-        return self.product in self.order.delivery.products.all() and self.quantity > 0
 
     def __str__(self):
         return f"{self.order}: {self.quantity} x {self.product_name}"
