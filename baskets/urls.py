@@ -1,20 +1,13 @@
-from django.urls import path, include
+from django.urls import path
 from django.views.i18n import JavaScriptCatalog
-from rest_framework.routers import DefaultRouter
 
 from . import views
 
-router = DefaultRouter()
-router.register(r"deliveries", views.DeliveryViewSet, "delivery")
-router.register(r"orders", views.OrderViewSet, "order")
 
 urlpatterns = [
     path("", views.IndexPageView.as_view(), name="index"),  # 'next orders' page
     path("history/", views.OrderHistoryPageView.as_view(), name="order_history"),
     path("contact/", views.ContactPageView.as_view(), name="contact"),
-
-    # API Routes
-    path("api/v1/", include(router.urls)),
 
     # Staff exports
     path(

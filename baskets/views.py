@@ -8,7 +8,6 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, TemplateView
-from rest_framework import viewsets
 
 from .email import email_staff
 from .export import (
@@ -18,12 +17,6 @@ from .export import (
 )
 from .forms import ContactForm
 from .models import Delivery
-from .serializers import (
-    DeliveryDetailSerializer,
-    DeliverySerializer,
-    OrderDetailSerializer,
-    OrderSerializer,
-)
 
 
 class IndexPageView(LoginRequiredMixin, TemplateView):
@@ -83,36 +76,6 @@ class ContactPageView(SuccessMessageMixin, FormView):
             message=form.cleaned_data["message"],
         )
         return super().form_valid(form)
-
-
-class DeliveryViewSet(viewsets.ReadOnlyModelViewSet):
-    """Opened Deliveries API"""
-
-    serializer_class = DeliverySerializer
-    detail_serializer_class = DeliveryDetailSerializer
-    queryset = Delivery.objects.filter(order_deadline__gte=date.today()).order_by(
-        "date"
-    )
-
-    def get_serializer_class(self):
-        if self.action == "retrieve":
-            return self.detail_serializer_class
-        return super().get_serializer_class()
-
-
-class OrderViewSet(viewsets.ModelViewSet):
-    """User orders API"""
-
-    serializer_class = OrderSerializer
-    detail_serializer_class = OrderDetailSerializer
-
-    def get_queryset(self):
-        return self.request.user.orders.all().order_by("-delivery__date")
-
-    def get_serializer_class(self):
-        if self.action in ["retrieve", "create", "update"]:
-            return self.detail_serializer_class
-        return super().get_serializer_class()
 
 
 def _prepare_excel_http_headers(filename):

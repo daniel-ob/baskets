@@ -54,6 +54,7 @@ INSTALLED_APPS = [
 
     # local
     "accounts",
+    "api",
     "baskets",
 ]
 
