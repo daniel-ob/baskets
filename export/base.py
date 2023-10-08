@@ -6,7 +6,7 @@ from django.db.models.functions import Coalesce
 from django.utils.translation import gettext as _
 from xlsxwriter.workbook import Workbook
 
-from .models import Delivery, Producer
+from baskets.models import Delivery, Producer
 
 
 class InMemoryWorkbook:

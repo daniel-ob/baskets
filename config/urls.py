@@ -26,11 +26,13 @@ urlpatterns = [
 
     # API
     path("api/", include("api.urls")),
-
     # JSON Web Token authentication
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
-    # Local app
+    # Staff exports
+    path("export/", include("export.urls")),
+
+    # Main app
     path("", include("baskets.urls")),
 ]

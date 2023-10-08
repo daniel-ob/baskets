@@ -12,7 +12,9 @@ WORKSHEET_NAME_MAX_LENGTH = 31
 
 class TestDeliveryExport(BasketsTestCase):
     def test_success(self):
-        self.u2.username = "username_with_more_than_31_chars_that_must_be_cut_on_sheet_name"
+        self.u2.username = (
+            "username_with_more_than_31_chars_that_must_be_cut_on_sheet_name"
+        )
         self.u2.save()
 
         d = self.d2
@@ -73,7 +75,9 @@ class TestProducerExport(BasketsTestCase):
     url = reverse_lazy("producer_export")
 
     def test_success(self):
-        self.producer1.name = "A long name with more than 31 chars"  # name must be cut on sheet name
+        self.producer1.name = (
+            "A long name with more than 31 chars"  # name must be cut on sheet name
+        )
         self.producer1.save()
 
         # staff member required for export
@@ -95,9 +99,7 @@ class TestProducerExport(BasketsTestCase):
             (self.producer1, 2),
             (self.producer4, 1),  # inactive producer with 1 inactive product
         ]:
-            sheet = sheets[
-                producer.name[:WORKSHEET_NAME_MAX_LENGTH]
-            ]
+            sheet = sheets[producer.name[:WORKSHEET_NAME_MAX_LENGTH]]
             rows = list(sheet.iter_rows(values_only=True))
             self.assertEqual(
                 len(rows), product_count + 1
