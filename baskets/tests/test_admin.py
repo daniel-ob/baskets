@@ -72,7 +72,7 @@ class TestProducer(TestAdmin):
 
 
 class TestDelivery(TestAdmin):
-    def _check_delivery(self, delivery):
+    def _select_delivery(self, delivery):
         delivery_url = reverse("admin:baskets_delivery_change", args=[delivery.id])
         checkbox = self.driver.find_element(
             By.XPATH, f"//a[@href='{delivery_url}']/../../td/input"
@@ -82,27 +82,21 @@ class TestDelivery(TestAdmin):
     def test_action_email_users(self):
         """Check that action 'mailto_users_from_deliveries' shows a message with a 'mailto' link"""
 
-        delivery1 = create_opened_delivery()
-        order1 = Order.objects.create(user=create_user(), delivery=delivery1)
-        user1 = order1.user
-        delivery2 = create_opened_delivery()
-        order2 = Order.objects.create(user=create_user(), delivery=delivery2)
-        user2 = order2.user
-        delivery3 = create_opened_delivery()
-        order3 = Order.objects.create(user=create_user(), delivery=delivery3)
-        user3 = order3.user
+        deliveries = [create_opened_delivery() for _ in range(3)]
+        orders = [Order.objects.create(user=create_user(), delivery=d) for d in deliveries]
+        users = [o.user for o in orders]
 
         self.driver.get(
             self.live_server_url + reverse("admin:baskets_delivery_changelist")
         )
-        self._check_delivery(delivery1)
-        self._check_delivery(delivery2)
+        self._select_delivery(deliveries[0])
+        self._select_delivery(deliveries[1])
         self._send_action("mailto_users_from_deliveries")
 
         message_html = self.driver.find_element(By.CLASS_NAME, "success").get_attribute(
             "innerHTML"
         )
         self.assertIn('<a href="mailto:', message_html)
-        self.assertIn(user1.email, message_html)
-        self.assertIn(user2.email, message_html)
-        self.assertNotIn(user3.email, message_html)
+        self.assertIn(users[0].email, message_html)
+        self.assertIn(users[1].email, message_html)
+        self.assertNotIn(users[2].email, message_html)

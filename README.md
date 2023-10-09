@@ -14,9 +14,9 @@ Project built using Django, Bootstrap and JavaScript.
 4. [Run using Docker](#run)
 5. [Populate dummy database](#dummy-db)
 6. [Configure SMTP](#smtp)
-6. [Tests run](#tests-run)
-7. [API Reference](#api-ref)
-8. [UI Language](#language)
+7. [Tests run](#tests-run)
+8. [API Reference](#api-ref)
+9. [UI Language](#language)
 
 ## Background and goal <a name="background"></a> 
 
@@ -160,9 +160,9 @@ To run only functional tests:
 
 A Postman collection to test the API can be found [here](baskets_API.postman_collection.json).
 
-### Browseable API
+### Browsable API
 
-If settings.DEBUG is set to True, browseable API provided by REST framework can be visited on [http://127.0.0.1:8000/api/v1/](http://127.0.0.1:8000/api/v1/)
+If settings.DEBUG is set to True, browsable API provided by REST framework can be visited on [http://127.0.0.1:8000/api/v1/](http://127.0.0.1:8000/api/v1/)
 
 ### API Authentication
 
