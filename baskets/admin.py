@@ -42,8 +42,8 @@ class ProducerAdmin(admin.ModelAdmin):
     inlines = [ProductInline]
 
     class Media:
-        css = {"all": ("baskets/css/hide_admin_original.css",)}
-        js = ("baskets/js/admin_add_help_text_to_productinline.js",)
+        css = {"all": ("css/hide_admin_original.css",)}
+        js = ("js/admin_add_help_text_to_productinline.js",)
 
     @admin.display(description="nom")
     def name_html(self, producer):
@@ -141,7 +141,7 @@ class DeliveryAdmin(admin.ModelAdmin):
     actions = [mailto_users_from_deliveries]
 
     class Media:
-        css = {"all": ("baskets/css/hide_admin_original.css",)}
+        css = {"all": ("css/hide_admin_original.css",)}
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -261,7 +261,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInlineOpen, OrderItemInlineClosed]
 
     class Media:
-        css = {"all": ("baskets/css/hide_admin_original.css",)}
+        css = {"all": ("css/hide_admin_original.css",)}
 
     @admin.display(description=_("delivery"), ordering="delivery")
     def delivery_link(self, obj):

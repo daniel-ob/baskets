@@ -3,8 +3,8 @@ __pycache__/
 # Virtual environment
 venv/
 
-# Static files are collected with `collectstatic` command
-static/
+# Prod
+staticfiles/
 
 # PyCharm
 .idea/

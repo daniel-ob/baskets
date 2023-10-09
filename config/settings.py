@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 
-import dj_database_url
 from django.core.validators import RegexValidator
 from environs import Env
 
@@ -142,7 +141,14 @@ FR_PHONE_REGEX = RegexValidator(
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static/")  # for django.contrib.staticfiles
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)  # for local development
+STATIC_ROOT = os.path.join(
+    BASE_DIR, "staticfiles"
+)  # for prod (django.contrib.staticfiles), collected by 'collectstatic' command
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+]
 
 LOGIN_URL = "account_login"
 
