@@ -53,9 +53,7 @@ class TestProducer(TestAdmin):
             self.live_server_url
             + reverse("admin:baskets_producer_change", args=[producer.id])
         )
-        active_checkbox = self.driver.find_element(
-            By.CSS_SELECTOR, "#id_products-0-is_active"
-        )
+        active_checkbox = self.driver.find_element(By.ID, "id_products-0-is_active")
         active_checkbox.click()
         save_button = self.driver.find_element(By.NAME, "_save")
         save_button.click()
@@ -83,7 +81,9 @@ class TestDelivery(TestAdmin):
         """Check that action 'mailto_users_from_deliveries' shows a message with a 'mailto' link"""
 
         deliveries = [create_opened_delivery() for _ in range(3)]
-        orders = [Order.objects.create(user=create_user(), delivery=d) for d in deliveries]
+        orders = [
+            Order.objects.create(user=create_user(), delivery=d) for d in deliveries
+        ]
         users = [o.user for o in orders]
 
         self.driver.get(
@@ -100,3 +100,22 @@ class TestDelivery(TestAdmin):
         self.assertIn(users[0].email, message_html)
         self.assertIn(users[1].email, message_html)
         self.assertNotIn(users[2].email, message_html)
+
+    def test_inactive_products_not_shown(self):
+        delivery = create_opened_delivery()
+        product = create_product()
+        product.is_active = False
+        product.save()
+        create_product()  # another product (active)
+
+        self.driver.get(
+            self.live_server_url
+            + reverse("admin:baskets_delivery_change", args=[delivery.id])
+        )
+        available_products_names = [
+            option.text
+            for option in self.driver.find_elements(
+                By.CSS_SELECTOR, "#id_products_from option"
+            )
+        ]
+        self.assertNotIn(product.name, available_products_names)

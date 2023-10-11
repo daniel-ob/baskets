@@ -85,6 +85,10 @@ class Product(models.Model):
             d.products.remove(self)
 
 
+class InactiveProductException(Exception):
+    pass
+
+
 class Delivery(models.Model):
     ORDER_DEADLINE_DAYS_BEFORE = 4
     ORDER_DEADLINE_HELP_TEXT = _(
@@ -136,7 +140,17 @@ def delivery_product_removed(action, instance, pk_set, **kwargs):
                 oi.delete()
 
 
+def delivery_product_add(action, instance, pk_set, **kwargs):
+    if (
+        action == "pre_add"
+        and instance.is_open
+        and Product.objects.filter(pk__in=pk_set, is_active=False)
+    ):
+        raise InactiveProductException("Can't add inactive product to delivery")
+
+
 m2m_changed.connect(delivery_product_removed, sender=Delivery.products.through)
+m2m_changed.connect(delivery_product_add, sender=Delivery.products.through)
 
 
 class Order(models.Model):

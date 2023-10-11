@@ -2,7 +2,13 @@ from datetime import date, timedelta
 
 from django.db.models import ProtectedError
 
-from baskets.models import Delivery, OrderItem, Product, Producer
+from baskets.models import (
+    Delivery,
+    InactiveProductException,
+    OrderItem,
+    Product,
+    Producer,
+)
 from baskets.tests.common import (
     BasketsTestCase,
     create_producer,
@@ -160,6 +166,15 @@ class DeliveryTest(BasketsTestCase):
         self.assertNotIn(opened_order_item, OrderItem.objects.all())
         # order_items related to closed delivery must not be removed
         self.assertIn(closed_order_item, OrderItem.objects.all())
+
+    def test_cant_add_inactive_product_to_delivery(self):
+        product = create_product()
+        product.is_active = False
+        product.save()
+        delivery = create_opened_delivery()
+
+        with self.assertRaises(InactiveProductException):
+            delivery.products.add(product)
 
 
 class OrderTest(BasketsTestCase):
