@@ -435,3 +435,13 @@ class TestOrderAPI(BasketsTestCase):
             [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
         )
         self.assertIn(self.o1, Order.objects.all())
+
+    def test_delete_deadline_passed(self):
+        user = create_user()
+        closed_order = Order.objects.create(user=user, delivery=create_closed_delivery())
+
+        self.client.force_authenticate(user=user)
+        response = self.client.delete(reverse("order-detail", args=[closed_order.id]))
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn(closed_order, user.orders.all())
