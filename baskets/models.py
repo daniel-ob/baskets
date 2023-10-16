@@ -68,7 +68,7 @@ class Product(models.Model):
 
     def _get_opened_order_items_and_users(self):
         opened_order_items = [
-            oi for oi in OrderItem.objects.filter(product=self) if oi.order.is_open
+            oi for oi in self.order_items.all() if oi.order.is_open
         ]
         user_id_list = list(
             get_user_model()
@@ -239,14 +239,14 @@ class OrderItem(models.Model):
         verbose_name_plural = _("order items")
 
     def save(self, *args, **kwargs):
-        self._update_product_data()
+        self._update_saved_product_data()
         self._update_amount()
         super().save(*args, **kwargs)
         # Recalculate order.amount with this item
         self.order.save()
 
-    def _update_product_data(self):
-        """Product data is updated for opened orders and initialised when creating closed ones (tests or admin)"""
+    def _update_saved_product_data(self):
+        """Saved product data is updated for opened orders and initialised when creating closed ones (tests or admin)"""
         if self.order.is_open or not self.product_unit_price:
             self.product_name = self.product.name
             self.product_unit_price = self.product.unit_price
