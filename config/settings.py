@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 
+import dj_database_url
 from django.core.validators import RegexValidator
 from environs import Env
 
@@ -43,14 +44,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-
     # 3rd party
     "allauth",
     "allauth.account",
     "django_extensions",
     "rest_framework",
     "rest_framework_simplejwt",
-
     # local
     "accounts",
     "api",
@@ -91,8 +90,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Get Database config from env var DATABASE_URL
 # example: DATABASE_URL=postgres://POSTGRES_USER:POSTGRES_PASSWORD@HOST:5432/POSTGRES_DB
 # if using Docker set HOST=baskets-db
-DATABASES = {"default": env.dj_db_url("DATABASE_URL")}
-DATABASES["default"]["TEST"] = {"NAME": "test_baskets"}
+DATABASES = {
+    "default": dj_database_url.config(
+        conn_max_age=600, conn_health_checks=True, test_options={"NAME": "test_baskets"}
+    ),
+}
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 

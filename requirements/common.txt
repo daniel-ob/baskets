@@ -1,5 +1,5 @@
 # Requirements common to all environments
-dj-database-url==1.0.0
+dj-database-url==2.1.0
 Django==3.2.20
 django-allauth==0.54.0
 django-extensions==3.2.1
