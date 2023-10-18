@@ -1,15 +1,16 @@
 from datetime import date
 
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 
-from .serializers import (
-    DeliverySerializer,
-    DeliveryDetailSerializer,
-    OrderSerializer,
-    OrderDetailSerializer,
-)
 from baskets.models import Delivery
+
+from .serializers import (
+    DeliveryDetailSerializer,
+    DeliverySerializer,
+    OrderDetailSerializer,
+    OrderSerializer,
+)
 
 
 class DeliveryViewSet(viewsets.ReadOnlyModelViewSet):

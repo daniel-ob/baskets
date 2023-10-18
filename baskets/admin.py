@@ -2,14 +2,13 @@ from datetime import date
 
 from django.contrib import admin, messages
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Sum, Case, When
+from django.db.models import Case, Count, Sum, When
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-
-from .models import Producer, Product, Delivery, Order, OrderItem
+from .models import Delivery, Order, OrderItem, Producer, Product
 
 User = get_user_model()
 

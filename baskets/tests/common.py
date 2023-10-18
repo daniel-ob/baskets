@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 
-from baskets.models import Producer, Product, Delivery, Order
+from baskets.models import Delivery, Order, Producer, Product
 
 User = get_user_model()
 

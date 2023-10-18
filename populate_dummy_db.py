@@ -1,7 +1,8 @@
-from datetime import timedelta, date
+from datetime import date, timedelta
 
-from baskets.models import Producer, Product, Delivery
 from django.contrib.auth.models import Group
+
+from baskets.models import Delivery, Producer, Product
 
 # Groups
 Group.objects.create(name="Members")

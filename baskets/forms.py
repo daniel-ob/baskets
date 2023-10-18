@@ -1,4 +1,4 @@
-from django.forms import Form, TextInput, EmailField, CharField, Textarea
+from django.forms import CharField, EmailField, Form, Textarea, TextInput
 from django.utils.translation import gettext_lazy as _
 
 

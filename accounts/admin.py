@@ -4,7 +4,6 @@ from django.contrib.postgres.aggregates import StringAgg
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-
 from accounts.models import CustomUser
 
 

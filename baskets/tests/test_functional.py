@@ -2,8 +2,7 @@ from allauth.account.models import EmailAddress
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from baskets.models import Producer, Product, Order
-from baskets.tests.pageobjects import LoginPage
+from baskets.models import Order, Producer, Product
 from baskets.tests.common import (
     SeleniumTestCase,
     create_closed_delivery,
@@ -12,6 +11,7 @@ from baskets.tests.common import (
     create_producer,
     create_product,
 )
+from baskets.tests.pageobjects import LoginPage
 
 
 class FunctionalTestCase(SeleniumTestCase):

@@ -1,7 +1,7 @@
 from io import BytesIO
 
 from django.contrib.auth import get_user_model
-from django.db.models import Sum, Q, DecimalField
+from django.db.models import DecimalField, Q, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext as _
 from xlsxwriter.workbook import Workbook
@@ -43,7 +43,7 @@ def get_order_forms_xlsx(delivery):
     with InMemoryWorkbook() as wb:
         for order in delivery.orders.all():
             worksheet = wb.workbook.add_worksheet(
-                order.user.username[:wb.WORKSHEET_NAME_MAX_LENGTH]
+                order.user.username[: wb.WORKSHEET_NAME_MAX_LENGTH]
             )
 
             # order header
@@ -174,7 +174,7 @@ def get_producer_export_xlsx():
     with InMemoryWorkbook() as wb:
         for producer in Producer.objects.all():
             worksheet = wb.workbook.add_worksheet(
-                producer.name[:wb.WORKSHEET_NAME_MAX_LENGTH]
+                producer.name[: wb.WORKSHEET_NAME_MAX_LENGTH]
             )
             # Write data
             for row_num, (product, value) in enumerate(

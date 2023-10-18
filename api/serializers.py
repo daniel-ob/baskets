@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import empty
 
-from baskets.models import Delivery, Producer, Product, Order, OrderItem
+from baskets.models import Delivery, Order, OrderItem, Producer, Product
 
 
 class ProductSerializer(serializers.ModelSerializer):

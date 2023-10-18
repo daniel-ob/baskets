@@ -7,11 +7,11 @@ from django.urls import reverse, reverse_lazy
 from openpyxl import load_workbook
 
 from baskets.tests.common import (
-    create_user,
     create_closed_delivery,
     create_order_item,
     create_producer,
     create_product,
+    create_user,
 )
 
 WORKSHEET_NAME_MAX_LENGTH = 31

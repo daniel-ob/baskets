@@ -5,7 +5,7 @@ from django.urls import reverse, reverse_lazy
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from baskets.models import Order, OrderItem, Product, Delivery, Producer
+from baskets.models import Delivery, Order, OrderItem, Producer, Product
 from baskets.tests.common import (
     create_closed_delivery,
     create_opened_delivery,

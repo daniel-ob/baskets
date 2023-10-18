@@ -3,14 +3,14 @@ from django.urls import reverse
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 
-from baskets.models import OrderItem, Order
+from baskets.models import Order, OrderItem
 from baskets.tests.common import (
     SeleniumTestCase,
+    create_closed_delivery,
+    create_opened_delivery,
+    create_order_item,
     create_producer,
     create_product,
-    create_order_item,
-    create_opened_delivery,
-    create_closed_delivery,
     create_user,
 )
 

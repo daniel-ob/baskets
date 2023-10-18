@@ -67,9 +67,7 @@ class Product(models.Model):
         return user_id_list
 
     def _get_opened_order_items_and_users(self):
-        opened_order_items = [
-            oi for oi in self.order_items.all() if oi.order.is_open
-        ]
+        opened_order_items = [oi for oi in self.order_items.all() if oi.order.is_open]
         user_id_list = list(
             get_user_model()
             .objects.filter(orders__items__in=opened_order_items)

@@ -1,8 +1,8 @@
 from allauth.account.forms import (
-    SignupForm,
     LoginForm,
     ResetPasswordForm,
     ResetPasswordKeyForm,
+    SignupForm,
 )
 from django.forms import ModelForm
 
