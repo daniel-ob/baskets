@@ -1,15 +1,13 @@
 import random
 import string
 from datetime import date, timedelta
+from decimal import Decimal
 
-from allauth.account.models import EmailAddress
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.test import Client, TestCase
-from rest_framework.test import APIClient
 from selenium import webdriver
 
-from baskets.models import Producer, Product, Delivery, Order, OrderItem
+from baskets.models import Producer, Product, Delivery, Order
 
 User = get_user_model()
 
@@ -18,6 +16,15 @@ def get_random_string():
     LENGTH = 10
     letters = string.ascii_lowercase
     return "".join(random.choice(letters) for _ in range(LENGTH))
+
+
+def create_user(is_staff=False):
+    username = f"test_user_{get_random_string()}"
+    return User.objects.create(
+        username=username,
+        email=f"{username}@baskets.com",
+        is_staff=is_staff,
+    )
 
 
 def create_producer():
@@ -29,7 +36,9 @@ def create_product(producer=None):
     if not producer:
         producer = create_producer()
     product = Product.objects.create(
-        producer=producer, name=get_random_string(), unit_price=0.50
+        producer=producer,
+        name=get_random_string(),
+        unit_price=Decimal(random.randint(0, 10000)) / 100,
     )
     assert Product.objects.count() == initial_products_count + 1
     assert product.is_active
@@ -38,17 +47,19 @@ def create_product(producer=None):
 
 def create_opened_delivery(products=None):
     today = date.today()
+    existing_deliveries_count = Delivery.objects.count()
     delivery = Delivery.objects.create(
         date=today
         + timedelta(
-            days=Delivery.objects.count()
+            days=existing_deliveries_count
         ),  # can't have more than one delivery per day
         order_deadline=today,
-        message="opened delivery",
+        message=f"opened delivery {existing_deliveries_count + 1}",
     )
     assert delivery.is_open
-    if products:
-        delivery.products.set(products)
+    if not products:
+        products = [create_product()]
+    delivery.products.set(products)
     return delivery
 
 
@@ -61,123 +72,21 @@ def create_closed_delivery(products=None):
         message="closed delivery",
     )
     assert not delivery.is_open
-    if products:
-        delivery.products.set(products)
+    if not products:
+        products = [create_product()]
+    delivery.products.set(products)
     return delivery
 
 
-def create_order_item(delivery, product):
-    order = Order.objects.create(user=create_user(), delivery=delivery)
-    order_item = order.items.create(product=product, quantity=4)
+def create_order_item(delivery, product=None, user=None):
+    if not product:
+        product = delivery.products.first()
+    if not user:
+        user = create_user()
+    order = Order.objects.create(user=user, delivery=delivery)
+    order_item = order.items.create(product=product, quantity=random.randint(1, 9))
     assert order.items.count() == 1
     return order_item
-
-
-def create_user():
-    username = f"test_user_{get_random_string()}"
-    return User.objects.create(username=username, email=f"{username}@baskets.com")
-
-
-class BasketsTestCase(TestCase):
-    def setUp(self):
-        """Define initial data for every Baskets test"""
-
-        # Create users
-        self.u1 = User.objects.create_user(
-            username="user1",
-            first_name="test",
-            last_name="user",
-            email="user1@baskets.com",
-            phone="0123456789",
-            address="my street, my city",
-            password="secret",
-        )
-        EmailAddress.objects.create(
-            user=self.u1, email=self.u1.email, verified=True
-        )  # verify user email address, so he can directly log in on test_functional
-        self.u2 = User.objects.create(username="user2")
-
-        # Create producers
-        self.producer1 = Producer.objects.create(name="producer1")
-        self.producer2 = Producer.objects.create(name="producer2")
-        self.producer3 = Producer.objects.create(
-            name="producer3"
-        )  # not present in deliveries
-        self.producer4 = Producer.objects.create(
-            name="inactive producer", is_active=False
-        )
-
-        # Create products
-        self.product1 = Product.objects.create(
-            producer=self.producer1, name="product1", unit_price=0.50
-        )
-        self.product2 = Product.objects.create(
-            producer=self.producer1, name="product2", unit_price=1.00
-        )
-        self.product3 = Product.objects.create(
-            producer=self.producer2, name="product3", unit_price=1.15
-        )
-        self.product4 = Product.objects.create(
-            producer=self.producer3, name="product4", unit_price=15.30
-        )
-        self.product5 = Product.objects.create(
-            producer=self.producer4,
-            name="inactive product",
-            unit_price=5.10,
-            is_active=False,
-        )
-
-        # Create deliveries
-        today = date.today()
-        tomorrow = today + timedelta(days=1)
-        after_tomorrow = today + timedelta(days=2)
-        yesterday = today - timedelta(days=1)
-        # closed delivery
-        self.d1 = Delivery.objects.create(
-            date=today, order_deadline=yesterday, message="delivery 1"
-        )
-        self.d1.products.set([self.product1, self.product2])
-        # opened deliveries
-        self.d2 = Delivery.objects.create(
-            date=tomorrow, order_deadline=today, message="delivery 2"
-        )
-        self.d2.products.set([self.product1, self.product3])
-        self.d3 = Delivery.objects.create(
-            date=after_tomorrow, order_deadline=tomorrow, message="delivery 3"
-        )
-        self.d3.products.set([self.product1, self.product2, self.product3])
-
-        # Create orders
-        self.o1 = Order.objects.create(
-            user=self.u1, delivery=self.d1, message="order 1"
-        )  # closed, 3.00
-        self.o2 = Order.objects.create(
-            user=self.u1, delivery=self.d2, message="order 2"
-        )  # opened, 3.95
-        self.o3 = Order.objects.create(
-            user=self.u2, delivery=self.d2, message="order 3"
-        )  # opened, 1.00
-
-        # Create order items
-        self.o1i1 = OrderItem.objects.create(
-            order=self.o1, product=self.product1, quantity=4
-        )  # 2.00
-        self.o1i2 = OrderItem.objects.create(
-            order=self.o1, product=self.product2, quantity=1
-        )  # 1.00
-        self.o2i1 = OrderItem.objects.create(
-            order=self.o2, product=self.product1, quantity=1
-        )  # 0.50
-        self.o2i2 = OrderItem.objects.create(
-            order=self.o2, product=self.product3, quantity=3
-        )  # 3.45
-        self.o3i1 = OrderItem.objects.create(
-            order=self.o3, product=self.product1, quantity=2
-        )  # 1.00
-
-        # Create test clients
-        self.c = Client()
-        self.api_c = APIClient()
 
 
 class SeleniumTestCase(StaticLiveServerTestCase):

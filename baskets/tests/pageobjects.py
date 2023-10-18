@@ -50,7 +50,7 @@ class LoginPage(BasePage):
 
     url = reverse("account_login")
 
-    def set_email(self, email):
+    def set_login(self, email):
         self.fill_form_by_name("login", email)
 
     def set_password(self, password):
@@ -87,9 +87,8 @@ class OrdersPage(BasePage):
 
     url = reverse("index")
 
-    def get_orders_count(self):
-        orders = self.driver.find_elements(*self.ORDERS)
-        return len(orders)
+    def get_deliveries_count(self):
+        return len(self.driver.find_elements(*self.DELIVERIES))
 
     def get_order_url(self, index):
         order = self.driver.find_elements(*self.ORDERS)[index]
@@ -107,6 +106,12 @@ class OrdersPage(BasePage):
     def get_delivery_date(self, index):
         delivery = self.driver.find_elements(*self.DELIVERIES)[index]
         return delivery.text
+
+    def get_delivery_id(self, index):
+        delivery = self.driver.find_elements(*self.DELIVERIES)[index]
+        url = delivery.get_attribute("data-url")
+        # urls are like "/api/v1/deliveries/1/"
+        return int(url.split("/")[-2])
 
     def open_order(self, index):
         order = self.driver.find_elements(*self.ORDERS)[index]
@@ -150,12 +155,18 @@ class OrdersPage(BasePage):
             container = self.driver.find_elements(*self.PRODUCERS)[producer_index]
         return container
 
+    def get_item_id(self, index, producer_index=None):
+        container = self._get_container(producer_index)
+        item = container.find_elements(*self.ITEMS)[index]
+        return int(item.get_attribute("data-productid"))
+
     def get_item_name(self, index, producer_index=None):
         container = self._get_container(producer_index)
         return container.find_elements(*self.ITEM_NAMES)[index].text
 
-    def get_item_unit_price(self, index):
-        return Decimal(self.driver.find_elements(*self.ITEM_UNIT_PRICES)[index].text)
+    def get_item_unit_price(self, index, producer_index=None):
+        container = self._get_container(producer_index)
+        return Decimal(container.find_elements(*self.ITEM_UNIT_PRICES)[index].text)
 
     def get_item_quantity(self, index, producer_index=None):
         container = self._get_container(producer_index)

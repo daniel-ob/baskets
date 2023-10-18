@@ -17,20 +17,12 @@ from baskets.tests.common import (
 
 class TestAdmin(SeleniumTestCase):
     def setUp(self):
-        super().setUp()
-
         # Admin login
         self.superuser = get_user_model().objects.create_superuser(username="admin")
         self.client.force_login(self.superuser)
         cookie = self.client.cookies["sessionid"]
         self.driver.get(self.live_server_url + reverse("admin:login"))
         self.driver.add_cookie({"name": "sessionid", "value": cookie.value})
-
-    def _send_action(self, value):
-        action_select = Select(self.driver.find_element(By.TAG_NAME, "select"))
-        action_select.select_by_value(value)
-        send_button = self.driver.find_element(By.CLASS_NAME, "button")
-        send_button.click()
 
 
 class TestProducer(TestAdmin):
@@ -76,6 +68,12 @@ class TestDelivery(TestAdmin):
             By.XPATH, f"//a[@href='{delivery_url}']/../../td/input"
         )
         checkbox.click()
+
+    def _send_action(self, value):
+        action_select = Select(self.driver.find_element(By.TAG_NAME, "select"))
+        action_select.select_by_value(value)
+        send_button = self.driver.find_element(By.CLASS_NAME, "button")
+        send_button.click()
 
     def test_action_email_users(self):
         """Check that action 'mailto_users_from_deliveries' shows a message with a 'mailto' link"""
