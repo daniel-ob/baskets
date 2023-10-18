@@ -1,5 +1,7 @@
 # Baskets
 
+![coverage_badge](coverage.svg)
+
 A website to manage orders for local food baskets.
 
 Project built using Django, Bootstrap and JavaScript.
