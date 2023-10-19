@@ -59,22 +59,24 @@ class Product(models.Model):
         if self.is_active and not self.producer.is_active:
             self.producer.is_active = True
             self.producer.save()
-        opened_order_items, user_id_list = self._get_opened_order_items_and_users()
-        for oi in opened_order_items:
+        opened_order_items_list, user_id_list = self._get_opened_order_items_and_users()
+        for oi in opened_order_items_list:
             oi.save()
         if not self.is_active:
             self._delete_from_opened_deliveries()
         return user_id_list
 
     def _get_opened_order_items_and_users(self):
-        opened_order_items = [oi for oi in self.order_items.all() if oi.order.is_open]
+        opened_order_items_list = [
+            oi for oi in self.order_items.all() if oi.order.is_open
+        ]
         user_id_list = list(
             get_user_model()
-            .objects.filter(orders__items__in=opened_order_items)
+            .objects.filter(orders__items__in=opened_order_items_list)
             .distinct()
             .values_list("id", flat=True)
         )  # use list(id) because User QuerySet would be empty when order_items are deleted
-        return opened_order_items, user_id_list
+        return opened_order_items_list, user_id_list
 
     def _delete_from_opened_deliveries(self):
         for d in Delivery.objects.filter(
@@ -129,13 +131,10 @@ class Delivery(models.Model):
 
 
 def delivery_product_removed(action, instance, pk_set, **kwargs):
-    """When a product is removed from an opened delivery, remove related order_items"""
     if action == "post_remove" and instance.is_open:
-        if order_items := OrderItem.objects.filter(
+        OrderItem.objects.filter(
             product__id__in=pk_set, order__delivery=instance
-        ):
-            for oi in order_items:
-                oi.delete()
+        ).delete()
 
 
 def delivery_product_add(action, instance, pk_set, **kwargs):
@@ -244,7 +243,8 @@ class OrderItem(models.Model):
         self.order.save()
 
     def _update_saved_product_data(self):
-        """Saved product data is updated for opened orders and initialised when creating closed ones (tests or admin)"""
+        """Saved product data is updated for opened orders and initialized when creating closed ones (tests or admin)"""
+
         if self.order.is_open or not self.product_unit_price:
             self.product_name = self.product.name
             self.product_unit_price = self.product.unit_price

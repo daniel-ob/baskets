@@ -60,13 +60,8 @@ class ProducerAdmin(admin.ModelAdmin):
         for product in products_new_or_updated:
             try:
                 product_from_db = Product.objects.get(pk=product.id)
-                previous_price = product_from_db.unit_price
-                previous_is_active = product_from_db.is_active
-                user_id_list = (
-                    product.save()
-                )  # update product in DB and related opened order items
-                if user_id_list:
-                    if previous_is_active and not product.is_active:
+                if user_id_list := (product.save()):
+                    if product_from_db.is_active and not product.is_active:
                         show_message_email_users(
                             request,
                             _(
@@ -74,7 +69,7 @@ class ProducerAdmin(admin.ModelAdmin):
                             ).format(product),
                             user_id_list,
                         )
-                    if product.unit_price != previous_price and user_id_list:
+                    if product.unit_price != product_from_db.unit_price:
                         show_message_email_users(
                             request,
                             _("Product '{}' has been updated on opened orders.").format(
