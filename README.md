@@ -24,7 +24,7 @@ Project built using Django, Bootstrap and JavaScript.
 
 This project has been developed to meet a real need for a local association.
 
-The aforementioned association centralises orders for several local food producers.
+The aforementioned association centralizes orders for several local food producers.
 Thus, food baskets are delivered regularly to users.
 
 Before the deployment of this application, administrators got orders from users via SMS or email.
@@ -37,43 +37,59 @@ Payments are managed outside this application.
 
 ### User interface
 
-- **Login** page: Not logged users will be redirected to "Login" page. Where they can log in using their email and password.
-- **Register** page: Users can create an account by entering their personal information and setting a password.
+- **Sign In** page: 
+  - User account creation entering personal information and setting a password.
   - Passwords are validated to prevent weak passwords.
-  - A verification email is sent to user. Only users with verified email can log in.
-- **Next Orders** page: shows the list of deliveries for which we can still order, in chronological order.
-  - Clicking on each delivery opens a frame below showing delivery details: date when baskets will be delivered, last day to order and available products arranged by producer.
+  - A verification email is sent to user with a link to a page allowing them to confirm their email address.
+- **Sign Up** page: 
+  - Users with verified email can log in using their email and password.
+- **Next Orders** page:
+  - Shows the list of deliveries for which we can still order, in chronological order.
+  - Clicking on each delivery opens a frame below showing delivery details: delivery date, last day to order and available products arranged by producer.
   - User can create one order per delivery.
   - Orders can be updated or deleted until their deadline.
-- **Order history** page: shows a list of user's closed orders in reverse chronological order. Clicking on each order will open its details below.
+- **Order history** page: 
+  - Shows a list of user's closed orders in reverse chronological order. 
+  - Clicking on each order will open its details below.
 - **Password reset**:
-  - In "Login" page, a link allows users to request password reset entering their email address. 
+  - In "Login" page, a link allows users to request password reset entering their email address.
   - If an account exists for that email address, an email is sent with a link to a page allowing to set a new password.
-- **Profile** page: clicking on username loads a page where user can view and update its profile information.
-- **Contact us** page: a link on page footer loads a page with a contact form. The message will be sent to all staff members.
+- **Profile** page:
+  - Clicking on username loads a page where users can view and update its profile information.
+- **Contact us** page: 
+  - A link on footer loads a page with a contact form. The message will be sent to all staff members.
 
 All functionalities except "contact" requires authentication.
 
 ### Admin interface
 
-- **Users** page allows activating/deactivating user accounts and setting user groups.
-- **Groups** page allows sending an email to all users in each group via a link.
-- **Producers** page allows to: 
+Users with both "staff" and "superuser" status can access **admin interface**.
+
+- **Users** page:
+  - Manage each user account: activate/deactivate, set user groups and set `staff` status.  
+- **Groups** page:
+  - Manage groups. 
+  - Email all group users via a link.
+- **Producers** page: 
   - Manage producers and its products (name and unit price).
-  - Export .xlsx file containing recap of monthly quantities ordered for each product (one sheet per producer)
-  - If a product is deleted or its unit price changes, related opened orders will be updated and a message will be shown to email affected users.
-  - Whole producer or single products can be **deactivated**, so it won't be available for deliveries. Also, related opened orders will be removed and a message will be shown to email affected users.
-- **Deliveries** page allows to:
-  - Set each delivery date, order deadline and available products.
+  - **Deactivate** whole producer or single product:
+    - Deactivated products won't be available for deliveries. 
+    - If a product with related opened order items is deactivated, those items will be removed and a message will be shown to email affected users.
+  - Export .xlsx file containing recap of monthly quantities ordered for each product (one sheet per producer).
+  - If a product has related opened order items and its unit price changes, related opened orders will be updated and a message will be shown to email affected users.
+- **Deliveries** page:
+  - Create/update deliveries, setting its date, order deadline, available products and optional message.
     - If "order deadline" is left blank, it will be set to `ORDER_DEADLINE_DAYS_BEFORE` before delivery date.
-  - View **total ordered quantity** for each product to notify producers. A link allows to see all related Order Items.
-  - In "Deliveries list" page:
-    - View "orders count", which links to related orders.
-    - **Export related order forms**: Once a delivery deadline is passed, a link will be shown to download delivery order forms in *xlsx* format. The file will contain one sheet per order including user information and order items.
-    - Email users having ordered for selected deliveries.
+  - View **total ordered quantity** for each product to notify producers. A link allows seeing all related Order Items.
   - If a product is removed from an opened delivery, related opened orders will be updated and a message will be shown to email affected users.
-- **Orders** page allows to:
-  - View and update user orders.
+  - In "Deliveries list" page:
+    - View "number of orders" for each delivery, which links to related orders.
+    - **Export order forms**: 
+      - Once a delivery deadline is passed, a link will be shown to download delivery order forms in *xlsx* format. 
+      - The file will contain one sheet per order including user information and order details.
+    - Action to email users having ordered for selected deliveries.
+- **Orders** page:
+  - View user orders and, if necessary, create and update them.
   - In "Orders list" page: 
     - Export .xlsx file containing recap of monthly order amounts per user.
     - If one or several orders are deleted, a message will be shown to email affected users.
@@ -86,13 +102,13 @@ All functionalities except "contact" requires authentication.
 
 ## Dependencies <a name="dependencies"></a>
 
-In addition to **Django**, the following libraries has been used:
+In addition to **Django**, the following libraries have been used:
 
-- **Django-allauth**: to manage user login, register and password reset
-- **Django-REST-Framework**: to build the API
-- **XlsxWriter**: to create xlsx files in `baskets/export.py`
-- **OpenPyxl**: to test file exports in `baskets/tests/test_exports.py`
-- **Selenium**: to do browser end-to-end testing in `baskets/tests/test_functional.py`
+- **Django-allauth**: to manage user login, register and password reset in [accounts](accounts)
+- **Django REST Framework**: to build the [API](api)
+- **XlsxWriter**: to create xlsx files in [export](export)
+- **OpenPyXL**: to test file exports in [export/tests.py](export/tests.py)
+- **Selenium**: to do browser end-to-end testing in [baskets/tests/test_functional.py](baskets/tests/test_functional.py)
 
 Required versions can be seen in [requirements](requirements) (pip) or [Pipfile](Pipfile) (pipenv).
 
@@ -139,7 +155,7 @@ EMAIL_USE_TLS=
 
 ## Tests run <a name="tests-run"></a>
 
-Be sure you have ChromeDriver installed in order to run Selenium tests. 
+Be sure you have ChromeDriver installed to run Selenium tests. 
 
 First launch `db` container:
 
@@ -164,7 +180,7 @@ A Postman collection to test the API can be found [here](baskets_API.postman_col
 
 ### Browsable API
 
-If settings.DEBUG is set to True, browsable API provided by REST framework can be visited on [http://127.0.0.1:8000/api/v1/](http://127.0.0.1:8000/api/v1/)
+If `settings.DEBUG` is set to True, browsable API provided by REST framework can be visited on [http://127.0.0.1:8000/api/v1/](http://127.0.0.1:8000/api/v1/)
 
 ### API Authentication
 
@@ -325,11 +341,9 @@ POST /api/v1/orders/
 
 Request must follow this rules:
 
-- delivery must be opened for orders (`delivery.is_open == true`)
+- delivery `order_deadline` must not be passed
 - a user can only post an order per delivery
-- order must contain at least one item
 - all item products must be available in `delivery.products`
-- all item quantities must be greater than zero
 
 **Response**
 ```
@@ -357,11 +371,6 @@ PUT /api/v1/orders/{order_id}/
     ]
 }
 ```
-
-Updated items must follow this rules:
-
-- all item products must be available in `delivery.products`
-- all item quantities must be greater than zero
 
 **Response**
 
@@ -393,7 +402,7 @@ In addition to default language (English), French translation is available and c
   
     LANGUAGE_CODE = "fr"
 
-Server must be restarted to apply changes.
+The server must be restarted to apply changes.
 
 ### Adding new translations 
 
