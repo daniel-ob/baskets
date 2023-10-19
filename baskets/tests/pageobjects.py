@@ -129,8 +129,11 @@ class OrdersPage(BasePage):
 
     def open_all_producers(self):
         producers = self.driver.find_elements(*self.PRODUCERS)
-        for producer in producers:
+        wait = WebDriverWait(self.driver, self.MAX_WAIT_SECONDS)
+        for idx, producer in enumerate(producers):
             producer.click()
+            collapse_div = self.driver.find_element(By.ID, f"collapse{idx}")
+            wait.until(ec.visibility_of(collapse_div))
 
     def get_producer_name(self, producer_index):
         return self.driver.find_elements(*self.PRODUCER_NAMES)[producer_index].text
